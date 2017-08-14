@@ -1,18 +1,17 @@
 package com.tianbao.buy.core;
 
 import com.alibaba.fastjson.JSON;
-import lombok.Setter;
+import lombok.Getter;
 
 /**
  * 统一API响应结果封装
  */
-@Setter
+@Getter
 public class Result {
     private int code;
     private String message;
     private Object data;
 
-    /* 这里都是返回的this，链式调用，lombok搞不定 */
     public Result setCode(ResultCode resultCode) {
         this.code = resultCode.code;
         return this;
