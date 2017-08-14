@@ -1,4 +1,4 @@
-package com.company.project.core;
+package com.tianbao.buy.core;
 
 /**
  * 响应结果生成工具

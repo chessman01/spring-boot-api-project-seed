@@ -36,6 +36,12 @@
             <scope>test</scope>
         </dependency>
         <!--常用库依赖-->
+        <!-- Lombok - Make Java look less redundant -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.16.18</version>
+        </dependency>
         <dependency>
             <groupId>commons-codec</groupId>
             <artifactId>commons-codec</artifactId>
