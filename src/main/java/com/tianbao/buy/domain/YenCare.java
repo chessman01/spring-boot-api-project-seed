@@ -46,7 +46,7 @@ public class YenCare {
      * 折扣率（实际使用要除100）
      */
     @Column(name = "discount_rate")
-    private Byte discountRate;
+    private Integer discountRate;
 
     /**
      * 类型。1：普通；2：情侣
@@ -171,7 +171,7 @@ public class YenCare {
      *
      * @return discount_rate - 折扣率（实际使用要除100）
      */
-    public Byte getDiscountRate() {
+    public Integer getDiscountRate() {
         return discountRate;
     }
 
@@ -180,7 +180,7 @@ public class YenCare {
      *
      * @param discountRate 折扣率（实际使用要除100）
      */
-    public void setDiscountRate(Byte discountRate) {
+    public void setDiscountRate(Integer discountRate) {
         this.discountRate = discountRate;
     }
 

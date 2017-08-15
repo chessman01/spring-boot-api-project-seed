@@ -34,7 +34,7 @@ public class YenCareServiceImpl implements YenCareService{
         Condition condition = new Condition(User.class);
         condition.orderBy("createTime");
 
-        condition.createCriteria().andCondition("user_id", userId).andCondition("status", 1);
+        condition.createCriteria().andCondition("user_id=", userId).andCondition("status=", 1);
 
         List<YenCare> doList = yenCareManager.findByCondition(condition);
 
@@ -50,12 +50,12 @@ public class YenCareServiceImpl implements YenCareService{
             numberFormat.setGroupingUsed(false);
             numberFormat.setMaximumFractionDigits(2);
 
-            String gift = numberFormat.format(yenCare.getGiftAccount() / 100);
-            String cash = numberFormat.format(yenCare.getCashAccount() / 100);
-            String total = numberFormat.format(yenCare.getGiftAccount() + yenCare.getCashAccount() / 100);
+            String gift = numberFormat.format(yenCare.getGiftAccount() / 100f);
+            String cash = numberFormat.format(yenCare.getCashAccount() / 100f);
+            String total = numberFormat.format((yenCare.getGiftAccount() + yenCare.getCashAccount()) / 100f);
 
             numberFormat.setMaximumFractionDigits(1);
-            String discount = numberFormat.format(yenCare.getDiscountRate() / 10);
+            String discount = String.format("消费立打%s折", numberFormat.format(yenCare.getDiscountRate() / 10f));
 
             YenCareVO vo = new YenCareVO(yenCare.getId(),"http://gw.alicdn.com/tps/TB1LNMxPXXXXXbhaXXXXXXXXXXX-183-129.png",
                     gift, cash, total,
