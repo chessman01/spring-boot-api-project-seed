@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 public class CouponVO {
     private Long id;
 
-    private Integer price;
+    private String price;
 
     private String sourceDesc;
 
@@ -21,7 +21,7 @@ public class CouponVO {
 
     private Byte rule;
 
-    private Integer rulePrice;
+    private String rulePrice;
 
     private Byte payType;
 

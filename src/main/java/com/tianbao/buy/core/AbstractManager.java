@@ -57,7 +57,7 @@ public abstract class AbstractManager<T> implements Manager<T> {
             field.set(model, value);
             return mapper.selectOne(model);
         } catch (ReflectiveOperationException e) {
-            throw new ManagerException(e.getMessage(), e);
+            throw new BizException(e.getMessage(), e);
         }
     }
 

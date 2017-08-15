@@ -2,9 +2,10 @@ package com.tianbao.buy.configurer;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.SerializerFeature;
+import com.alibaba.fastjson.serializer.ValueFilter;
 import com.alibaba.fastjson.support.config.FastJsonConfig;
 import com.alibaba.fastjson.support.spring.FastJsonHttpMessageConverter4;
-import com.tianbao.buy.core.ManagerException;
+import com.tianbao.buy.core.BizException;
 import com.tianbao.buy.core.Result;
 import com.tianbao.buy.core.ResultCode;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -62,7 +63,7 @@ public class WebMvcConfigurer extends WebMvcConfigurerAdapter {
         exceptionResolvers.add(new HandlerExceptionResolver() {
             public ModelAndView resolveException(HttpServletRequest request, HttpServletResponse response, Object handler, Exception e) {
                 Result result = new Result();
-                if (e instanceof ManagerException) {//业务失败的异常，如“账号或密码错误”
+                if (e instanceof BizException) {//业务失败的异常，如“账号或密码错误”
                     result.setCode(ResultCode.FAIL).setMessage(e.getMessage());
                     logger.info(e.getMessage());
                 } else if (e instanceof NoHandlerFoundException) {
@@ -123,12 +124,21 @@ public class WebMvcConfigurer extends WebMvcConfigurerAdapter {
         }
     }
 
+    private ValueFilter filter = new ValueFilter() {
+        @Override
+        public Object process(Object obj, String s, Object v) {
+            if(v == "")
+                return null;
+            return v;
+        }
+    };
+
     private void responseResult(HttpServletResponse response, Result result) {
         response.setCharacterEncoding("UTF-8");
         response.setHeader("Content-type", "application/json;charset=UTF-8");
         response.setStatus(200);
         try {
-            response.getWriter().write(JSON.toJSONString(result));
+            response.getWriter().write(JSON.toJSONString(result, filter));
         } catch (IOException ex) {
             logger.error(ex.getMessage());
         }

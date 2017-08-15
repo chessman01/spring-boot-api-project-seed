@@ -3,15 +3,15 @@ package com.tianbao.buy.core;
 /**
  * 服务（业务）异常如“ 账号或密码错误 ”，该异常只做INFO级别的日志记录 @see WebMvcConfigurer
  */
-public class ManagerException extends RuntimeException {
-    public ManagerException() {
+public class BizException extends RuntimeException {
+    public BizException() {
     }
 
-    public ManagerException(String message) {
+    public BizException(String message) {
         super(message);
     }
 
-    public ManagerException(String message, Throwable cause) {
+    public BizException(String message, Throwable cause) {
         super(message, cause);
     }
 }
