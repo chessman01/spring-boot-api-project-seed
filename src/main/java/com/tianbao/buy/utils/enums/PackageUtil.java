@@ -1,6 +1,5 @@
 package com.tianbao.buy.utils.enums;
 
-
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -34,7 +33,7 @@ public class PackageUtil {
      */
     private static List<String> getClassName(String packageName) {
         //根据报名获取该package的系统路径
-        String filePath = ClassLoader.getSystemResource("").getPath() + packageName.replace(".", "\\");
+        String filePath = ClassLoader.getSystemResource("").getPath() + packageName.replace(".", File.separator);
         // filePath: /D:/workspace-git/springbootlearning/target/classes/com\example\myFirstProject\enums
         List<String> fileNames = getClassName(filePath, null);
         return fileNames;
@@ -57,8 +56,8 @@ public class PackageUtil {
             } else {
                 String childFilePath = childFile.getPath();
                 //childFilePath:  D:\workspace-git\springbootlearning\target\classes\com\example\myFirstProject\enums\SexEnum.class
-                childFilePath = childFilePath.substring(childFilePath.indexOf("\\classes") + 9, childFilePath.lastIndexOf("."));
-                childFilePath = childFilePath.replace("\\", ".");
+                childFilePath = childFilePath.substring(childFilePath.indexOf(File.separator + "classes") + 9, childFilePath.lastIndexOf("."));
+                childFilePath = childFilePath.replace(File.separator, ".");
                 myClassName.add(childFilePath);
             }
         }

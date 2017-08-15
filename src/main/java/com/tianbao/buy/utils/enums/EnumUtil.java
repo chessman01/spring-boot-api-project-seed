@@ -9,5 +9,4 @@ public class EnumUtil {
     public static <T extends EnumMessage>  T getEnumObject(Object value, Class<T> clazz){
         return (T) Constant.ENUM_MAP.get(clazz).get(value);
     }
-
 }

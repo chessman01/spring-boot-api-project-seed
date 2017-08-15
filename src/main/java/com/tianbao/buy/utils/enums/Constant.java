@@ -15,7 +15,7 @@ public class Constant {
     /**
      * 枚举接口类全路径
      */
-    public final static String ENUM_MESSAGE_PATH = "com.example.myFirstProject.service.EnumMessage";
+    public final static String ENUM_MESSAGE_PATH = "com.tianbao.buy.utils.enums.EnumMessage";
 
     /**
      * 枚举类对应的全路径集合
@@ -34,13 +34,14 @@ public class Constant {
 
     private static List<String> initPackagePathList() {
         List<String> list = new ArrayList<>();
-        list.add("com.example.myFirstProject.enums");
+//        list.add("com.tianbao.buy.utils.enums");
+        list.add("com.tianbao.buy.vo");
         return list;
     }
 
     static {
         System.out.println("类被加载时，先初始化各个静态变量，再执行static块。" +
-                "所以不能在这里执行pathList的add操作(\"com.example.myFirstProject.enums\")。");
+                "所以不能在这里执行pathList的add操作(\"com.tianbao.buy.utils.enums\")。");
     }
     /**
      * 加载所有枚举对象数据
@@ -71,7 +72,7 @@ public class Constant {
 
             }
         } catch (Exception e) {
-
+            System.out.println(e);
         }
         return ENUM_MAP;
     }
