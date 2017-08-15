@@ -1,4 +1,4 @@
-package ${basePackage}.Manager;
+package ${basePackage}.manager;
 
 import ${basePackage}.domain.${modelNameUpperCamel};
 import ${basePackage}.core.Manager;
