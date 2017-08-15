@@ -30,7 +30,7 @@ public class ${modelNameUpperCamel}Rpc {
     }
 
     @PostMapping("/delete")
-    public Result delete(@RequestParam Integer id) {
+    public Result delete(@RequestParam Long id) {
         ${modelNameLowerCamel}Manager.deleteById(id);
         return ResultGenerator.genSuccessResult();
     }
@@ -42,7 +42,7 @@ public class ${modelNameUpperCamel}Rpc {
     }
 
     @PostMapping("/detail")
-    public Result detail(@RequestParam Integer id) {
+    public Result detail(@RequestParam Long id) {
         ${modelNameUpperCamel} ${modelNameLowerCamel} = ${modelNameLowerCamel}Manager.findById(id);
         return ResultGenerator.genSuccessResult(${modelNameLowerCamel});
     }
