@@ -124,21 +124,12 @@ public class WebMvcConfigurer extends WebMvcConfigurerAdapter {
         }
     }
 
-    private ValueFilter filter = new ValueFilter() {
-        @Override
-        public Object process(Object obj, String s, Object v) {
-            if(v == "")
-                return null;
-            return v;
-        }
-    };
-
     private void responseResult(HttpServletResponse response, Result result) {
         response.setCharacterEncoding("UTF-8");
         response.setHeader("Content-type", "application/json;charset=UTF-8");
         response.setStatus(200);
         try {
-            response.getWriter().write(JSON.toJSONString(result, filter));
+            response.getWriter().write(JSON.toJSONString(result));
         } catch (IOException ex) {
             logger.error(ex.getMessage());
         }
