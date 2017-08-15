@@ -16,6 +16,6 @@ import javax.annotation.Resource;
 @Transactional
 public class ${modelNameUpperCamel}ManagerImpl extends AbstractManager<${modelNameUpperCamel}> implements ${modelNameUpperCamel}Manager {
     @Resource
-    private ${modelNameUpperCamel}Manager ${modelNameLowerCamel}Manager;
+    private ${modelNameUpperCamel}Mapper ${modelNameLowerCamel}Mapper;
 
 }
