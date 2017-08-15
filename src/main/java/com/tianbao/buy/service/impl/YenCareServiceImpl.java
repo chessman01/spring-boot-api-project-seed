@@ -6,6 +6,7 @@ import com.tianbao.buy.domain.YenCare;
 import com.tianbao.buy.manager.UserManager;
 import com.tianbao.buy.manager.YenCareManager;
 import com.tianbao.buy.service.YenCareService;
+import com.tianbao.buy.vo.CouponVO;
 import com.tianbao.buy.vo.YenCareVO;
 import org.springframework.stereotype.Service;
 import tk.mybatis.mapper.entity.Condition;
@@ -41,6 +42,14 @@ public class YenCareServiceImpl implements YenCareService{
         return convert2VO(doList);
     }
 
+    @Override
+    public YenCareVO build(long cardId) {
+        // 要校验用户是不是有这卡
+
+
+        return null;
+    }
+
     private List<YenCareVO> convert2VO(List<YenCare> doList) {
         List<YenCareVO> voList = Lists.newArrayList();
 
@@ -57,7 +66,7 @@ public class YenCareServiceImpl implements YenCareService{
             numberFormat.setMaximumFractionDigits(1);
             String discount = String.format("消费立打%s折", numberFormat.format(yenCare.getDiscountRate() / 10f));
 
-            YenCareVO vo = new YenCareVO(yenCare.getId(),"http://gw.alicdn.com/tps/TB1LNMxPXXXXXbhaXXXXXXXXXXX-183-129.png",
+            YenCareVO vo = new YenCareVO(yenCare.getId(), "http://gw.alicdn.com/tps/TB1LNMxPXXXXXbhaXXXXXXXXXXX-183-129.png",
                     gift, cash, total,
                     discount);
 

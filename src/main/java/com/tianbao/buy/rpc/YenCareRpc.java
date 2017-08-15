@@ -26,4 +26,11 @@ public class YenCareRpc {
 
         return ResultGenerator.genSuccessResult(voList);
     }
+
+    @PostMapping("/build")
+    public Result build() {
+        List<YenCareVO> voList = yenCareServiceImpl.getAllByUser();
+
+        return ResultGenerator.genSuccessResult(voList);
+    }
 }

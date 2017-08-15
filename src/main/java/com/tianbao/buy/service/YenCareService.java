@@ -7,4 +7,6 @@ import java.util.List;
 
 public interface YenCareService {
     List<YenCareVO> getAllByUser();
+
+    YenCareVO build(long cardId);
 }
