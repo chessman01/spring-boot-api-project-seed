@@ -1,5 +1,6 @@
-package ${basePackage}.service;
-import ${basePackage}.model.${modelNameUpperCamel};
+package ${basePackage}.Manager;
+
+import ${basePackage}.domain.${modelNameUpperCamel};
 import ${basePackage}.core.Manager;
 
 

@@ -1,4 +1,5 @@
 package ${basePackage}.rpc;
+
 import ${basePackage}.core.Result;
 import ${basePackage}.core.ResultGenerator;
 import ${basePackage}.domain.${modelNameUpperCamel};
@@ -18,7 +19,7 @@ import java.util.List;
 */
 @RestController
 @RequestMapping("${baseRequestMapping}")
-public class ${modelNameUpperCamel}Controller {
+public class ${modelNameUpperCamel}Rpc {
     @Resource
     private ${modelNameUpperCamel}Manager ${modelNameLowerCamel}Manager;
 
