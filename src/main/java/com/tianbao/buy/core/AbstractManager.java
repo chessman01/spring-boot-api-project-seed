@@ -32,7 +32,7 @@ public abstract class AbstractManager<T> implements Manager<T> {
         return mapper.insertList(models);
     }
 
-    public int deleteById(Integer id) {
+    public int deleteById(Long id) {
         return mapper.deleteByPrimaryKey(id);
     }
 
@@ -44,7 +44,7 @@ public abstract class AbstractManager<T> implements Manager<T> {
         return mapper.updateByPrimaryKeySelective(model);
     }
 
-    public T findById(Integer id) {
+    public T findById(Long id) {
         return mapper.selectByPrimaryKey(id);
     }
 
