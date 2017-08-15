@@ -48,9 +48,9 @@ public class WebMvcConfigurer extends WebMvcConfigurerAdapter {
     public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
         FastJsonHttpMessageConverter4 converter = new FastJsonHttpMessageConverter4();
         FastJsonConfig config = new FastJsonConfig();
-        config.setSerializerFeatures(SerializerFeature.WriteMapNullValue,//保留空的字段
-                SerializerFeature.WriteNullStringAsEmpty,//String null -> ""
-                SerializerFeature.WriteNullNumberAsZero);//Number null -> 0
+//        config.setSerializerFeatures(SerializerFeature.WriteMapNullValue,//保留空的字段
+//                SerializerFeature.WriteNullStringAsEmpty,//String null -> ""
+//                SerializerFeature.WriteNullNumberAsZero);//Number null -> 0
         converter.setFastJsonConfig(config);
         converter.setDefaultCharset(Charset.forName("UTF-8"));
         converters.add(converter);
@@ -129,7 +129,7 @@ public class WebMvcConfigurer extends WebMvcConfigurerAdapter {
         response.setHeader("Content-type", "application/json;charset=UTF-8");
         response.setStatus(200);
         try {
-            response.getWriter().write(JSON.toJSONString(result));
+            response.getWriter().write(JSON.toJSONString(result, SerializerFeature.WriteMapNullValue));
         } catch (IOException ex) {
             logger.error(ex.getMessage());
         }
