@@ -5,7 +5,6 @@ import com.tianbao.buy.domain.Coach;
 import com.tianbao.buy.manager.CoachManager;
 import com.tianbao.buy.core.AbstractManager;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 
@@ -13,7 +12,6 @@ import javax.annotation.Resource;
  * Created by CodeGenerator on 2017/08/15.
  */
 @Service
-@Transactional
 public class CoachManagerImpl extends AbstractManager<Coach> implements CoachManager {
     @Resource
     private CoachDAO coachDAO;

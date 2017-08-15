@@ -19,6 +19,7 @@ import java.util.List;
 */
 @RestController
 @RequestMapping("/coupon/user")
+@SuppressWarnings("unchecked")
 public class CouponUserRpc {
     @Resource
     private CouponUserManager couponUserManager;
