@@ -60,8 +60,8 @@ public class CodeGenerator {
      */
     public static void genCode(String tableName, String modelName) {
         genModelAndMapper(tableName, modelName);
-        genService(tableName, modelName);
-        genController(tableName, modelName);
+        genManager(tableName, modelName);
+        genRpc(tableName, modelName);
     }
 
 
@@ -131,7 +131,7 @@ public class CodeGenerator {
         System.out.println(modelName + "Mapper.xml 生成成功");
     }
 
-    public static void genService(String tableName, String modelName) {
+    public static void genManager(String tableName, String modelName) {
         try {
             freemarker.template.Configuration cfg = getConfiguration();
 
@@ -143,27 +143,27 @@ public class CodeGenerator {
             data.put("modelNameLowerCamel", tableNameConvertLowerCamel(tableName));
             data.put("basePackage", BASE_PACKAGE);
 
-            File file = new File(PROJECT_PATH + JAVA_PATH + PACKAGE_PATH_SERVICE + modelNameUpperCamel + "Service.java");
+            File file = new File(PROJECT_PATH + JAVA_PATH + PACKAGE_PATH_SERVICE + modelNameUpperCamel + "Manager.java");
             if (!file.getParentFile().exists()) {
                 file.getParentFile().mkdirs();
             }
-            cfg.getTemplate("service.ftl").process(data,
+            cfg.getTemplate("manager.ftl").process(data,
                     new FileWriter(file));
-            System.out.println(modelNameUpperCamel + "Service.java 生成成功");
+            System.out.println(modelNameUpperCamel + "Manager.java 生成成功");
 
-            File file1 = new File(PROJECT_PATH + JAVA_PATH + PACKAGE_PATH_SERVICE_IMPL + modelNameUpperCamel + "ServiceImpl.java");
+            File file1 = new File(PROJECT_PATH + JAVA_PATH + PACKAGE_PATH_SERVICE_IMPL + modelNameUpperCamel + "ManagerImpl.java");
             if (!file1.getParentFile().exists()) {
                 file1.getParentFile().mkdirs();
             }
-            cfg.getTemplate("service-impl.ftl").process(data,
+            cfg.getTemplate("manager-impl.ftl").process(data,
                     new FileWriter(file1));
-            System.out.println(modelNameUpperCamel + "ServiceImpl.java 生成成功");
+            System.out.println(modelNameUpperCamel + "ManagerImpl.java 生成成功");
         } catch (Exception e) {
-            throw new RuntimeException("生成Service失败", e);
+            throw new RuntimeException("生成Manager失败", e);
         }
     }
 
-    public static void genController(String tableName, String modelName) {
+    public static void genRpc(String tableName, String modelName) {
         try {
             freemarker.template.Configuration cfg = getConfiguration();
 
@@ -176,16 +176,16 @@ public class CodeGenerator {
             data.put("modelNameLowerCamel", CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_CAMEL, modelNameUpperCamel));
             data.put("basePackage", BASE_PACKAGE);
 
-            File file = new File(PROJECT_PATH + JAVA_PATH + PACKAGE_PATH_CONTROLLER + modelNameUpperCamel + "Controller.java");
+            File file = new File(PROJECT_PATH + JAVA_PATH + PACKAGE_PATH_CONTROLLER + modelNameUpperCamel + "Rpc.java");
             if (!file.getParentFile().exists()) {
                 file.getParentFile().mkdirs();
             }
-            //cfg.getTemplate("controller-restful.ftl").process(data, new FileWriter(file));
-            cfg.getTemplate("controller.ftl").process(data, new FileWriter(file));
+            //cfg.getTemplate("Rpc-restful.ftl").process(data, new FileWriter(file));
+            cfg.getTemplate("rpc.ftl").process(data, new FileWriter(file));
 
-            System.out.println(modelNameUpperCamel + "Controller.java 生成成功");
+            System.out.println(modelNameUpperCamel + "Rpc.java 生成成功");
         } catch (Exception e) {
-            throw new RuntimeException("生成Controller失败", e);
+            throw new RuntimeException("生成Rpc失败", e);
         }
 
     }

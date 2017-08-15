@@ -1,4 +1,4 @@
-package ${basePackage}.service.impl;
+package ${basePackage}.manager.impl;
 
 import ${basePackage}.dao.${modelNameUpperCamel}Mapper;
 import ${basePackage}.domain.${modelNameUpperCamel};
