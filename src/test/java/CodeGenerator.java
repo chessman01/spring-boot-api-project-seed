@@ -18,7 +18,7 @@ import static com.tianbao.buy.core.ProjectConstant.*;
  */
 public class CodeGenerator {
     //JDBC配置，请修改为你项目的实际配置
-    private static final String JDBC_URL = "jdbc:mysql://rm-uf6a64283nzl56h7lo.mysql.rds.aliyuncs.com:3306/yen_fit";
+    private static final String JDBC_URL = "jdbc:mysql://rm-uf6a64283nzl56h7lo.mysql.rds.aliyuncs.com:3306/yen_fit?characterEncoding=utf8&useSSL=true";
     private static final String JDBC_USERNAME = "yen";
     private static final String JDBC_PASSWORD = "Tianbao@Chessman";
     private static final String JDBC_DIVER_CLASS_NAME = "com.mysql.jdbc.Driver";
