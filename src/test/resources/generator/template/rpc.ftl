@@ -1,8 +1,8 @@
-package com.tianbao.buy.web;
-import com.tianbao.buy.core.Result;
-import com.tianbao.buy.core.ResultGenerator;
-import com.tianbao.buy.model.CouponUser;
-import com.tianbao.buy.service.CouponUserService;
+package ${basePackage}.rpc;
+import ${basePackage}.core.Result;
+import ${basePackage}.core.ResultGenerator;
+import ${basePackage}.domain.${modelNameUpperCamel};
+import ${basePackage}.manager.${modelNameUpperCamel}Manager;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -14,42 +14,42 @@ import javax.annotation.Resource;
 import java.util.List;
 
 /**
-* Created by CodeGenerator on 2017/08/15.
+* Created by ${author} on ${date}.
 */
 @RestController
-@RequestMapping("/coupon/user")
-public class CouponUserController {
+@RequestMapping("${baseRequestMapping}")
+public class ${modelNameUpperCamel}Controller {
     @Resource
-    private CouponUserService couponUserService;
+    private ${modelNameUpperCamel}Manager ${modelNameLowerCamel}Manager;
 
     @PostMapping("/add")
-    public Result add(CouponUser couponUser) {
-        couponUserService.save(couponUser);
+    public Result add(${modelNameUpperCamel} ${modelNameLowerCamel}) {
+        ${modelNameLowerCamel}Manager.save(${modelNameLowerCamel});
         return ResultGenerator.genSuccessResult();
     }
 
     @PostMapping("/delete")
     public Result delete(@RequestParam Integer id) {
-        couponUserService.deleteById(id);
+        ${modelNameLowerCamel}Manager.deleteById(id);
         return ResultGenerator.genSuccessResult();
     }
 
     @PostMapping("/update")
-    public Result update(CouponUser couponUser) {
-        couponUserService.update(couponUser);
+    public Result update(${modelNameUpperCamel} ${modelNameLowerCamel}) {
+        ${modelNameLowerCamel}Manager.update(${modelNameLowerCamel});
         return ResultGenerator.genSuccessResult();
     }
 
     @PostMapping("/detail")
     public Result detail(@RequestParam Integer id) {
-        CouponUser couponUser = couponUserService.findById(id);
-        return ResultGenerator.genSuccessResult(couponUser);
+        ${modelNameUpperCamel} ${modelNameLowerCamel} = ${modelNameLowerCamel}Manager.findById(id);
+        return ResultGenerator.genSuccessResult(${modelNameLowerCamel});
     }
 
     @PostMapping("/list")
     public Result list(@RequestParam(defaultValue = "0") Integer page, @RequestParam(defaultValue = "0") Integer size) {
         PageHelper.startPage(page, size);
-        List<CouponUser> list = couponUserService.findAll();
+        List<${modelNameUpperCamel}> list = ${modelNameLowerCamel}Manager.findAll();
         PageInfo pageInfo = new PageInfo(list);
         return ResultGenerator.genSuccessResult(pageInfo);
     }
