@@ -1,6 +1,6 @@
 package ${basePackage}.manager.impl;
 
-import ${basePackage}.dao.${modelNameUpperCamel}Mapper;
+import ${basePackage}.dao.${modelNameUpperCamel}DAO;
 import ${basePackage}.domain.${modelNameUpperCamel};
 import ${basePackage}.manager.${modelNameUpperCamel}Manager;
 import ${basePackage}.core.AbstractManager;
@@ -16,6 +16,6 @@ import javax.annotation.Resource;
 @Transactional
 public class ${modelNameUpperCamel}ManagerImpl extends AbstractManager<${modelNameUpperCamel}> implements ${modelNameUpperCamel}Manager {
     @Resource
-    private ${modelNameUpperCamel}Mapper ${modelNameLowerCamel}Mapper;
+    private ${modelNameUpperCamel}DAO ${modelNameLowerCamel}DAO;
 
 }

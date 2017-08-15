@@ -104,6 +104,9 @@ public class CodeGenerator {
         tableConfiguration.setTableName(tableName);
         tableConfiguration.setDomainObjectName(modelName);
         tableConfiguration.setGeneratedKey(new GeneratedKey("id", "Mysql", true, null));
+
+        tableConfiguration.setMapperName(tableNameConvertUpperCamel(tableName) + "DAO");
+
         context.addTableConfiguration(tableConfiguration);
 
         List<String> warnings;
