@@ -1,6 +1,5 @@
 package com.tianbao.buy.service.impl;
 
-import static com.google.common.base.Preconditions.*;
 import com.google.common.collect.Lists;
 import com.tianbao.buy.core.BizException;
 import com.tianbao.buy.domain.CouponTemplate;
@@ -9,8 +8,8 @@ import com.tianbao.buy.domain.User;
 import com.tianbao.buy.domain.YenCare;
 import com.tianbao.buy.manager.CouponTemplateManager;
 import com.tianbao.buy.manager.CouponUserManager;
-import com.tianbao.buy.manager.UserManager;
 import com.tianbao.buy.manager.YenCareManager;
+import com.tianbao.buy.service.BaseService;
 import com.tianbao.buy.service.YenCareService;
 import com.tianbao.buy.vo.CouponVO;
 import com.tianbao.buy.vo.YenCareVO;
@@ -26,7 +25,7 @@ import java.util.Date;
 import java.util.List;
 
 @Service
-public class YenCareServiceImpl implements YenCareService{
+public class YenCareServiceImpl extends BaseService implements YenCareService{
     @Resource
     private YenCareManager yenCareManager;
 
@@ -35,9 +34,6 @@ public class YenCareServiceImpl implements YenCareService{
 
     @Resource
     private CouponTemplateManager couponTemplateManager;
-
-    @Resource
-    private UserManager userManager;
 
     private List<YenCare> getAllCareByUser(long userId) {
         Condition condition = new Condition(YenCare.class);
@@ -154,23 +150,6 @@ public class YenCareServiceImpl implements YenCareService{
         }
 
         return couponVOs;
-    }
-
-    private User getUserByWxUnionId() {
-        // todo 这里是要依据微信接口拿到用户uid，到userManager查用户，然后得到用户ID
-        String wxUnionId = "12345";
-
-        User user = userManager.findBy("wxUnionId", wxUnionId);
-
-        if (user == null) {
-            user = new User();
-
-        }
-
-        // 新建一个用户
-        if (user == null) throw new BizException("用户没发现");
-
-        return user;
     }
 
     private List<YenCareVO> convert2CareVO(List<YenCare> doList) {

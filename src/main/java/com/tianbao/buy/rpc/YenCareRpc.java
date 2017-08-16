@@ -14,7 +14,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/yen/care")
-public class YenCareRpc {
+public class YenCareRpc extends BaseRpc{
     @Resource
     private YenCareServiceImpl yenCareServiceImpl;
 

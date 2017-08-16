@@ -61,7 +61,7 @@ public class CodeGenerator {
     public static void genCode(String tableName, String modelName) {
         genModelAndMapper(tableName, modelName);
         genManager(tableName, modelName);
-        genRpc(tableName, modelName);
+//        genRpc(tableName, modelName);
     }
 
 
