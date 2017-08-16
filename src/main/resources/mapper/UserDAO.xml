@@ -22,5 +22,8 @@
     <result column="status" jdbcType="TINYINT" property="status" />
     <result column="point" jdbcType="BIGINT" property="point" />
     <result column="referrer_id" jdbcType="BIGINT" property="referrerId" />
+    <result column="country" jdbcType="VARCHAR" property="country" />
+    <result column="province" jdbcType="VARCHAR" property="province" />
+    <result column="city" jdbcType="VARCHAR" property="city" />
   </resultMap>
 </mapper>

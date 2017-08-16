@@ -11,7 +11,7 @@
     <result column="user_id" jdbcType="BIGINT" property="userId" />
     <result column="cash_account" jdbcType="INTEGER" property="cashAccount" />
     <result column="gift_account" jdbcType="INTEGER" property="giftAccount" />
-    <result column="discount_rate" jdbcType="TINYINT" property="discountRate" />
+    <result column="discount_rate" jdbcType="INTEGER" property="discountRate" />
     <result column="type" jdbcType="TINYINT" property="type" />
     <result column="status" jdbcType="TINYINT" property="status" />
   </resultMap>

@@ -4,7 +4,7 @@ import com.tianbao.buy.domain.Course;
 import com.tianbao.buy.core.Manager;
 
 /**
- * Created by CodeGenerator on 2017/08/15.
+ * Created by CodeGenerator on 2017/08/16.
  */
 public interface CourseManager extends Manager<Course> {
 

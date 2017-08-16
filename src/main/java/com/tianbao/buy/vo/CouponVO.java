@@ -11,6 +11,8 @@ import lombok.NoArgsConstructor;
 public class CouponVO {
     private Long id;
 
+    private Long couponUserId;
+
     private String price;
 
     private String sourceDesc;
@@ -27,9 +29,10 @@ public class CouponVO {
 
     private String status;
 
+    private boolean selected;
+
     public enum Source implements EnumMessage {
-        // 来源类型。0：充值瘾卡赠送模版-保留；1：邀请好友；2：线下领取；3：微信领取；
-        RECHARGE((byte)0, "充值瘾卡赠送模版-保留"),
+        // 来源类型。1：邀请好友；2：线下领取；3：微信领取；
         FRIEND((byte)1, "邀请好友"),
         OFFLINE((byte)2, "线下领取"),
         ONLINE((byte)3, "微信领取");
@@ -142,7 +145,8 @@ public class CouponVO {
         DEL((byte)0, "已删除"),
         NORMAL((byte)1, "正常"),
         EXPIRED((byte)2, "已过期"),
-        USED((byte)3, "已使用");
+        USED((byte)3, "已使用"),
+        RECHARGE((byte)8, "充值瘾卡赠送模版-保留"),;
 
         public byte code;
 

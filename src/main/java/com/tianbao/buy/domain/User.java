@@ -46,7 +46,7 @@ public class User {
     private String nick;
 
     /**
-     * 性别
+     * 性别。1：男；0：女
      */
     private Boolean sex;
 
@@ -98,6 +98,21 @@ public class User {
      */
     @Column(name = "referrer_id")
     private Long referrerId;
+
+    /**
+     * 国家
+     */
+    private String country;
+
+    /**
+     * 省
+     */
+    private String province;
+
+    /**
+     * 城市
+     */
+    private String city;
 
     /**
      * 获取主键
@@ -226,18 +241,18 @@ public class User {
     }
 
     /**
-     * 获取性别
+     * 获取性别。1：男；0：女
      *
-     * @return sex - 性别
+     * @return sex - 性别。1：男；0：女
      */
     public Boolean getSex() {
         return sex;
     }
 
     /**
-     * 设置性别
+     * 设置性别。1：男；0：女
      *
-     * @param sex 性别
+     * @param sex 性别。1：男；0：女
      */
     public void setSex(Boolean sex) {
         this.sex = sex;
@@ -403,5 +418,59 @@ public class User {
      */
     public void setReferrerId(Long referrerId) {
         this.referrerId = referrerId;
+    }
+
+    /**
+     * 获取国家
+     *
+     * @return country - 国家
+     */
+    public String getCountry() {
+        return country;
+    }
+
+    /**
+     * 设置国家
+     *
+     * @param country 国家
+     */
+    public void setCountry(String country) {
+        this.country = country;
+    }
+
+    /**
+     * 获取省
+     *
+     * @return province - 省
+     */
+    public String getProvince() {
+        return province;
+    }
+
+    /**
+     * 设置省
+     *
+     * @param province 省
+     */
+    public void setProvince(String province) {
+        this.province = province;
+    }
+
+    /**
+     * 获取城市
+     *
+     * @return city - 城市
+     */
+    public String getCity() {
+        return city;
+    }
+
+    /**
+     * 设置城市
+     *
+     * @param city 城市
+     */
+    public void setCity(String city) {
+        this.city = city;
     }
 }

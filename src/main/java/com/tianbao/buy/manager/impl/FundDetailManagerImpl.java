@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 
 /**
- * Created by CodeGenerator on 2017/08/15.
+ * Created by CodeGenerator on 2017/08/16.
  */
 @Service
 public class FundDetailManagerImpl extends AbstractManager<FundDetail> implements FundDetailManager {

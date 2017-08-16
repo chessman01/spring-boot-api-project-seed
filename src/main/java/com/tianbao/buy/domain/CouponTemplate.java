@@ -30,7 +30,7 @@ public class CouponTemplate {
     private Integer price;
 
     /**
-     * 来源类型。0：充值瘾卡赠送；1：邀请好友；2：线下；3：公众号；
+     * 来源类型。0：充值瘾卡赠送模版-保留；1：邀请好友；2：线下领取；3：微信领取；
      */
     private Byte source;
 
@@ -58,13 +58,13 @@ public class CouponTemplate {
     private Integer rulePrice;
 
     /**
-     * 支付类型。1：瘾卡充值；2：按次支付；3：瘾卡充值和按次都支持
+     * 支付类型。1：瘾卡充值；2：按次支付；
      */
     @Column(name = "pay_type")
     private Byte payType;
 
     /**
-     * 状态。0：软删除；1：正常；2：已过期
+     * 状态。0：删除；1：正常；2：已过期
      */
     private Byte status;
 
@@ -141,18 +141,18 @@ public class CouponTemplate {
     }
 
     /**
-     * 获取来源类型。0：充值瘾卡赠送；1：邀请好友；2：线下；3：公众号；
+     * 获取来源类型。0：充值瘾卡赠送模版-保留；1：邀请好友；2：线下领取；3：微信领取；
      *
-     * @return source - 来源类型。0：充值瘾卡赠送；1：邀请好友；2：线下；3：公众号；
+     * @return source - 来源类型。0：充值瘾卡赠送模版-保留；1：邀请好友；2：线下领取；3：微信领取；
      */
     public Byte getSource() {
         return source;
     }
 
     /**
-     * 设置来源类型。0：充值瘾卡赠送；1：邀请好友；2：线下；3：公众号；
+     * 设置来源类型。0：充值瘾卡赠送模版-保留；1：邀请好友；2：线下领取；3：微信领取；
      *
-     * @param source 来源类型。0：充值瘾卡赠送；1：邀请好友；2：线下；3：公众号；
+     * @param source 来源类型。0：充值瘾卡赠送模版-保留；1：邀请好友；2：线下领取；3：微信领取；
      */
     public void setSource(Byte source) {
         this.source = source;
@@ -231,36 +231,36 @@ public class CouponTemplate {
     }
 
     /**
-     * 获取支付类型。1：瘾卡充值；2：按次支付；3：瘾卡充值和按次都支持
+     * 获取支付类型。1：瘾卡充值；2：按次支付；
      *
-     * @return pay_type - 支付类型。1：瘾卡充值；2：按次支付；3：瘾卡充值和按次都支持
+     * @return pay_type - 支付类型。1：瘾卡充值；2：按次支付；
      */
     public Byte getPayType() {
         return payType;
     }
 
     /**
-     * 设置支付类型。1：瘾卡充值；2：按次支付；3：瘾卡充值和按次都支持
+     * 设置支付类型。1：瘾卡充值；2：按次支付；
      *
-     * @param payType 支付类型。1：瘾卡充值；2：按次支付；3：瘾卡充值和按次都支持
+     * @param payType 支付类型。1：瘾卡充值；2：按次支付；
      */
     public void setPayType(Byte payType) {
         this.payType = payType;
     }
 
     /**
-     * 获取状态。0：软删除；1：正常；2：已过期
+     * 获取状态。0：删除；1：正常；2：已过期
      *
-     * @return status - 状态。0：软删除；1：正常；2：已过期
+     * @return status - 状态。0：删除；1：正常；2：已过期
      */
     public Byte getStatus() {
         return status;
     }
 
     /**
-     * 设置状态。0：软删除；1：正常；2：已过期
+     * 设置状态。0：删除；1：正常；2：已过期
      *
-     * @param status 状态。0：软删除；1：正常；2：已过期
+     * @param status 状态。0：删除；1：正常；2：已过期
      */
     public void setStatus(Byte status) {
         this.status = status;
