@@ -1,5 +1,6 @@
 package com.tianbao.buy.service.impl;
 
+import static com.google.common.base.Preconditions.*;
 import com.google.common.collect.Lists;
 import com.tianbao.buy.core.BizException;
 import com.tianbao.buy.domain.CouponTemplate;
@@ -38,18 +39,27 @@ public class YenCareServiceImpl implements YenCareService{
     @Resource
     private UserManager userManager;
 
-    @Override
-    public List<YenCareVO> getAllByUser() {
-        Long userId = getUserByWxUnionId().getId();
-
+    private List<YenCare> getAllCareByUser(long userId) {
         Condition condition = new Condition(YenCare.class);
-        condition.orderBy("createTime");
+        condition.orderBy("type"); // 统一按卡类型排序
 
         condition.createCriteria().andCondition("user_id=", userId).andCondition("status=", 1);
 
-        List<YenCare> doList = yenCareManager.findByCondition(condition);
+        return yenCareManager.findByCondition(condition);
+    }
 
-        return convert2CareVO(doList);
+    @Override
+    public List<YenCareVO> getAllCareByUser() {
+        // 1. 获取用户id
+        long userId = getUserByWxUnionId().getId();
+
+
+
+        List<YenCare> yenCares = getAllCareByUser(userId);
+
+        // 2. 没有卡要开一张
+
+        return convert2CareVO(yenCares);
     }
 
     @Override
@@ -57,19 +67,10 @@ public class YenCareServiceImpl implements YenCareService{
         // 1. 找到用户的瘾卡
         Long userId = getUserByWxUnionId().getId();
 
-        Condition condition = new Condition(YenCare.class);
-        condition.createCriteria().andCondition("user_id=", userId).andCondition("status=", 1)
-                .andCondition("id=", cardId);
-
-        List<YenCare> doList = yenCareManager.findByCondition(condition);
-
-        if (CollectionUtils.isEmpty(doList)) throw new BizException("您名下未找到指定的瘾卡");
-
-        List<YenCareVO> yenCareVOs = convert2CareVO(doList);
-        YenCareVO yenCareVO = yenCareVOs.get(NumberUtils.INTEGER_ZERO);
+        YenCareVO yenCareVO = getYenCare(userId, cardId);
 
         // 2. 找用户的礼券
-        condition = new Condition(CouponUser.class);
+        Condition condition = new Condition(CouponUser.class);
         condition.createCriteria().andCondition("user_id=", userId).andCondition("status=", 1);
 
         List<CouponUser> couponUsers = couponUserManager.findByCondition(condition);
@@ -101,6 +102,37 @@ public class YenCareServiceImpl implements YenCareService{
         return yenCareVO;
     }
 
+    @Override
+    public String create(long cardId, long rechargeId, long couponId) {
+        // 1. 找到用户的瘾卡
+        Long userId = getUserByWxUnionId().getId();
+
+        YenCareVO yenCareVO = getYenCare(userId, cardId);
+
+        // 2. 找礼券
+
+        return null;
+    }
+
+    @Override
+    public YenCareVO adjust(long cardId, long rechargeId, long couponId) {
+        return null;
+    }
+
+    private YenCareVO getYenCare(long userId, long cardId){
+        Condition condition = new Condition(YenCare.class);
+        condition.createCriteria().andCondition("user_id=", userId).andCondition("status=", 1)
+                .andCondition("id=", cardId);
+
+        List<YenCare> doList = yenCareManager.findByCondition(condition);
+
+        if (CollectionUtils.isEmpty(doList)) throw new BizException("您名下未找到指定的瘾卡");
+
+        List<YenCareVO> yenCareVOs = convert2CareVO(doList);
+
+        return yenCareVOs.get(NumberUtils.INTEGER_ZERO);
+    }
+
     private List<CouponVO> convert2CouponVO(List<CouponTemplate> doList) {
         List<CouponVO> couponVOs = Lists.newArrayList();
 
@@ -125,14 +157,24 @@ public class YenCareServiceImpl implements YenCareService{
     }
 
     private User getUserByWxUnionId() {
-        // todo 这里是要依据微信接口拿到用户uid，到userManager查用户，反退过来得到用户ID
+        // todo 这里是要依据微信接口拿到用户uid，到userManager查用户，然后得到用户ID
         String wxUnionId = "12345";
 
+        User user = userManager.findBy("wxUnionId", wxUnionId);
 
-        return userManager.findBy("wxUnionId", wxUnionId);
+        if (user == null) {
+            user = new User();
+
+        }
+
+        // 新建一个用户
+        if (user == null) throw new BizException("用户没发现");
+
+        return user;
     }
 
     private List<YenCareVO> convert2CareVO(List<YenCare> doList) {
+
         List<YenCareVO> voList = Lists.newArrayList();
 
         for (YenCare yenCare : doList) {
