@@ -6,6 +6,8 @@ import com.tianbao.buy.domain.CouponUser;
 import com.tianbao.buy.manager.CouponUserManager;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.tianbao.buy.service.impl.CouponServiceImpl;
+import com.tianbao.buy.vo.CouponVO;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -21,6 +23,9 @@ import java.util.List;
 @RequestMapping("/coupon/user")
 @SuppressWarnings("unchecked")
 public class CouponUserRpc {
+    @Resource
+    private CouponServiceImpl couponService;
+
     @Resource
     private CouponUserManager couponUserManager;
 
@@ -54,5 +59,15 @@ public class CouponUserRpc {
         List<CouponUser> list = couponUserManager.findAll();
         PageInfo pageInfo = new PageInfo(list);
         return ResultGenerator.genSuccessResult(pageInfo);
+    }
+
+    @PostMapping("/test")
+    public Result test() {
+//        List<CouponVO> couponVOs = couponService.getCareRechargeTemplate();
+//        List<CouponVO> couponVOs = couponService.getCoupon4Recharge(123l, 500000);
+
+        List<CouponVO> couponVOs = couponService.getCoupon(123l, (byte) 1);
+
+        return ResultGenerator.genSuccessResult(couponVOs);
     }
 }

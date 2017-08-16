@@ -104,7 +104,8 @@ public class CouponPredicateWrapper {
                     return false;
                 }
 
-                if (date.before(couponTemplate.getStartTime()) || date.after(couponTemplate.getEndTime())) {
+                if (date.getTime() < couponTemplate.getStartTime().getTime()
+                        || date.getTime() > couponTemplate.getEndTime().getTime()) {
                     return false;
                 }
 

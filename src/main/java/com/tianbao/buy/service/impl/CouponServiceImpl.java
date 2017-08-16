@@ -11,12 +11,15 @@ import com.tianbao.buy.service.CouponPredicateWrapper;
 import com.tianbao.buy.service.CouponService;
 import com.tianbao.buy.vo.CouponVO;
 import org.springframework.beans.BeanUtils;
+import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import tk.mybatis.mapper.entity.Condition;
 
 import javax.annotation.Resource;
 import java.text.NumberFormat;
 import java.util.*;
 
+@Service
 public class CouponServiceImpl implements CouponService {
     @Resource
     private CouponUserManager couponUserManager;
@@ -26,8 +29,8 @@ public class CouponServiceImpl implements CouponService {
 
     @Override
     public List<CouponVO> getCoupon(long userId, byte status) {
-        return getCoupon(userId, 0, Sets.newHashSet(CouponVO.PayType.RECHARGE.getCode(),
-                        CouponVO.PayType.PAY_PER_VIEW.getCode()), Sets.newHashSet(status));
+        return getCoupon(userId, Integer.MAX_VALUE, Sets.newHashSet(CouponVO.PayType.RECHARGE.getCode(),
+                CouponVO.PayType.PAY_PER_VIEW.getCode()), Sets.newHashSet(status));
     }
 
     @Override
@@ -48,13 +51,14 @@ public class CouponServiceImpl implements CouponService {
         List<CouponTemplate> couponTemplates = getTemplateList();
 
         // 2. 过滤出充值满送部分的模版
-        Predicate<CouponTemplate> predicate = CouponPredicateWrapper.getPredicate4TemplateStatus(Sets.newHashSet(CouponVO.Status.RECHARGE.getCode()));
+        Predicate<CouponTemplate> predicate4TemplateStatus = CouponPredicateWrapper.getPredicate4TemplateStatus(Sets.newHashSet(CouponVO.Status.RECHARGE.getCode()));
+        Predicate<CouponTemplate> predicate4TemplateTime = CouponPredicateWrapper.getPredicate4TemplateTime(new Date());
 
-        Predicate<CouponTemplate> unionPredicate = Predicates.and(predicate);
+        Predicate<CouponTemplate> unionPredicate = Predicates.and(predicate4TemplateStatus, predicate4TemplateTime);
         List<CouponTemplate> filterResult = Lists.newArrayList(Iterators.filter(couponTemplates.iterator(), unionPredicate));
 
         // 3. 按赠送金额排序
-        Comparator<CouponTemplate> userComparator = Ordering.from(new priceComparator()).reversed();
+        Comparator<CouponTemplate> userComparator = Ordering.from(new priceComparator());
         Collections.sort(filterResult, userComparator);
 
         // 4. 转化为前端要的vo
@@ -99,14 +103,14 @@ public class CouponServiceImpl implements CouponService {
         }
 
         // 3. 按赠送金额排序
-        Comparator<CouponTemplate> userComparator = Ordering.from(new priceComparator());
+        Comparator<CouponTemplate> userComparator = Ordering.from(new priceComparator()).reversed();
         Collections.sort(userCoupon, userComparator);
 
         // 4. 转化为前端要的vo
         List<CouponVO> couponVOs = convert2CouponVO(userCoupon);
 
         // 5. 置为已选择
-        if (couponVOs == null) return Lists.newArrayList();
+        if (CollectionUtils.isEmpty(couponVOs)) return Lists.newArrayList();
         couponVOs.get(0).setSelected(true);
 
         return couponVOs;
