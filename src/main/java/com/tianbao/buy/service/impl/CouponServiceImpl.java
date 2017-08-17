@@ -7,7 +7,7 @@ import com.tianbao.buy.domain.CouponTemplate;
 import com.tianbao.buy.domain.CouponUser;
 import com.tianbao.buy.manager.CouponTemplateManager;
 import com.tianbao.buy.manager.CouponUserManager;
-import com.tianbao.buy.service.CouponPredicateWrapper;
+import com.tianbao.buy.service.PredicateWrapper;
 import com.tianbao.buy.service.CouponService;
 import com.tianbao.buy.utils.enums.EnumUtil;
 import com.tianbao.buy.vo.CouponVO;
@@ -55,7 +55,7 @@ public class CouponServiceImpl implements CouponService {
         List<CouponTemplate> couponTemplates = getTemplateList();
 
         // 2. 过滤出充值满送部分的模版
-        Predicate<CouponTemplate> predicate = CouponPredicateWrapper.getPredicate4Template(Sets.newHashSet(CouponVO.Status.RECHARGE.getCode()), null, null, new Date());
+        Predicate<CouponTemplate> predicate = PredicateWrapper.getPredicate4Template(Sets.newHashSet(CouponVO.Status.RECHARGE.getCode()), null, null, new Date());
 
         Predicate<CouponTemplate> unionPredicate = Predicates.and(predicate);
         List<CouponTemplate> filterResult = Lists.newArrayList(Iterators.filter(couponTemplates.iterator(), unionPredicate));
@@ -80,7 +80,7 @@ public class CouponServiceImpl implements CouponService {
         List<CouponTemplate> couponTemplates = getTemplateList();
 
         // 2. 过滤模版
-        Predicate<CouponTemplate> predicate = CouponPredicateWrapper.getPredicate4Template(statusSet, payTypeSet, price, new Date());
+        Predicate<CouponTemplate> predicate = PredicateWrapper.getPredicate4Template(statusSet, payTypeSet, price, new Date());
 
         Predicate<CouponTemplate> unionPredicate = Predicates.and(predicate);
         List<CouponTemplate> filterCouponTemplate = Lists.newArrayList(Iterators.filter(couponTemplates.iterator(), unionPredicate));
@@ -89,7 +89,7 @@ public class CouponServiceImpl implements CouponService {
         List<CouponUser> couponUsers = getRelation(userId);
 
         // 4. 过滤礼券
-        Predicate<CouponUser> predicateUserStatus = CouponPredicateWrapper.getPredicate4CouponUser(Sets.newHashSet(statusSet));
+        Predicate<CouponUser> predicateUserStatus = PredicateWrapper.getPredicate4CouponUser(Sets.newHashSet(statusSet));
         Predicate<CouponUser> unionUserPredicate = Predicates.and(predicateUserStatus);
         List<CouponUser> filterCouponUser = Lists.newArrayList(Iterators.filter(couponUsers.iterator(), unionUserPredicate));
 

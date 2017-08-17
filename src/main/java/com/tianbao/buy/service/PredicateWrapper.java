@@ -8,7 +8,7 @@ import javax.annotation.Nullable;
 import java.util.Date;
 import java.util.Set;
 
-public class CouponPredicateWrapper {
+public class PredicateWrapper {
     public static Predicate<CouponUser> getPredicate4CouponUser(final Set<Byte> statuSet) {
         return new Predicate<CouponUser> () {
             @Override

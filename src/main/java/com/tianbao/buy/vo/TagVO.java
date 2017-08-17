@@ -5,32 +5,17 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class YenCareVO {
-    private Long cardId;
-
-    private String bgImage;
-
-    private String gift;
-
-    private String cash;
-
-    private String total;
-
-    private String discount;
-
-    private String rechargeUrl;
-
-    private List<CouponVO> couponVOs;
+public class TagVO {
+    private Long id;
+    private String name;
 
     public enum Type implements EnumMessage {
-        // 类型。1：普通；2：情侣
-        NORMAL((byte)1, "正常"),
-        LOVERS((byte)2, "情侣");
+        // 类型。1：通用；2：课程
+        NORMAL((byte)1, "通用"),
+        COURSE((byte)2, "课程");
 
         public byte code;
 
