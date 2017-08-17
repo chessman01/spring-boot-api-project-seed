@@ -27,10 +27,6 @@ public class YenCareServiceImpl extends BaseService implements YenCareService{
     @Resource
     private YenCareManager yenCareManager;
 
-
-
-
-
     @Resource
     private UserService userService;
 
@@ -140,7 +136,7 @@ public class YenCareServiceImpl extends BaseService implements YenCareService{
 
         return new YenCareVO(yenCare.getId(), "http://gw.alicdn.com/tps/TB1LNMxPXXXXXbhaXXXXXXXXXXX-183-129.png",
                 gift, cash, total,
-                discount, null);
+                discount, "http://xxx.xxx.com/recharge.xx", null);
     }
 
     private List<YenCareVO> convert2CareVO(List<YenCare> yenCares) {

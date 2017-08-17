@@ -20,10 +20,9 @@ public class YenCareRpc extends BaseRpc{
 
     @PostMapping("/list")
     public Result list() {
-//        List<YenCareVO> voList = yenCareServiceImpl.getAllCareByUser();
-//
-//        return ResultGenerator.genSuccessResult(voList);
-        return null;
+        List<YenCareVO> voList = yenCareServiceImpl.getAllByUser();
+
+        return ResultGenerator.genSuccessResult(voList);
     }
 
     @PostMapping("/build")

@@ -23,6 +23,8 @@ public class YenCareVO {
 
     private String discount;
 
+    private String rechargeUrl;
+
     private List<CouponVO> couponVOs;
 
     public enum Type implements EnumMessage {
