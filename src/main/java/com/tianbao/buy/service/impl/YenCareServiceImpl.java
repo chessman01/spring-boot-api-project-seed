@@ -96,19 +96,14 @@ public class YenCareServiceImpl extends BaseService implements YenCareService{
         return null;
     }
 
-    private YenCareVO getYenCare(long userId, long cardId){
+    private YenCare getSpecifyCare(long userId, final long cardId){
         List<YenCare> yenCares = getCareByUser(userId);
-        YenCareVO yenCareVO = null;
 
-        for (YenCare yenCare : yenCares) {
-            if (yenCare.getId().equals(cardId)) {
-                yenCareVO = convert2CareVO(yenCare);
-            }
+        for (YenCare care : yenCares) {
+            if (care.getId().equals(cardId)) return care;
         }
 
-        if (yenCareVO == null) throw new BizException("您名下未找到指定的瘾卡");
-
-        return yenCareVO;
+        throw new BizException("名下未找到指定的瘾卡");
     }
 
     public List<YenCare> getCareByUser(long userId) {

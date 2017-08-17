@@ -11,6 +11,7 @@ import com.tianbao.buy.service.PredicateWrapper;
 import com.tianbao.buy.service.CouponService;
 import com.tianbao.buy.utils.enums.EnumUtil;
 import com.tianbao.buy.vo.CouponVO;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
 import org.joda.time.PeriodType;
@@ -32,21 +33,21 @@ public class CouponServiceImpl implements CouponService {
     private CouponTemplateManager couponTemplateManager;
 
     @Override
-    public List<CouponVO> getCoupon(long userId, byte status) {
+    public List<CouponVO> getCoupon(long userId, byte status, Long selectId) {
         return getCoupon(userId, Integer.MAX_VALUE, Sets.newHashSet(CouponVO.PayType.RECHARGE.getCode(),
-                CouponVO.PayType.PAY_PER_VIEW.getCode()), Sets.newHashSet(status));
+                CouponVO.PayType.PAY_PER_VIEW.getCode()), Sets.newHashSet(status), selectId);
     }
 
     @Override
-    public List<CouponVO> getCoupon4Recharge(long userId, int price) {
+    public List<CouponVO> getCoupon4Recharge(long userId, int price, Long selectId) {
         return getCoupon(userId, price, Sets.newHashSet(CouponVO.PayType.RECHARGE.getCode()),
-                Sets.newHashSet(CouponVO.Status.NORMAL.getCode()));
+                Sets.newHashSet(CouponVO.Status.NORMAL.getCode()), selectId);
     }
 
     @Override
-    public List<CouponVO> getCoupon4PayPerView(long userId, int price) {
+    public List<CouponVO> getCoupon4PayPerView(long userId, int price, Long selectId) {
         return getCoupon(userId, price, Sets.newHashSet(CouponVO.PayType.PAY_PER_VIEW.getCode()),
-                Sets.newHashSet(CouponVO.Status.NORMAL.getCode()));
+                Sets.newHashSet(CouponVO.Status.NORMAL.getCode()), selectId);
     }
 
     @Override
@@ -75,7 +76,7 @@ public class CouponServiceImpl implements CouponService {
         return couponVOs;
     }
 
-    private List<CouponVO> getCoupon(long userId, int price, Set<Byte> payTypeSet, Set<Byte> statusSet) {
+    private List<CouponVO> getCoupon(long userId, int price, Set<Byte> payTypeSet, Set<Byte> statusSet, Long selectId) {
         // 1. 得到所有的模版
         List<CouponTemplate> couponTemplates = getTemplateList();
 
@@ -111,7 +112,16 @@ public class CouponServiceImpl implements CouponService {
 
         // 5. 置为已选择
         if (CollectionUtils.isEmpty(couponVOs)) return Lists.newArrayList();
-        couponVOs.get(0).setSelected(true);
+        couponVOs.get(NumberUtils.INTEGER_ZERO).setSelected(true);
+
+        if (selectId != null) {
+            couponVOs.stream().forEach(item -> {
+                if (item.getId().equals(selectId)) {
+                    couponVOs.get(NumberUtils.INTEGER_ZERO).setSelected(false);
+                    item.setSelected(true);
+                }
+            });
+        }
 
         return couponVOs;
     }
@@ -129,7 +139,7 @@ public class CouponServiceImpl implements CouponService {
         return map;
     }
 
-    /* 得到指定状态的所有礼券模版 */
+    /* 得到瘾卡充值时的模版 */
     private List<CouponTemplate> getTemplateList() {
         Condition condition = new Condition(CouponTemplate.class);
 
@@ -137,20 +147,6 @@ public class CouponServiceImpl implements CouponService {
 
         return couponTemplateManager.findByCondition(condition);
     }
-
-
-//    private Map<Long, CouponUser> getCouponUserMap(long userId) {
-//        List<CouponUser> couponUsers = getRelation(userId);
-//        Map<Long, CouponUser> map = Maps.newConcurrentMap();
-//
-//        if (couponUsers == null) return map;
-//
-//        for (CouponUser couponUser : couponUsers) {
-//            map.put(couponUser.getCouponTemplateId(), couponUser);
-//        }
-//
-//        return map;
-//    }
 
     /* 得到用户礼券的关联关系 */
     private List<CouponUser> getRelation(long userId) {
