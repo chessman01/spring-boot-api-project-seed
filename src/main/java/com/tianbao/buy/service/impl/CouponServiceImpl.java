@@ -177,12 +177,12 @@ public class CouponServiceImpl implements CouponService {
             String rulePrice = numberFormat.format(couponTemplate.getRulePrice() / 100f);
             couponVO.setPrice(price);
             couponVO.setRulePrice("使用条件：订单满" + rulePrice);
+            couponVO.setRulePriceOrgin(couponTemplate.getRulePrice());
 
             DateTime start = new DateTime(couponTemplate.getStartTime());
             DateTime end = new DateTime(couponTemplate.getEndTime());
 
             couponVO.setTime("有效期：" + start.toString("yyyy.MM.dd") + "至" + end.toString("yyyy.MM.dd"));
-
 
             if (couponTemplate.getPayType().equals(CouponVO.PayType.PAY_PER_VIEW.getCode())) {
                 couponVO.setPayType("仅限单次购买时使用。");

@@ -9,8 +9,11 @@ import com.tianbao.buy.service.BaseService;
 import com.tianbao.buy.service.CouponService;
 import com.tianbao.buy.service.UserService;
 import com.tianbao.buy.service.YenCardService;
+import com.tianbao.buy.vo.CouponVO;
 import com.tianbao.buy.vo.YenCardVO;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import tk.mybatis.mapper.entity.Condition;
 
 import javax.annotation.Resource;
@@ -44,12 +47,17 @@ public class YenCardServiceImpl extends BaseService implements YenCardService{
         YenCard card = getSpecifyCard(user.getId(), cardId);
         YenCardVO cardVO = convert2CardVO(card);
 
-//        List<CouponVO> couponVOs = couponService.getCoupon4Recharge(user.getId(), )
-//
-//        cardVO.setCouponVOs(couponVOs);
-//
-//        return cardVO;
-        return null;
+        // 2. 找到充值模版
+        List<CouponVO> templates = couponService.getCardRechargeTemplate();
+        if (CollectionUtils.isEmpty(templates)) throw new BizException("没有瘾卡充值模版");
+        cardVO.setTemplates(templates);
+
+        // 3. 找到充值礼券
+        List<CouponVO> couponVOs = couponService.getCoupon4Recharge(user.getId(),
+                templates.get(NumberUtils.INTEGER_ZERO).getRulePriceOrgin(), null);
+        cardVO.setCouponVOs(couponVOs);
+
+        return cardVO;
     }
 
     @Override
@@ -104,7 +112,7 @@ public class YenCardServiceImpl extends BaseService implements YenCardService{
 
         return new YenCardVO(YenCard.getId(), "http://gw.alicdn.com/tps/TB1LNMxPXXXXXbhaXXXXXXXXXXX-183-129.png",
                 gift, cash, total,
-                discount, "http://xxx.xxx.com/recharge.xx", null);
+                discount, "http://xxx.xxx.com/recharge.xx", null, null);
     }
 
     private List<YenCardVO> convert2CardVO(List<YenCard> YenCards) {
