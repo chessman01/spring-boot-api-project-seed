@@ -16,7 +16,16 @@ public class ScheduleVO {
 
     private Address address;
 
-    private List<CourseVO> course;
+    private Course4Day course4Day;
+
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class Course4Day {
+        private String yearMonthDayFormat;
+
+        private List<CourseVO> course;
+    }
 
     @Data
     @NoArgsConstructor

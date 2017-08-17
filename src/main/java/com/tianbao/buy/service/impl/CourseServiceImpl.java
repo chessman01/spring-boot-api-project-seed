@@ -1,15 +1,21 @@
 package com.tianbao.buy.service.impl;
 
+import com.google.common.base.Predicate;
+import com.google.common.base.Predicates;
 import com.google.common.base.Splitter;
+import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import com.tianbao.buy.domain.Coach;
+import com.tianbao.buy.domain.CouponUser;
 import com.tianbao.buy.domain.Course;
 import com.tianbao.buy.domain.Tag;
 import com.tianbao.buy.manager.CoachManager;
 import com.tianbao.buy.manager.CourseManager;
 import com.tianbao.buy.manager.TagManager;
 import com.tianbao.buy.service.CourseService;
+import com.tianbao.buy.service.PredicateWrapper;
 import com.tianbao.buy.utils.DateUtils;
 import com.tianbao.buy.vo.*;
 import org.apache.commons.lang3.StringUtils;
@@ -75,7 +81,7 @@ public class CourseServiceImpl implements CourseService {
 
             tmp = DateUtils.plusDays(i, current);
 
-            date.setSelected(DateUtils.isEqual(tmp,in ));
+            date.setSelected(DateUtils.isEqual(tmp, in));
             date.setDayOfWeek(DateUtils.getDayOfWeek(tmp));
             date.setDayOfWeekDetail(DateUtils.getDayOfWeek(tmp, current));
             date.setMonthDayFormat(DateUtils.monthDayFormat(tmp));
@@ -121,7 +127,7 @@ public class CourseServiceImpl implements CourseService {
         return tagVOs;
     }
 
-    /** 获取到课程相关的所有tag **/
+    /** 获取到所有教练 **/
     private Map<Long, CoachVO> getAllCoach() {
         Condition condition = new Condition(Coach.class);
 
@@ -137,5 +143,54 @@ public class CourseServiceImpl implements CourseService {
         });
 
         return coachVOs;
+    }
+
+    /** 获取到一周的课程，并按日期分组 **/
+    private List<ScheduleVO.Course4Day> getCourseInWeek(int days) {
+        DateTime current = new DateTime().withMillisOfDay(0);
+        Condition condition = new Condition(Course.class);
+
+        condition.orderBy("startTime");
+        condition.createCriteria().andCondition("status=", CourseVO.Status.NORMAL.getCode())
+                .andGreaterThanOrEqualTo("startTime", current).andLessThanOrEqualTo("endTime", current.plusDays(days));
+
+        List<Course> courses = courseManager.findByCondition(condition);
+
+        DateTime tmp;
+        List<ScheduleVO.Course4Day> course4Days = Lists.newArrayList();
+
+        for (int i = 0; i < days; i++) {
+            tmp = DateUtils.plusDays(i, current);
+
+            Predicate<Course> predicateUserStatus = PredicateWrapper.getPredicate4Course(tmp);
+            Predicate<Course> unionUserPredicate = Predicates.and(predicateUserStatus);
+            List<Course> course4Day = Lists.newArrayList(Iterators.filter(courses.iterator(), unionUserPredicate));
+
+            List<CourseVO> courseVOs = convert2CourseVO(course4Day);
+
+            course4Days.add(new ScheduleVO.Course4Day(DateUtils.yearMonthDayFormat(tmp), courseVOs));
+        }
+
+        return course4Days;
+    }
+
+    private List<CourseVO> convert2CourseVO(List<Course> course4Day) {
+        List<CourseVO> courseVOs = Lists.newArrayList();
+
+        for (Course course : course4Day) {
+            CourseVO courseVO = new CourseVO();
+
+            courseVO.setTitle(course.getTitle());
+            courseVO.setTagName();
+            courseVO.setTime();
+            courseVO.setPrice();
+            courseVO.setYenPrice();
+            courseVO.setButton();
+            courseVO.setHotIcon();
+            courseVO.setStockIcon();
+            courseVO.setStock(course.getStock());
+        }
+
+        return null;
     }
 }

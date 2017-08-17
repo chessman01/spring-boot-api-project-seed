@@ -43,7 +43,11 @@ public class CourseVO {
 
     private String care;
 
+    private Integer stock;
+
     private CoachVO coachVO;
+
+    private Button button;
 
     public enum Status implements EnumMessage {
         // 状态。0：软删除；1：正常

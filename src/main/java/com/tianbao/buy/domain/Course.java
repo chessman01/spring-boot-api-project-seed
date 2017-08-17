@@ -4,6 +4,8 @@ import java.util.Date;
 import javax.persistence.*;
 
 public class Course {
+    private Integer stock;
+
     /**
      * 主键
      */
@@ -543,5 +545,13 @@ public class Course {
      */
     public void setStatus(Byte status) {
         this.status = status;
+    }
+
+    public Integer getStock() {
+        return stock;
+    }
+
+    public void setStock(Integer stock) {
+        this.stock = stock;
     }
 }
