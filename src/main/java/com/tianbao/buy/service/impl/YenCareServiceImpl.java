@@ -6,10 +6,9 @@ import com.tianbao.buy.domain.CouponTemplate;
 import com.tianbao.buy.domain.CouponUser;
 import com.tianbao.buy.domain.User;
 import com.tianbao.buy.domain.YenCare;
-import com.tianbao.buy.manager.CouponTemplateManager;
-import com.tianbao.buy.manager.CouponUserManager;
 import com.tianbao.buy.manager.YenCareManager;
 import com.tianbao.buy.service.BaseService;
+import com.tianbao.buy.service.CouponService;
 import com.tianbao.buy.service.UserService;
 import com.tianbao.buy.service.YenCareService;
 import com.tianbao.buy.vo.CouponVO;
@@ -30,6 +29,9 @@ public class YenCareServiceImpl extends BaseService implements YenCareService{
     @Resource
     private UserService userService;
 
+    @Resource
+    private CouponService couponService;
+
     @Override
     public List<YenCareVO> getAllByUser() {
         User user = userService.getUserByWxUnionId();
@@ -40,42 +42,17 @@ public class YenCareServiceImpl extends BaseService implements YenCareService{
 
     @Override
     public YenCareVO build(long cardId) {
-//        // 1. 找到用户的瘾卡
-//        User user = userService.getUserByWxUnionId();
+        // 1. 找到用户的瘾卡
+        User user = userService.getUserByWxUnionId();
+
+        YenCare card = getSpecifyCare(user.getId(), cardId);
+        YenCareVO cardVO = convert2CareVO(card);
+
+//        List<CouponVO> couponVOs = couponService.getCoupon4Recharge(user.getId(), )
 //
-//        YenCareVO yenCareVO = getYenCare(user.getId(), cardId);
+//        cardVO.setCouponVOs(couponVOs);
 //
-//        // 2. 找用户的礼券
-//        Condition condition = new Condition(CouponUser.class);
-//        condition.createCriteria().andCondition("user_id=", userId).andCondition("status=", 1);
-//
-//        List<CouponUser> couponUsers = couponUserManager.findByCondition(condition);
-//
-//        // 3. 找礼券模版
-//        condition = new Condition(CouponTemplate.class);
-//        condition.orderBy("rulePrice");
-//        condition.createCriteria().andCondition("status=", 1)
-//                .andCondition("pay_type=", 1).andCondition("rule=", 1);
-//
-//        List<CouponTemplate> couponTemplates = couponTemplateManager.findByCondition(condition);
-//
-//        List<CouponTemplate> effectCouponTemplates = Lists.newArrayList();
-//        Date current = new Date();
-//
-//        for (CouponTemplate couponTemplate : couponTemplates) {
-//            if (couponTemplate.getStartTime().after(current) || couponTemplate.getEndTime().before(current)) continue;
-//
-//            for (CouponUser couponUser : couponUsers) {
-//                if (couponTemplate.getId().equals(couponUser.getCouponTemplateId())) {
-//                    effectCouponTemplates.add(couponTemplate);
-//                }
-//            }
-//        }
-//
-//        List<CouponVO> couponVOs = convert2CouponVO(effectCouponTemplates);
-//        yenCareVO.setCouponVOs(couponVOs);
-//
-//        return yenCareVO;
+//        return cardVO;
         return null;
     }
 
