@@ -111,7 +111,7 @@ public class YenCareServiceImpl extends BaseService implements YenCareService{
         return yenCareVO;
     }
 
-    private List<YenCare> getCareByUser(long userId) {
+    public List<YenCare> getCareByUser(long userId) {
         Condition condition = new Condition(YenCare.class);
         condition.orderBy("type"); // 统一按卡类型排序
 

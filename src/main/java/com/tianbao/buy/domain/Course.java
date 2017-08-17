@@ -6,6 +6,8 @@ import javax.persistence.*;
 public class Course {
     private Integer stock;
 
+    private String tags;
+
     /**
      * 主键
      */
@@ -553,5 +555,13 @@ public class Course {
 
     public void setStock(Integer stock) {
         this.stock = stock;
+    }
+
+    public String getTags() {
+        return tags;
+    }
+
+    public void setTags(String tags) {
+        this.tags = tags;
     }
 }

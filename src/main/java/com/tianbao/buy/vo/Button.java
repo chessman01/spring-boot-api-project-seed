@@ -16,6 +16,8 @@ public class Button {
 
     private String icon;
 
+    private Boolean disable = true;
+
     @Data
     @NoArgsConstructor
     @AllArgsConstructor

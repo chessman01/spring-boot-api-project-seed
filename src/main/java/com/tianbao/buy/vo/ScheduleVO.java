@@ -16,7 +16,7 @@ public class ScheduleVO {
 
     private Address address;
 
-    private Course4Day course4Day;
+    private List<Course4Day> course4Day;
 
     @Data
     @NoArgsConstructor

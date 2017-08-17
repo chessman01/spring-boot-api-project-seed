@@ -6,16 +6,14 @@ import com.google.common.base.Splitter;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
-import com.tianbao.buy.domain.Coach;
-import com.tianbao.buy.domain.CouponUser;
-import com.tianbao.buy.domain.Course;
-import com.tianbao.buy.domain.Tag;
+import com.tianbao.buy.domain.*;
 import com.tianbao.buy.manager.CoachManager;
 import com.tianbao.buy.manager.CourseManager;
 import com.tianbao.buy.manager.TagManager;
 import com.tianbao.buy.service.CourseService;
 import com.tianbao.buy.service.PredicateWrapper;
+import com.tianbao.buy.service.UserService;
+import com.tianbao.buy.service.YenCareService;
 import com.tianbao.buy.utils.DateUtils;
 import com.tianbao.buy.vo.*;
 import org.apache.commons.lang3.StringUtils;
@@ -26,6 +24,7 @@ import org.springframework.stereotype.Service;
 import tk.mybatis.mapper.entity.Condition;
 
 import javax.annotation.Resource;
+import java.text.NumberFormat;
 import java.util.List;
 import java.util.Map;
 
@@ -37,6 +36,12 @@ public class CourseServiceImpl implements CourseService {
     @Value("${biz.schedule.tianma.address}")
     private String tianmaAddress;
 
+    @Value("${biz.schedule.stock.sell.out}")
+    private String sellOutPic;
+
+    @Value("${biz.schedule.stock.low}")
+    private String lowStockPic;
+
     @Resource
     private TagManager tagManager;
 
@@ -46,13 +51,21 @@ public class CourseServiceImpl implements CourseService {
     @Resource
     private CourseManager courseManager;
 
-    public ScheduleVO getSchedule(String date) {
+    @Resource
+    private YenCareService yenCareService;
+
+    @Resource
+    private UserService userService;
+
+    @Override
+    public ScheduleVO getSchedule(String date, int num) {
         ScheduleVO scheduleVO = new ScheduleVO();
         DateTime in = StringUtils.isBlank(date) ? new DateTime().withMillisOfDay(0) : new DateTime(date);
 
         setCalendar(in, scheduleVO);
         setBanner(scheduleVO);
         setAddress(scheduleVO);
+        setCourse(num, scheduleVO);
 
         return scheduleVO;
     }
@@ -100,7 +113,7 @@ public class CourseServiceImpl implements CourseService {
         for (Map.Entry<String,String> entry : kvs.entrySet()) {
             System.out.println(String.format("%s=%s", entry.getKey(),entry.getValue()));
 
-            Button banner = new Button(null, null, new Button.Event(entry.getValue(), null), entry.getKey());
+            Button banner = new Button(null, null, new Button.Event(entry.getValue(), null), entry.getKey(), true);
 
             banners.add(banner);
         }
@@ -108,7 +121,7 @@ public class CourseServiceImpl implements CourseService {
         scheduleVO.setBanner(banners);
     }
 
-    /** 获取到课程相关的所有tag **/
+    /** 获取到课程相关的所有tag 改了方案，暂不用了，搞太复杂了**/
     private List<TagVO> getAllTag4Course() {
         Condition condition = new Condition(Tag.class);
 
@@ -145,8 +158,8 @@ public class CourseServiceImpl implements CourseService {
         return coachVOs;
     }
 
-    /** 获取到一周的课程，并按日期分组 **/
-    private List<ScheduleVO.Course4Day> getCourseInWeek(int days) {
+    /** 获取到指定天数的课程，并按日期分组 **/
+    private void setCourse(int days, ScheduleVO scheduleVO) {
         DateTime current = new DateTime().withMillisOfDay(0);
         Condition condition = new Condition(Course.class);
 
@@ -171,7 +184,7 @@ public class CourseServiceImpl implements CourseService {
             course4Days.add(new ScheduleVO.Course4Day(DateUtils.yearMonthDayFormat(tmp), courseVOs));
         }
 
-        return course4Days;
+        scheduleVO.setCourse4Day(course4Days);
     }
 
     private List<CourseVO> convert2CourseVO(List<Course> course4Day) {
@@ -181,14 +194,48 @@ public class CourseServiceImpl implements CourseService {
             CourseVO courseVO = new CourseVO();
 
             courseVO.setTitle(course.getTitle());
-            courseVO.setTagName();
-            courseVO.setTime();
-            courseVO.setPrice();
-            courseVO.setYenPrice();
-            courseVO.setButton();
-            courseVO.setHotIcon();
-            courseVO.setStockIcon();
+            courseVO.setTags(course.getTags());
+            courseVO.setTime(DateUtils.monthDayFormat(new DateTime(course.getStartTime())) + "-"
+                    + DateUtils.monthDayFormat(new DateTime(course.getStartTime())));
+
+            Button button = new Button();
+
+            Button.Event event = new Button.Event("h5.m.taobao.com","click");
+            button.setEvent(event);
+            button.setTitle("预约");
+
+            if (course.getStock() < 10) {
+                courseVO.setStockIcon(lowStockPic);
+
+            }
+
+            if (course.getStock() == 0) {
+                courseVO.setStockIcon(sellOutPic);
+                button.setDisable(false);
+            }
+
+            courseVO.setButton(button);
             courseVO.setStock(course.getStock());
+
+            // 处理原价
+            NumberFormat numberFormat = NumberFormat.getNumberInstance();
+
+            numberFormat.setGroupingUsed(false);
+            numberFormat.setMaximumFractionDigits(2);
+
+            courseVO.setPrice(numberFormat.format(course.getPrice() / 100f));
+
+            // 处理瘾卡折扣价
+            int minDiscountRate = 100;
+            User user = userService.getUserByWxUnionId();
+            List<YenCare> yenCares = yenCareService.getCareByUser(user.getId());
+
+            for (YenCare yenCare : yenCares) {
+                if (yenCare.getDiscountRate() < minDiscountRate) minDiscountRate = yenCare.getDiscountRate();
+            }
+
+            double yenPrice = (course.getPrice() / 100f) * (minDiscountRate / 100f);
+            courseVO.setYenPrice(numberFormat.format(yenPrice));
         }
 
         return null;
