@@ -1,11 +1,14 @@
 package com.tianbao.buy.utils.enums;
 
+import org.springframework.stereotype.Component;
+
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@Component
 public class Constant {
 
     /**

@@ -17,9 +17,7 @@ public class CouponVO {
 
     private String sourceDesc;
 
-    private String startTime;
-
-    private String endTime;
+    private String time;
 
     private String rule;
 

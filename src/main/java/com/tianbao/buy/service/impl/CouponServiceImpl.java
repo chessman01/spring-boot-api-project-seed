@@ -9,7 +9,12 @@ import com.tianbao.buy.manager.CouponTemplateManager;
 import com.tianbao.buy.manager.CouponUserManager;
 import com.tianbao.buy.service.CouponPredicateWrapper;
 import com.tianbao.buy.service.CouponService;
+import com.tianbao.buy.utils.enums.EnumMessage;
+import com.tianbao.buy.utils.enums.EnumUtil;
 import com.tianbao.buy.vo.CouponVO;
+import org.joda.time.DateTime;
+import org.joda.time.Period;
+import org.joda.time.PeriodType;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -180,7 +185,32 @@ public class CouponServiceImpl implements CouponService {
             String price = numberFormat.format(couponTemplate.getPrice() / 100f);
             String rulePrice = numberFormat.format(couponTemplate.getRulePrice() / 100f);
             couponVO.setPrice(price);
-            couponVO.setRulePrice(rulePrice);
+            couponVO.setRulePrice("使用条件：订单满" + rulePrice);
+
+            DateTime start = new DateTime(couponTemplate.getStartTime());
+            DateTime end = new DateTime(couponTemplate.getEndTime());
+
+            couponVO.setTime("有效期：" + start.toString("yyyy.MM.dd") + "至" + end.toString("yyyy.MM.dd"));
+
+
+            if (couponTemplate.getPayType().equals(CouponVO.PayType.PAY_PER_VIEW.getCode())) {
+                couponVO.setPayType("仅限单次购买时使用。");
+            }
+
+            if (couponTemplate.getPayType().equals(CouponVO.PayType.RECHARGE.getCode())) {
+                couponVO.setPayType("仅限瘾卡充值时使用。");
+            }
+
+            //计算区间天数
+            Period p = new Period(new DateTime(), end, PeriodType.days());
+            int days = p.getDays();
+
+            if (days <= 7) couponVO.setTime(days + "天后过期");
+
+            CouponVO.Source enumSource = EnumUtil.getEnumObject(couponTemplate.getSource(), CouponVO.Source.class);
+
+            if (enumSource != null) couponVO.setSourceDesc("来源：" + enumSource.getDesc());
+
 
             couponVOs.add(couponVO);
         }
