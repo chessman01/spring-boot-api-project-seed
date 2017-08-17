@@ -11,7 +11,7 @@ import com.tianbao.buy.manager.CourseManager;
 import com.tianbao.buy.service.CourseService;
 import com.tianbao.buy.service.PredicateWrapper;
 import com.tianbao.buy.service.UserService;
-import com.tianbao.buy.service.YenCareService;
+import com.tianbao.buy.service.YenCardService;
 import com.tianbao.buy.utils.DateUtils;
 import com.tianbao.buy.vo.*;
 import org.apache.commons.lang3.StringUtils;
@@ -45,7 +45,7 @@ public class CourseServiceImpl implements CourseService {
     private CourseManager courseManager;
 
     @Resource
-    private YenCareService yenCareService;
+    private YenCardService yenCardService;
 
     @Resource
     private UserService userService;
@@ -210,10 +210,10 @@ public class CourseServiceImpl implements CourseService {
             // 处理瘾卡折扣价
             int minDiscountRate = 100;
             User user = userService.getUserByWxUnionId();
-            List<YenCare> yenCares = yenCareService.getCareByUser(user.getId());
+            List<YenCard> yenCards = yenCardService.getCardByUser(user.getId());
 
-            for (YenCare yenCare : yenCares) {
-                if (yenCare.getDiscountRate() < minDiscountRate) minDiscountRate = yenCare.getDiscountRate();
+            for (YenCard yenCard : yenCards) {
+                if (yenCard.getDiscountRate() < minDiscountRate) minDiscountRate = yenCard.getDiscountRate();
             }
 
             double yenPrice = (course.getPrice() / 100f) * (minDiscountRate / 100f);

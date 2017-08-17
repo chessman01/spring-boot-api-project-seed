@@ -51,7 +51,7 @@ public class CouponServiceImpl implements CouponService {
     }
 
     @Override
-    public List<CouponVO> getCareRechargeTemplate() {
+    public List<CouponVO> getCardRechargeTemplate() {
         // 1. 得到所有的模版
         List<CouponTemplate> couponTemplates = getTemplateList();
 

@@ -2,8 +2,8 @@ package com.tianbao.buy.rpc;
 
 import com.tianbao.buy.core.Result;
 import com.tianbao.buy.core.ResultGenerator;
-import com.tianbao.buy.service.impl.YenCareServiceImpl;
-import com.tianbao.buy.vo.YenCareVO;
+import com.tianbao.buy.service.impl.YenCardServiceImpl;
+import com.tianbao.buy.vo.YenCardVO;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -13,22 +13,22 @@ import javax.annotation.Resource;
 import java.util.List;
 
 @RestController
-@RequestMapping("/yen/care")
-public class YenCareRpc extends BaseRpc{
+@RequestMapping("/yen/card")
+public class YenCardRpc extends BaseRpc{
     @Resource
-    private YenCareServiceImpl yenCareServiceImpl;
+    private YenCardServiceImpl yenCardServiceImpl;
 
     @PostMapping("/list")
     public Result list() {
-        List<YenCareVO> voList = yenCareServiceImpl.getAllByUser();
+        List<YenCardVO> voList = yenCardServiceImpl.getAllByUser();
 
         return ResultGenerator.genSuccessResult(voList);
     }
 
     @PostMapping("/build")
     public Result build(@RequestParam Long cardId) {
-        YenCareVO careVO = yenCareServiceImpl.build(cardId);
+        YenCardVO cardVO = yenCardServiceImpl.build(cardId);
 
-        return ResultGenerator.genSuccessResult(careVO);
+        return ResultGenerator.genSuccessResult(cardVO);
     }
 }

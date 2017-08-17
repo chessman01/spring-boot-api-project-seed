@@ -63,7 +63,7 @@ public class CouponUserRpc {
 
     @PostMapping("/test")
     public Result test() {
-//        List<CouponVO> couponVOs = couponService.getCareRechargeTemplate();
+//        List<CouponVO> couponVOs = couponService.getCardRechargeTemplate();
 //        List<CouponVO> couponVOs = couponService.getCoupon4Recharge(123l, 500000);
 
         List<CouponVO> couponVOs = couponService.getCoupon(123l, (byte) 1, null);

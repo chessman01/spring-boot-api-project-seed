@@ -10,7 +10,7 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class YenCareVO {
+public class YenCardVO {
     private Long cardId;
 
     private String bgImage;

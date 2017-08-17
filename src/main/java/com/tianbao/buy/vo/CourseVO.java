@@ -43,7 +43,7 @@ public class CourseVO {
 
     private String care;
 
-    private Integer stock;
+    private Short stock;
 
     private CoachVO coachVO;
 

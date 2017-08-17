@@ -2,9 +2,9 @@ package com.tianbao.buy.service.impl;
 
 import com.tianbao.buy.core.BizException;
 import com.tianbao.buy.domain.User;
-import com.tianbao.buy.domain.YenCare;
+import com.tianbao.buy.domain.YenCard;
 import com.tianbao.buy.manager.UserManager;
-import com.tianbao.buy.manager.YenCareManager;
+import com.tianbao.buy.manager.YenCardManager;
 import com.tianbao.buy.service.BaseService;
 import com.tianbao.buy.service.UserService;
 import com.tianbao.buy.vo.UserVO;
@@ -20,14 +20,14 @@ import static com.google.common.base.Preconditions.checkArgument;
 
 @Service
 public class UserServiceImpl extends BaseService implements UserService {
-    @Value("${biz.care.discount.rate}")
-    private int careDiscountRate;
+    @Value("${biz.card.discount.rate}")
+    private int cardDiscountRate;
 
     @Resource
     protected UserManager userManager;
 
     @Resource
-    private YenCareManager yenCareManager;
+    private YenCardManager yenCardManager;
 
     @Override
     public User getUserByuserId(long userId) {
@@ -55,7 +55,7 @@ public class UserServiceImpl extends BaseService implements UserService {
 
             user = userManager.findBy("wxUnionId", wxUnionId);
 
-            initNormalCare(user.getId());
+            initNormalCard(user.getId());
         }
 
         if (user == null) throw new BizException("用户没发现");
@@ -83,14 +83,14 @@ public class UserServiceImpl extends BaseService implements UserService {
     }
 
     /* 初始化普通瘾卡 */
-    private void initNormalCare(long userId) {
+    private void initNormalCard(long userId) {
         checkArgument(userId > NumberUtils.LONG_ZERO);
 
-        YenCare care = new YenCare();
+        YenCard card = new YenCard();
 
-        care.setUserId(userId);
-        care.setDiscountRate(careDiscountRate);
+        card.setUserId(userId);
+        card.setDiscountRate(cardDiscountRate);
 
-        yenCareManager.save(care);
+        yenCardManager.save(card);
     }
 }

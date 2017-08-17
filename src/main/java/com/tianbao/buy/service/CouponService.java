@@ -9,7 +9,7 @@ public interface CouponService {
 
     List<CouponVO> getCoupon4PayPerView(long userId, int price, Long selectId);
 
-    List<CouponVO> getCareRechargeTemplate();
+    List<CouponVO> getCardRechargeTemplate();
 
     List<CouponVO> getCoupon(long userId, byte status, Long selectId);
 }
