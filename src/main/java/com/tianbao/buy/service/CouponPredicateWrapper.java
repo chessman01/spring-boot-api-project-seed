@@ -9,7 +9,7 @@ import java.util.Date;
 import java.util.Set;
 
 public class CouponPredicateWrapper {
-    public static Predicate<CouponUser> getPredicate4CouponUserStatus(final Set<Byte> set) {
+    public static Predicate<CouponUser> getPredicate4CouponUser(final Set<Byte> statuSet) {
         return new Predicate<CouponUser> () {
             @Override
             public boolean apply(CouponUser couponUser) {
@@ -17,9 +17,10 @@ public class CouponPredicateWrapper {
                     return false;
                 }
 
-                if (set.contains(couponUser.getStatus())) {
+                if (statuSet.contains(couponUser.getStatus())) {
                     return true;
                 }
+
                 return false;
             }
 
@@ -30,86 +31,37 @@ public class CouponPredicateWrapper {
         };
     }
 
-    public static Predicate<CouponTemplate> getPredicate4TemplateStatus(final Set<Byte> set) {
+    public static Predicate<CouponTemplate> getPredicate4Template(final Set<Byte> statusSet,
+                                                                  final Set<Byte> payTypeSet,
+                                                                  final Integer rulePrice,
+                                                                  final Date currentTime) {
         return new Predicate<CouponTemplate> () {
             @Override
             public boolean apply(CouponTemplate couponTemplate) {
+                boolean result = true;
+
                 if (couponTemplate == null) {
                     return false;
                 }
 
-                if (set.contains(couponTemplate.getStatus())) {
-                    return true;
+                if (statusSet != null && !statusSet.contains(couponTemplate.getStatus())) {
+                    result = false;
                 }
 
-                return false;
-            }
+                if (payTypeSet != null && !payTypeSet.contains(couponTemplate.getPayType())) {
+                    result = false;
+                }
 
-            @Override
-            public boolean test(@Nullable CouponTemplate input) {
-                return apply(input);
-            }
-        };
-    }
-
-    public static Predicate<CouponTemplate> getPredicate4TemplatePayType(final Set<Byte> set) {
-        return new Predicate<CouponTemplate> () {
-            @Override
-            public boolean apply(CouponTemplate couponTemplate) {
-                if (couponTemplate == null) {
+                if (rulePrice != null && couponTemplate.getRulePrice() > rulePrice) {
                     return false;
                 }
 
-                if (set.contains(couponTemplate.getPayType())) {
-                    return true;
-                }
-
-                return false;
-            }
-
-            @Override
-            public boolean test(@Nullable CouponTemplate input) {
-                return apply(input);
-            }
-        };
-    }
-
-    public static Predicate<CouponTemplate> getPredicate4TemplatePrice(final int rulePrice) {
-        return new Predicate<CouponTemplate> () {
-            @Override
-            public boolean apply(CouponTemplate couponTemplate) {
-                if (couponTemplate == null) {
+                if (currentTime.getTime() < couponTemplate.getStartTime().getTime()
+                        || currentTime.getTime() > couponTemplate.getEndTime().getTime()) {
                     return false;
                 }
 
-                if (couponTemplate.getRulePrice() <= rulePrice) {
-                    return true;
-                }
-
-                return false;
-            }
-
-            @Override
-            public boolean test(@Nullable CouponTemplate input) {
-                return apply(input);
-            }
-        };
-    }
-
-    public static Predicate<CouponTemplate> getPredicate4TemplateTime(final Date date) {
-        return new Predicate<CouponTemplate> () {
-            @Override
-            public boolean apply(CouponTemplate couponTemplate) {
-                if (couponTemplate == null) {
-                    return false;
-                }
-
-                if (date.getTime() < couponTemplate.getStartTime().getTime()
-                        || date.getTime() > couponTemplate.getEndTime().getTime()) {
-                    return false;
-                }
-
-                return true;
+                return result;
             }
 
             @Override

@@ -9,7 +9,6 @@ import com.tianbao.buy.manager.CouponTemplateManager;
 import com.tianbao.buy.manager.CouponUserManager;
 import com.tianbao.buy.service.CouponPredicateWrapper;
 import com.tianbao.buy.service.CouponService;
-import com.tianbao.buy.utils.enums.EnumMessage;
 import com.tianbao.buy.utils.enums.EnumUtil;
 import com.tianbao.buy.vo.CouponVO;
 import org.joda.time.DateTime;
@@ -56,10 +55,9 @@ public class CouponServiceImpl implements CouponService {
         List<CouponTemplate> couponTemplates = getTemplateList();
 
         // 2. 过滤出充值满送部分的模版
-        Predicate<CouponTemplate> predicate4TemplateStatus = CouponPredicateWrapper.getPredicate4TemplateStatus(Sets.newHashSet(CouponVO.Status.RECHARGE.getCode()));
-        Predicate<CouponTemplate> predicate4TemplateTime = CouponPredicateWrapper.getPredicate4TemplateTime(new Date());
+        Predicate<CouponTemplate> predicate = CouponPredicateWrapper.getPredicate4Template(Sets.newHashSet(CouponVO.Status.RECHARGE.getCode()), null, null, new Date());
 
-        Predicate<CouponTemplate> unionPredicate = Predicates.and(predicate4TemplateStatus, predicate4TemplateTime);
+        Predicate<CouponTemplate> unionPredicate = Predicates.and(predicate);
         List<CouponTemplate> filterResult = Lists.newArrayList(Iterators.filter(couponTemplates.iterator(), unionPredicate));
 
         // 3. 按赠送金额排序
@@ -77,24 +75,21 @@ public class CouponServiceImpl implements CouponService {
         return couponVOs;
     }
 
-    private List<CouponVO> getCoupon(long userId, int price, Set<Byte> payType, Set<Byte> status) {
+    private List<CouponVO> getCoupon(long userId, int price, Set<Byte> payTypeSet, Set<Byte> statusSet) {
         // 1. 得到所有的模版
         List<CouponTemplate> couponTemplates = getTemplateList();
 
         // 2. 过滤模版
-        Predicate<CouponTemplate> predicateStatus = CouponPredicateWrapper.getPredicate4TemplateStatus(status);
-        Predicate<CouponTemplate> predicatePayType = CouponPredicateWrapper.getPredicate4TemplatePayType(payType);
-        Predicate<CouponTemplate> predicateRulePrice = CouponPredicateWrapper.getPredicate4TemplatePrice(price);
-        Predicate<CouponTemplate> predicateTime = CouponPredicateWrapper.getPredicate4TemplateTime(new Date());
+        Predicate<CouponTemplate> predicate = CouponPredicateWrapper.getPredicate4Template(statusSet, payTypeSet, price, new Date());
 
-        Predicate<CouponTemplate> unionPredicate = Predicates.and(predicateStatus, predicatePayType, predicateRulePrice, predicateTime);
+        Predicate<CouponTemplate> unionPredicate = Predicates.and(predicate);
         List<CouponTemplate> filterCouponTemplate = Lists.newArrayList(Iterators.filter(couponTemplates.iterator(), unionPredicate));
 
         // 3. 获取用户所有礼券
         List<CouponUser> couponUsers = getRelation(userId);
 
         // 4. 过滤礼券
-        Predicate<CouponUser> predicateUserStatus = CouponPredicateWrapper.getPredicate4CouponUserStatus(Sets.newHashSet(status));
+        Predicate<CouponUser> predicateUserStatus = CouponPredicateWrapper.getPredicate4CouponUser(Sets.newHashSet(statusSet));
         Predicate<CouponUser> unionUserPredicate = Predicates.and(predicateUserStatus);
         List<CouponUser> filterCouponUser = Lists.newArrayList(Iterators.filter(couponUsers.iterator(), unionUserPredicate));
 
