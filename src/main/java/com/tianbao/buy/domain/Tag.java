@@ -34,12 +34,12 @@ public class Tag {
     private String desc;
 
     /**
-     * 状态。0：软删除；1：正常
+     * 状态。0：软删除；1:正常；2：冻结
      */
     private Byte status;
 
     /**
-     * 类型。0：通用；1：课程
+     * 类型。1：通用；2：课程
      */
     private Byte type;
 
@@ -134,36 +134,36 @@ public class Tag {
     }
 
     /**
-     * 获取状态。0：软删除；1：正常
+     * 获取状态。0：软删除；1:正常；2：冻结
      *
-     * @return status - 状态。0：软删除；1：正常
+     * @return status - 状态。0：软删除；1:正常；2：冻结
      */
     public Byte getStatus() {
         return status;
     }
 
     /**
-     * 设置状态。0：软删除；1：正常
+     * 设置状态。0：软删除；1:正常；2：冻结
      *
-     * @param status 状态。0：软删除；1：正常
+     * @param status 状态。0：软删除；1:正常；2：冻结
      */
     public void setStatus(Byte status) {
         this.status = status;
     }
 
     /**
-     * 获取类型。0：通用；1：课程
+     * 获取类型。1：通用；2：课程
      *
-     * @return type - 类型。0：通用；1：课程
+     * @return type - 类型。1：通用；2：课程
      */
     public Byte getType() {
         return type;
     }
 
     /**
-     * 设置类型。0：通用；1：课程
+     * 设置类型。1：通用；2：课程
      *
-     * @param type 类型。0：通用；1：课程
+     * @param type 类型。1：通用；2：课程
      */
     public void setType(Byte type) {
         this.type = type;

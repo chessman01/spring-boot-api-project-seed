@@ -30,7 +30,7 @@ public class CouponTemplate {
     private Integer price;
 
     /**
-     * 来源类型。0：充值瘾卡赠送模版-保留；1：邀请好友；2：线下领取；3：微信领取；
+     * 来源类型。1：邀请好友；2：线下领取；3：微信领取；
      */
     private Byte source;
 
@@ -47,7 +47,7 @@ public class CouponTemplate {
     private Date endTime;
 
     /**
-     * 规则。1：满送；2:抵扣
+     * 规则。1：满送；2:抵扣。注意：此字段暂不用
      */
     private Byte rule;
 
@@ -64,7 +64,7 @@ public class CouponTemplate {
     private Byte payType;
 
     /**
-     * 状态。0：删除；1：正常；2：已过期
+     * 状态。0：删除；1：正常；2：已过期；8：充值瘾卡赠送模版-保留；
      */
     private Byte status;
 
@@ -141,18 +141,18 @@ public class CouponTemplate {
     }
 
     /**
-     * 获取来源类型。0：充值瘾卡赠送模版-保留；1：邀请好友；2：线下领取；3：微信领取；
+     * 获取来源类型。1：邀请好友；2：线下领取；3：微信领取；
      *
-     * @return source - 来源类型。0：充值瘾卡赠送模版-保留；1：邀请好友；2：线下领取；3：微信领取；
+     * @return source - 来源类型。1：邀请好友；2：线下领取；3：微信领取；
      */
     public Byte getSource() {
         return source;
     }
 
     /**
-     * 设置来源类型。0：充值瘾卡赠送模版-保留；1：邀请好友；2：线下领取；3：微信领取；
+     * 设置来源类型。1：邀请好友；2：线下领取；3：微信领取；
      *
-     * @param source 来源类型。0：充值瘾卡赠送模版-保留；1：邀请好友；2：线下领取；3：微信领取；
+     * @param source 来源类型。1：邀请好友；2：线下领取；3：微信领取；
      */
     public void setSource(Byte source) {
         this.source = source;
@@ -195,18 +195,18 @@ public class CouponTemplate {
     }
 
     /**
-     * 获取规则。1：满送；2:抵扣
+     * 获取规则。1：满送；2:抵扣。注意：此字段暂不用
      *
-     * @return rule - 规则。1：满送；2:抵扣
+     * @return rule - 规则。1：满送；2:抵扣。注意：此字段暂不用
      */
     public Byte getRule() {
         return rule;
     }
 
     /**
-     * 设置规则。1：满送；2:抵扣
+     * 设置规则。1：满送；2:抵扣。注意：此字段暂不用
      *
-     * @param rule 规则。1：满送；2:抵扣
+     * @param rule 规则。1：满送；2:抵扣。注意：此字段暂不用
      */
     public void setRule(Byte rule) {
         this.rule = rule;
@@ -249,18 +249,18 @@ public class CouponTemplate {
     }
 
     /**
-     * 获取状态。0：删除；1：正常；2：已过期
+     * 获取状态。0：删除；1：正常；2：已过期；8：充值瘾卡赠送模版-保留；
      *
-     * @return status - 状态。0：删除；1：正常；2：已过期
+     * @return status - 状态。0：删除；1：正常；2：已过期；8：充值瘾卡赠送模版-保留；
      */
     public Byte getStatus() {
         return status;
     }
 
     /**
-     * 设置状态。0：删除；1：正常；2：已过期
+     * 设置状态。0：删除；1：正常；2：已过期；8：充值瘾卡赠送模版-保留；
      *
-     * @param status 状态。0：删除；1：正常；2：已过期
+     * @param status 状态。0：删除；1：正常；2：已过期；8：充值瘾卡赠送模版-保留；
      */
     public void setStatus(Byte status) {
         this.status = status;

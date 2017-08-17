@@ -4,10 +4,6 @@ import java.util.Date;
 import javax.persistence.*;
 
 public class Course {
-    private Integer stock;
-
-    private String tags;
-
     /**
      * 主键
      */
@@ -60,6 +56,9 @@ public class Course {
      */
     private String desc;
 
+    /**
+     * 暂不用
+     */
     @Column(name = "tag_ids")
     private String tagIds;
 
@@ -124,6 +123,16 @@ public class Course {
      * 状态。0：软删除；1：正常
      */
     private Byte status;
+
+    /**
+     * 库存数。
+     */
+    private Short stock;
+
+    /**
+     * 标签
+     */
+    private String tags;
 
     /**
      * 获取主键
@@ -288,14 +297,18 @@ public class Course {
     }
 
     /**
-     * @return tag_ids
+     * 获取暂不用
+     *
+     * @return tag_ids - 暂不用
      */
     public String getTagIds() {
         return tagIds;
     }
 
     /**
-     * @param tagIds
+     * 设置暂不用
+     *
+     * @param tagIds 暂不用
      */
     public void setTagIds(String tagIds) {
         this.tagIds = tagIds;
@@ -549,18 +562,38 @@ public class Course {
         this.status = status;
     }
 
-    public Integer getStock() {
+    /**
+     * 获取库存数。
+     *
+     * @return stock - 库存数。
+     */
+    public Short getStock() {
         return stock;
     }
 
-    public void setStock(Integer stock) {
+    /**
+     * 设置库存数。
+     *
+     * @param stock 库存数。
+     */
+    public void setStock(Short stock) {
         this.stock = stock;
     }
 
+    /**
+     * 获取标签
+     *
+     * @return tags - 标签
+     */
     public String getTags() {
         return tags;
     }
 
+    /**
+     * 设置标签
+     *
+     * @param tags 标签
+     */
     public void setTags(String tags) {
         this.tags = tags;
     }

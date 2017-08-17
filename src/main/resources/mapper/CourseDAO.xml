@@ -31,5 +31,7 @@
     <result column="care" jdbcType="VARCHAR" property="care" />
     <result column="coach_id" jdbcType="BIGINT" property="coachId" />
     <result column="status" jdbcType="TINYINT" property="status" />
+    <result column="stock" jdbcType="SMALLINT" property="stock" />
+    <result column="tags" jdbcType="VARCHAR" property="tags" />
   </resultMap>
 </mapper>
