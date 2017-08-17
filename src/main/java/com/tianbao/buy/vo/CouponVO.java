@@ -144,7 +144,7 @@ public class CouponVO {
         NORMAL((byte)1, "正常"),
         EXPIRED((byte)2, "已过期"),
         USED((byte)3, "已使用"),
-        RECHARGE((byte)8, "充值瘾卡赠送模版-保留"),;
+        RECHARGE((byte)8, "充值瘾卡赠送模版-保留");
 
         public byte code;
 

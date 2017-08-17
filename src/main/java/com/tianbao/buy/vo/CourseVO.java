@@ -5,54 +5,47 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Date;
+import java.util.List;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class TagVO {
+public class CourseVO {
     private Long id;
-    private String name;
 
-    public enum Type implements EnumMessage {
-        // 类型。1：通用；2：课程
-        NORMAL((byte)1, "通用"),
-        COURSE((byte)2, "课程");
+    private String title;
 
-        public byte code;
+    private String address;
 
-        public String desc;
+    private Date startTime;
 
-        Type(byte code, String desc) {
-            this.code = code;
-            this.desc = desc;
-        }
+    private Date endTime;
 
-        public String getDesc() {
-            return desc;
-        }
+    private Integer price;
 
-        public void setDesc(String desc) {
-            this.desc = desc;
-        }
+    private String desc;
 
-        public byte getCode() {
-            return code;
-        }
+    private List<TagVO> tagName;
 
-        public void setCode(byte code) {
-            this.code = code;
-        }
+    private List<String> mainPics;
 
-        @Override
-        public Object getValue() {
-            return code;
-        }
-    }
+    private List<String> subPics;
+
+    private String trainingEffect;
+
+    private String crowd;
+
+    private String faq;
+
+    private String care;
+
+    private CoachVO coachVO;
 
     public enum Status implements EnumMessage {
-        // 状态。0：软删除；1:正常；2：冻结
+        // 状态。0：软删除；1：正常
         DEL((byte)0, "已删除"),
-        NORMAL((byte)1, "正常"),
-        BLOCKED((byte)2, "冻结");
+        NORMAL((byte)1, "正常");
 
         public byte code;
 

@@ -8,20 +8,28 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class TagVO {
+public class CoachVO {
     private Long id;
-    private String name;
 
-    public enum Type implements EnumMessage {
-        // 类型。1：通用；2：课程
-        NORMAL((byte)1, "通用"),
-        COURSE((byte)2, "课程");
+    private String nick;
+
+    private String phone;
+
+    private String desc;
+
+    private String avatar;
+
+    public enum Status implements EnumMessage {
+        // 状态。0：软删除；1:正常；2：冻结
+        DEL((byte)0, "已删除"),
+        NORMAL((byte)1, "正常"),
+        BLOCKED((byte)2, "冻结");
 
         public byte code;
 
         public String desc;
 
-        Type(byte code, String desc) {
+        Status(byte code, String desc) {
             this.code = code;
             this.desc = desc;
         }
@@ -48,17 +56,16 @@ public class TagVO {
         }
     }
 
-    public enum Status implements EnumMessage {
-        // 状态。0：软删除；1:正常；2：冻结
-        DEL((byte)0, "已删除"),
-        NORMAL((byte)1, "正常"),
-        BLOCKED((byte)2, "冻结");
+    public enum Sex implements EnumMessage {
+        // 性别。1：男；0：女
+        MALE((byte)1, "男"),
+        FEMALE((byte)0, "女");
 
         public byte code;
 
         public String desc;
 
-        Status(byte code, String desc) {
+        Sex(byte code, String desc) {
             this.code = code;
             this.desc = desc;
         }

@@ -2,6 +2,7 @@ package com.tianbao.buy.service.impl;
 
 import com.google.common.collect.Lists;
 import com.tianbao.buy.domain.Tag;
+import com.tianbao.buy.manager.CourseManager;
 import com.tianbao.buy.manager.TagManager;
 import com.tianbao.buy.service.CourseService;
 import com.tianbao.buy.vo.TagVO;
@@ -16,6 +17,11 @@ import java.util.List;
 public class CourseServiceImpl implements CourseService {
     @Resource
     private TagManager tagManager;
+
+    @Resource
+    private CourseManager courseManager;
+
+//    public
 
     /** 获取到课程相关的所有tag **/
     private List<TagVO> get4Course() {

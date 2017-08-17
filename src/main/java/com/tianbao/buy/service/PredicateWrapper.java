@@ -3,12 +3,35 @@ package com.tianbao.buy.service;
 import com.google.common.base.Predicate;
 import com.tianbao.buy.domain.CouponTemplate;
 import com.tianbao.buy.domain.CouponUser;
+import com.tianbao.buy.vo.TagVO;
 
 import javax.annotation.Nullable;
 import java.util.Date;
 import java.util.Set;
 
 public class PredicateWrapper {
+    public static Predicate<TagVO> getPredicate4Tag(final Set<Long> idSet) {
+        return new Predicate<TagVO> () {
+            @Override
+            public boolean apply(TagVO tagVO) {
+                if (tagVO == null) {
+                    return false;
+                }
+
+                if (idSet.contains(tagVO.getId())) {
+                    return true;
+                }
+
+                return false;
+            }
+
+            @Override
+            public boolean test(@Nullable TagVO input) {
+                return apply(input);
+            }
+        };
+    }
+
     public static Predicate<CouponUser> getPredicate4CouponUser(final Set<Byte> statuSet) {
         return new Predicate<CouponUser> () {
             @Override
