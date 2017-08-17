@@ -17,6 +17,7 @@ import com.tianbao.buy.service.YenCareService;
 import com.tianbao.buy.utils.DateUtils;
 import com.tianbao.buy.vo.*;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.joda.time.DateTime;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Value;
@@ -58,7 +59,7 @@ public class CourseServiceImpl implements CourseService {
     private UserService userService;
 
     @Override
-    public ScheduleVO getSchedule(String date, int num) {
+    public ScheduleVO schedule(String date, int num) {
         ScheduleVO scheduleVO = new ScheduleVO();
         DateTime in = StringUtils.isBlank(date) ? new DateTime().withMillisOfDay(0) : new DateTime(date);
 
@@ -68,6 +69,11 @@ public class CourseServiceImpl implements CourseService {
         setCourse(num, scheduleVO);
 
         return scheduleVO;
+    }
+
+    @Override
+    public CourseVO detail(long id) {
+        return null;
     }
 
     private void setAddress(ScheduleVO scheduleVO) {
@@ -158,6 +164,12 @@ public class CourseServiceImpl implements CourseService {
         return coachVOs;
     }
 
+    private CourseVO getCourse(long id) {
+        Course course = courseManager.findById(id);
+
+        return convert2CourseVO(course);
+    }
+
     /** 获取到指定天数的课程，并按日期分组 **/
     private void setCourse(int days, ScheduleVO scheduleVO) {
         DateTime current = new DateTime().withMillisOfDay(0);
@@ -185,6 +197,15 @@ public class CourseServiceImpl implements CourseService {
         }
 
         scheduleVO.setCourse4Day(course4Days);
+    }
+
+    private CourseVO convert2CourseVO(Course course) {
+        CourseVO courseVO = convert2CourseVO(Lists.newArrayList(course)).get(NumberUtils.INTEGER_ZERO);
+        Map<Long, CoachVO> coachVOMap = getAllCoach();
+
+
+
+        return courseVO;
     }
 
     private List<CourseVO> convert2CourseVO(List<Course> course4Day) {
@@ -236,8 +257,10 @@ public class CourseServiceImpl implements CourseService {
 
             double yenPrice = (course.getPrice() / 100f) * (minDiscountRate / 100f);
             courseVO.setYenPrice(numberFormat.format(yenPrice));
+
+            courseVOs.add(courseVO);
         }
 
-        return null;
+        return courseVOs;
     }
 }
