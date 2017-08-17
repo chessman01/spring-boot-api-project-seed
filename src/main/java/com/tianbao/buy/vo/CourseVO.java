@@ -5,7 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Date;
 import java.util.List;
 
 @Data
@@ -18,15 +17,19 @@ public class CourseVO {
 
     private String address;
 
-    private Date startTime;
+    private String time;
 
-    private Date endTime;
+    private String price;
 
-    private Integer price;
+    private String yenPrice;
 
     private String desc;
 
     private List<TagVO> tagName;
+
+    private String hotIcon;
+
+    private String stockIcon;
 
     private List<String> mainPics;
 

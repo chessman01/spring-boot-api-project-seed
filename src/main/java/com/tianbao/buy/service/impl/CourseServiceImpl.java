@@ -1,32 +1,110 @@
 package com.tianbao.buy.service.impl;
 
+import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.tianbao.buy.domain.Coach;
+import com.tianbao.buy.domain.Course;
 import com.tianbao.buy.domain.Tag;
+import com.tianbao.buy.manager.CoachManager;
 import com.tianbao.buy.manager.CourseManager;
 import com.tianbao.buy.manager.TagManager;
 import com.tianbao.buy.service.CourseService;
-import com.tianbao.buy.vo.TagVO;
+import com.tianbao.buy.utils.DateUtils;
+import com.tianbao.buy.vo.*;
+import org.apache.commons.lang3.StringUtils;
+import org.joda.time.DateTime;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import tk.mybatis.mapper.entity.Condition;
 
 import javax.annotation.Resource;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class CourseServiceImpl implements CourseService {
+    @Value("${biz.schedule.top.banner}")
+    private String topBanner;
+
+    @Value("${biz.schedule.tianma.address}")
+    private String tianmaAddress;
+
     @Resource
     private TagManager tagManager;
 
     @Resource
+    private CoachManager coachManager;
+
+    @Resource
     private CourseManager courseManager;
 
-//    public
+    public ScheduleVO getSchedule(String date) {
+        ScheduleVO scheduleVO = new ScheduleVO();
+        DateTime in = StringUtils.isBlank(date) ? new DateTime().withMillisOfDay(0) : new DateTime(date);
+
+        setCalendar(in, scheduleVO);
+        setBanner(scheduleVO);
+        setAddress(scheduleVO);
+
+        return scheduleVO;
+    }
+
+    private void setAddress(ScheduleVO scheduleVO) {
+        String[] tmp = tianmaAddress.split(",");
+        ScheduleVO.Address address = new ScheduleVO.Address();
+
+        if (tmp.length != 4) return;
+
+        address.setDetailAddress(tmp[0]);
+        address.setName(tmp[1]);
+        address.setLatitude(tmp[2]);
+        address.setLongitude(tmp[3]);
+
+        scheduleVO.setAddress(address);
+    }
+
+    private void setCalendar(DateTime in, ScheduleVO scheduleVO) {
+        DateTime current = new DateTime().withMillisOfDay(0);
+        DateTime tmp;
+        List<ScheduleVO.Date> dates = Lists.newArrayList();
+
+        for (int i = 0; i < 7; i++) {
+            ScheduleVO.Date date = new ScheduleVO.Date();
+
+            tmp = DateUtils.plusDays(i, current);
+
+            date.setSelected(DateUtils.isEqual(tmp,in ));
+            date.setDayOfWeek(DateUtils.getDayOfWeek(tmp));
+            date.setDayOfWeekDetail(DateUtils.getDayOfWeek(tmp, current));
+            date.setMonthDayFormat(DateUtils.monthDayFormat(tmp));
+            date.setYearMonthDayFormat(DateUtils.yearMonthDayFormat(tmp));
+
+            dates.add(date);
+        }
+
+        scheduleVO.setCalendar(dates);
+    }
+
+    private void setBanner(ScheduleVO scheduleVO) {
+        List<Button> banners = Lists.newArrayList();
+        Map<String,String> kvs = Splitter.onPattern("##").withKeyValueSeparator("??").split(topBanner);
+
+        for (Map.Entry<String,String> entry : kvs.entrySet()) {
+            System.out.println(String.format("%s=%s", entry.getKey(),entry.getValue()));
+
+            Button banner = new Button(null, null, new Button.Event(entry.getValue(), null), entry.getKey());
+
+            banners.add(banner);
+        }
+
+        scheduleVO.setBanner(banners);
+    }
 
     /** 获取到课程相关的所有tag **/
-    private List<TagVO> get4Course() {
+    private List<TagVO> getAllTag4Course() {
         Condition condition = new Condition(Tag.class);
-        condition.orderBy("type"); // 统一按卡类型排序
 
         condition.createCriteria().andCondition("status=", TagVO.Status.NORMAL.getCode())
                 .andIn("type", Lists.newArrayList(TagVO.Type.NORMAL.getCode(), TagVO.Type.COURSE.getCode()));
@@ -41,5 +119,23 @@ public class CourseServiceImpl implements CourseService {
         });
 
         return tagVOs;
+    }
+
+    /** 获取到课程相关的所有tag **/
+    private Map<Long, CoachVO> getAllCoach() {
+        Condition condition = new Condition(Coach.class);
+
+        condition.createCriteria().andCondition("status=", CoachVO.Status.NORMAL.getCode());
+
+        List<Coach> coaches = coachManager.findByCondition(condition);
+        Map<Long, CoachVO> coachVOs = Maps.newConcurrentMap();
+
+        coaches.stream().forEach(coach -> {
+            CoachVO coachVO = new CoachVO();
+            BeanUtils.copyProperties(coach, coachVO);
+            coachVOs.put(coachVO.getId(), coachVO);
+        });
+
+        return coachVOs;
     }
 }
