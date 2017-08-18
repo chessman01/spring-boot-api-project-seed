@@ -8,11 +8,12 @@ import lombok.Data;
 public class FundDetailVO extends FundDetail{
     // 这里直接继承了FundDetail，不需要对字段进行转义给前端
     public enum Channel implements EnumMessage {
-        // 支付通道。0：瘾卡；1：微信；2：礼券；3：赠送
+        // 支付通道。0：瘾卡；1：微信；2：礼券；3：赠送；8：结束
         YENCARD((byte)0, "瘾卡"),
         WEIXIN((byte)1, "微信"),
-        COUPON((byte)2, "瘾卡"),
-        GIFT((byte)3, "瘾卡");
+        COUPON((byte)2, "礼券"),
+        GIFT((byte)3, "赠送"),
+        END((byte)8, "结束");
 
         public byte code;
 

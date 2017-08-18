@@ -44,6 +44,10 @@ public abstract class AbstractManager<T> implements Manager<T> {
         return mapper.updateByPrimaryKeySelective(model);
     }
 
+    public int update(T model, Condition condition) {
+        return mapper.updateByConditionSelective(model, condition);
+    }
+
     public T findById(Long id) {
         return mapper.selectByPrimaryKey(id);
     }
