@@ -36,9 +36,16 @@ public class FundDetail {
     private Integer price;
 
     /**
-     * 支付通道。0：瘾卡；1：微信；2：礼券；3：赠送
+     * 支付通道。0：瘾卡；1：微信；2：礼券；3：赠送；8：结束
      */
-    private Byte channel;
+    @Column(name = "from_channel")
+    private Byte fromChannel;
+
+    /**
+     * 支付通道。0：瘾卡；1：微信；2：礼券；3：赠送；8：结束
+     */
+    @Column(name = "to_channel")
+    private Byte toChannel;
 
     /**
      * 流动方向。0：支出；1：进账；
@@ -141,21 +148,39 @@ public class FundDetail {
     }
 
     /**
-     * 获取支付通道。0：瘾卡；1：微信；2：礼券；3：赠送
+     * 获取支付通道。0：瘾卡；1：微信；2：礼券；3：赠送；8：结束
      *
-     * @return channel - 支付通道。0：瘾卡；1：微信；2：礼券；3：赠送
+     * @return from_channel - 支付通道。0：瘾卡；1：微信；2：礼券；3：赠送；8：结束
      */
-    public Byte getChannel() {
-        return channel;
+    public Byte getFromChannel() {
+        return fromChannel;
     }
 
     /**
-     * 设置支付通道。0：瘾卡；1：微信；2：礼券；3：赠送
+     * 设置支付通道。0：瘾卡；1：微信；2：礼券；3：赠送；8：结束
      *
-     * @param channel 支付通道。0：瘾卡；1：微信；2：礼券；3：赠送
+     * @param fromChannel 支付通道。0：瘾卡；1：微信；2：礼券；3：赠送；8：结束
      */
-    public void setChannel(Byte channel) {
-        this.channel = channel;
+    public void setFromChannel(Byte fromChannel) {
+        this.fromChannel = fromChannel;
+    }
+
+    /**
+     * 获取支付通道。0：瘾卡；1：微信；2：礼券；3：赠送；8：结束
+     *
+     * @return to_channel - 支付通道。0：瘾卡；1：微信；2：礼券；3：赠送；8：结束
+     */
+    public Byte getToChannel() {
+        return toChannel;
+    }
+
+    /**
+     * 设置支付通道。0：瘾卡；1：微信；2：礼券；3：赠送；8：结束
+     *
+     * @param toChannel 支付通道。0：瘾卡；1：微信；2：礼券；3：赠送；8：结束
+     */
+    public void setToChannel(Byte toChannel) {
+        this.toChannel = toChannel;
     }
 
     /**

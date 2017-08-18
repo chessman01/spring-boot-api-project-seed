@@ -10,7 +10,8 @@
     <result column="modify_time" jdbcType="TIMESTAMP" property="modifyTime" />
     <result column="order_id" jdbcType="BIGINT" property="orderId" />
     <result column="price" jdbcType="INTEGER" property="price" />
-    <result column="channel" jdbcType="TINYINT" property="channel" />
+    <result column="from_channel" jdbcType="TINYINT" property="fromChannel" />
+    <result column="to_channel" jdbcType="TINYINT" property="toChannel" />
     <result column="direction" jdbcType="TINYINT" property="direction" />
     <result column="status" jdbcType="TINYINT" property="status" />
   </resultMap>
