@@ -69,7 +69,7 @@ public class YenCardVO {
         // 状态。0：软删除；1:正常；2：冻结
         DEL((byte)0, "已删除"),
         NORMAL((byte)1, "正常"),
-        BLOCKED((byte)1, "冻结");
+        BLOCKED((byte)2, "冻结");
 
         public byte code;
 

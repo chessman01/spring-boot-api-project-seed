@@ -18,6 +18,13 @@ public class CoachServiceImpl implements CoachService {
     @Resource
     private CoachManager coachManager;
 
+    @Override
+    public CoachVO getCoach(long id) {
+        Map<Long, CoachVO> coachVOMap = getAllCoach();
+
+        return coachVOMap.get(id);
+    }
+
     /** 获取到所有教练 **/
     private Map<Long, CoachVO> getAllCoach() {
         Condition condition = new Condition(Coach.class);
