@@ -73,12 +73,12 @@ public class CouponServiceImpl implements CouponService {
         if (couponVOs == null) return Lists.newArrayList();
         if (couponVOs.size() > 1) {
             couponVOs.get(1).setSelected(true);
-            context.setCurrentTemplate(filterResult.get(1));
+            context.setTemplate(filterResult.get(1));
         }
 
         if (couponVOs.size() == 1) {
             couponVOs.get(0).setSelected(true);
-            context.setCurrentTemplate(filterResult.get(0));
+            context.setTemplate(filterResult.get(0));
         }
 
         return couponVOs;

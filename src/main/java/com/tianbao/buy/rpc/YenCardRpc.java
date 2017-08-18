@@ -26,10 +26,9 @@ public class YenCardRpc extends BaseRpc{
     }
 
     @PostMapping("/build")
-    public Result build(@RequestParam Long cardId) {
-//        YenCardVO cardVO = yenCardServiceImpl.build(cardId);
+    public Result build() {
+        YenCardVO cardVO = yenCardServiceImpl.build();
 
-//        return ResultGenerator.genSuccessResult(cardVO);
-        return null;
+        return ResultGenerator.genSuccessResult(cardVO);
     }
 }

@@ -52,6 +52,7 @@ public class YenCardServiceImpl extends BaseService implements YenCardService{
 
         Context context = new Context();
         context.setUser(user);
+        context.setCard(card);
 
         // 2. 找到充值模版
         List<CouponVO> templates = couponService.getCardRechargeTemplate(context);
@@ -65,6 +66,10 @@ public class YenCardServiceImpl extends BaseService implements YenCardService{
 
         // 4. 充值按钮
         Button button = new Button();
+
+        button.setEvent(new Button.Event("http://h5.m.taobao.com", "click"));
+        String price = MoneyUtils.format(2, (context.getTemplate().getRulePrice() - context.getCoupon().getPrice()) / 100);
+        button.setTitle("支付（￥" + price + "）");
 
         return cardVO;
     }

@@ -10,7 +10,7 @@ public class Context {
 
     private YenCard card;
 
-    private CouponTemplate currentTemplate;
+    private CouponTemplate template;
 
     private CouponTemplate coupon;
 }
