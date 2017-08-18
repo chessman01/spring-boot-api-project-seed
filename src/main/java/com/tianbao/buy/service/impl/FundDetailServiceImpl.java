@@ -48,17 +48,17 @@ public class FundDetailServiceImpl {
                                FundDetailVO.AccountType accountType, FundDetailVO.Status status) {
         FundDetail fundDetail = new FundDetail();
 
-        fundDetail.setId(id);
-        fundDetail.setUserId(userId);
-        fundDetail.setChannel(channel.getCode());
-        fundDetail.setTarget(target.getCode());
-        fundDetail.setOrginId(orginId);
-        fundDetail.setPrice(price);
-        fundDetail.setPayOrderId(payOrderId);
-        fundDetail.setDirection(direction.getCode());
-        fundDetail.setRechargeCouponeId(rechargeCouponeId);
-        fundDetail.setAccountType(accountType.getCode());
-        fundDetail.setStatus(status.getCode());
+//        fundDetail.setId(id);
+//        fundDetail.setUserId(userId);
+//        fundDetail.setChannel(channel.getCode());
+//        fundDetail.setTarget(target.getCode());
+//        fundDetail.setOrginId(orginId);
+//        fundDetail.setPrice(price);
+//        fundDetail.setPayOrderId(payOrderId);
+//        fundDetail.setDirection(direction.getCode());
+//        fundDetail.setRechargeCouponeId(rechargeCouponeId);
+//        fundDetail.setAccountType(accountType.getCode());
+//        fundDetail.setStatus(status.getCode());
 
         return fundDetail;
     }
