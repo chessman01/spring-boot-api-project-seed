@@ -4,7 +4,7 @@ import com.tianbao.buy.domain.FundDetail;
 import com.tianbao.buy.core.Manager;
 
 /**
- * Created by CodeGenerator on 2017/08/17.
+ * Created by CodeGenerator on 2017/08/18.
  */
 public interface FundDetailManager extends Manager<FundDetail> {
 

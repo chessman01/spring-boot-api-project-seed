@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 
 /**
- * Created by CodeGenerator on 2017/08/17.
+ * Created by CodeGenerator on 2017/08/18.
  */
 @Service
 public class CourseManagerImpl extends AbstractManager<Course> implements CourseManager {
