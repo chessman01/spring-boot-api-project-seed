@@ -29,6 +29,8 @@ public class YenCardVO {
 
     private List<CouponVO> templates;
 
+    private Button button;
+
     public enum Type implements EnumMessage {
         // 类型。1：普通；2：情侣
         NORMAL((byte)1, "正常"),

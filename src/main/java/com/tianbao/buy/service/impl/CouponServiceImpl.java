@@ -3,6 +3,7 @@ package com.tianbao.buy.service.impl;
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 import com.google.common.collect.*;
+import com.tianbao.buy.domain.Context;
 import com.tianbao.buy.domain.CouponTemplate;
 import com.tianbao.buy.domain.CouponUser;
 import com.tianbao.buy.manager.CouponTemplateManager;
@@ -33,25 +34,25 @@ public class CouponServiceImpl implements CouponService {
     private CouponTemplateManager couponTemplateManager;
 
     @Override
-    public List<CouponVO> getCoupon(long userId, byte status, Long selectId) {
-        return getCoupon(userId, Integer.MAX_VALUE, Sets.newHashSet(CouponVO.PayType.RECHARGE.getCode(),
-                CouponVO.PayType.PAY_PER_VIEW.getCode()), Sets.newHashSet(status), selectId);
+    public List<CouponVO> getCoupon(long userId, byte status, Context context) {
+        return getCoupon(context,userId, Integer.MAX_VALUE, Sets.newHashSet(CouponVO.PayType.RECHARGE.getCode(),
+                CouponVO.PayType.PAY_PER_VIEW.getCode()), Sets.newHashSet(status), null);
     }
 
     @Override
-    public List<CouponVO> getCoupon4Recharge(long userId, int price, Long selectId) {
-        return getCoupon(userId, price, Sets.newHashSet(CouponVO.PayType.RECHARGE.getCode()),
+    public List<CouponVO> getCoupon4Recharge(long userId, int price, Long selectId, Context context) {
+        return getCoupon(context, userId, price, Sets.newHashSet(CouponVO.PayType.RECHARGE.getCode()),
                 Sets.newHashSet(CouponVO.Status.NORMAL.getCode()), selectId);
     }
 
     @Override
-    public List<CouponVO> getCoupon4PayPerView(long userId, int price, Long selectId) {
-        return getCoupon(userId, price, Sets.newHashSet(CouponVO.PayType.PAY_PER_VIEW.getCode()),
+    public List<CouponVO> getCoupon4PayPerView(long userId, int price, Long selectId, Context context) {
+        return getCoupon(context, userId, price, Sets.newHashSet(CouponVO.PayType.PAY_PER_VIEW.getCode()),
                 Sets.newHashSet(CouponVO.Status.NORMAL.getCode()), selectId);
     }
 
     @Override
-    public List<CouponVO> getCardRechargeTemplate() {
+    public List<CouponVO> getCardRechargeTemplate(Context context) {
         // 1. 得到所有的模版
         List<CouponTemplate> couponTemplates = getTemplateList();
 
@@ -70,29 +71,41 @@ public class CouponServiceImpl implements CouponService {
 
         // 5. 置为已选择
         if (couponVOs == null) return Lists.newArrayList();
-        if (couponVOs.size() > 1) couponVOs.get(1).setSelected(true);
-        if (couponVOs.size() == 1) couponVOs.get(0).setSelected(true);
+        if (couponVOs.size() > 1) {
+            couponVOs.get(1).setSelected(true);
+            context.setCurrentTemplate(filterResult.get(1));
+        }
+
+        if (couponVOs.size() == 1) {
+            couponVOs.get(0).setSelected(true);
+            context.setCurrentTemplate(filterResult.get(0));
+        }
 
         return couponVOs;
     }
 
-    private List<CouponVO> getCoupon(long userId, int price, Set<Byte> payTypeSet, Set<Byte> statusSet, Long selectId) {
+    private List<CouponVO> getCoupon(Context context, long userId, int price, Set<Byte> payTypeSet, Set<Byte> statusSet, Long selectId) {
         // 1. 得到所有的模版
         List<CouponTemplate> couponTemplates = getTemplateList();
+
+        if (CollectionUtils.isEmpty(couponTemplates)) return Lists.newArrayList();
 
         // 2. 过滤模版
         Predicate<CouponTemplate> predicate = PredicateWrapper.getPredicate4Template(statusSet, payTypeSet, price, new Date());
 
         Predicate<CouponTemplate> unionPredicate = Predicates.and(predicate);
         List<CouponTemplate> filterCouponTemplate = Lists.newArrayList(Iterators.filter(couponTemplates.iterator(), unionPredicate));
+        if (CollectionUtils.isEmpty(filterCouponTemplate)) return Lists.newArrayList();
 
         // 3. 获取用户所有礼券
         List<CouponUser> couponUsers = getRelation(userId);
+        if (CollectionUtils.isEmpty(couponUsers)) return Lists.newArrayList();
 
         // 4. 过滤礼券
         Predicate<CouponUser> predicateUserStatus = PredicateWrapper.getPredicate4CouponUser(Sets.newHashSet(statusSet));
         Predicate<CouponUser> unionUserPredicate = Predicates.and(predicateUserStatus);
         List<CouponUser> filterCouponUser = Lists.newArrayList(Iterators.filter(couponUsers.iterator(), unionUserPredicate));
+        if (CollectionUtils.isEmpty(filterCouponUser)) return Lists.newArrayList();
 
         List<CouponTemplate> userCoupon = Lists.newArrayList();
         Map<Long, CouponTemplate> couponTemplateMap = getTemplateMap(filterCouponTemplate);
@@ -113,12 +126,19 @@ public class CouponServiceImpl implements CouponService {
         // 5. 置为已选择
         if (CollectionUtils.isEmpty(couponVOs)) return Lists.newArrayList();
         couponVOs.get(NumberUtils.INTEGER_ZERO).setSelected(true);
+        context.setCoupon(userCoupon.get(NumberUtils.INTEGER_ZERO));
 
         if (selectId != null) {
             couponVOs.stream().forEach(item -> {
                 if (item.getId().equals(selectId)) {
                     couponVOs.get(NumberUtils.INTEGER_ZERO).setSelected(false);
                     item.setSelected(true);
+                }
+            });
+
+            userCoupon.stream().forEach(item -> {
+                if (item.getId().equals(selectId)) {
+                    context.setCoupon(item);
                 }
             });
         }

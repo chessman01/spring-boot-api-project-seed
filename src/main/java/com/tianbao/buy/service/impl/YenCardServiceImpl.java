@@ -2,6 +2,7 @@ package com.tianbao.buy.service.impl;
 
 import com.google.common.collect.Lists;
 import com.tianbao.buy.core.BizException;
+import com.tianbao.buy.domain.Context;
 import com.tianbao.buy.domain.User;
 import com.tianbao.buy.domain.YenCard;
 import com.tianbao.buy.manager.YenCardManager;
@@ -9,6 +10,8 @@ import com.tianbao.buy.service.BaseService;
 import com.tianbao.buy.service.CouponService;
 import com.tianbao.buy.service.UserService;
 import com.tianbao.buy.service.YenCardService;
+import com.tianbao.buy.utils.MoneyUtils;
+import com.tianbao.buy.vo.Button;
 import com.tianbao.buy.vo.CouponVO;
 import com.tianbao.buy.vo.YenCardVO;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -40,22 +43,28 @@ public class YenCardServiceImpl extends BaseService implements YenCardService{
     }
 
     @Override
-    public YenCardVO build(long cardId) {
+    public YenCardVO build() {
         // 1. 找到用户的瘾卡
         User user = userService.getUserByWxUnionId();
 
-        YenCard card = getSpecifyCard(user.getId(), cardId);
+        YenCard card = getDefault(user.getId());
         YenCardVO cardVO = convert2CardVO(card);
 
+        Context context = new Context();
+        context.setUser(user);
+
         // 2. 找到充值模版
-        List<CouponVO> templates = couponService.getCardRechargeTemplate();
+        List<CouponVO> templates = couponService.getCardRechargeTemplate(context);
         if (CollectionUtils.isEmpty(templates)) throw new BizException("没有瘾卡充值模版");
         cardVO.setTemplates(templates);
 
         // 3. 找到充值礼券
         List<CouponVO> couponVOs = couponService.getCoupon4Recharge(user.getId(),
-                templates.get(NumberUtils.INTEGER_ZERO).getRulePriceOrgin(), null);
+                templates.get(NumberUtils.INTEGER_ZERO).getRulePriceOrgin(), null, context);
         cardVO.setCouponVOs(couponVOs);
+
+        // 4. 充值按钮
+        Button button = new Button();
 
         return cardVO;
     }
@@ -77,7 +86,17 @@ public class YenCardServiceImpl extends BaseService implements YenCardService{
         return null;
     }
 
-    private YenCard getSpecifyCard(long userId, final long cardId){
+    @Override
+    public YenCard getDefault(long userId){
+        List<YenCard> cards = getCardByUser(userId);
+
+        if (!CollectionUtils.isEmpty(cards)) return cards.get(NumberUtils.INTEGER_ZERO);
+
+        throw new BizException("名下未找到指定的瘾卡");
+    }
+
+    @Override
+    public YenCard getSpecify(long userId, final long cardId){
         List<YenCard> YenCards = getCardByUser(userId);
 
         for (YenCard card : YenCards) {
@@ -98,21 +117,15 @@ public class YenCardServiceImpl extends BaseService implements YenCardService{
     }
 
     private YenCardVO convert2CardVO(YenCard YenCard) {
-        NumberFormat numberFormat = NumberFormat.getNumberInstance();
+        String gift = MoneyUtils.format(2, YenCard.getGiftAccount() / 100f);
+        String cash = MoneyUtils.format(2, YenCard.getCashAccount() / 100f);
+        String total = MoneyUtils.format(2, (YenCard.getGiftAccount() + YenCard.getCashAccount()) / 100f);
 
-        numberFormat.setGroupingUsed(false);
-        numberFormat.setMaximumFractionDigits(2);
-
-        String gift = numberFormat.format(YenCard.getGiftAccount() / 100f);
-        String cash = numberFormat.format(YenCard.getCashAccount() / 100f);
-        String total = numberFormat.format((YenCard.getGiftAccount() + YenCard.getCashAccount()) / 100f);
-
-        numberFormat.setMaximumFractionDigits(1);
-        String discount = String.format("消费立打%s折", numberFormat.format(YenCard.getDiscountRate() / 10f));
+        String discount = String.format("消费立打%s折", MoneyUtils.format(1, YenCard.getDiscountRate() / 10f));
 
         return new YenCardVO(YenCard.getId(), "http://gw.alicdn.com/tps/TB1LNMxPXXXXXbhaXXXXXXXXXXX-183-129.png",
                 gift, cash, total,
-                discount, "http://xxx.xxx.com/recharge.xx", null, null);
+                discount, "http://xxx.xxx.com/recharge.xx", null, null, null);
     }
 
     private List<YenCardVO> convert2CardVO(List<YenCard> YenCards) {
