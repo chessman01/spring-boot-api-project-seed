@@ -32,7 +32,7 @@ public class UserServiceImpl extends BaseService implements UserService {
     @Transactional
     public User getUserByWxUnionId() {
         // todo 这里是要依据微信接口拿到用户uid，到userManager查用户，然后得到用户ID
-        String wxUnionId = "1234567";
+        String wxUnionId = "12345";
 
         if (StringUtils.isBlank(wxUnionId)) {
             // todo log
