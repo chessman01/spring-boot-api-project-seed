@@ -7,53 +7,18 @@ import lombok.Data;
 @Data
 public class FundDetailVO extends FundDetail{
     // 这里直接继承了FundDetail，不需要对字段进行转义给前端
-
     public enum Channel implements EnumMessage {
-        // 支付通道。0：瘾卡；1：微信
+        // 支付通道。0：瘾卡；1：微信；2：礼券；3：赠送
         YENCARD((byte)0, "瘾卡"),
-        WEIXIN((byte)1, "微信");
+        WEIXIN((byte)1, "微信"),
+        COUPON((byte)2, "瘾卡"),
+        GIFT((byte)3, "瘾卡");
 
         public byte code;
 
         public String desc;
 
         Channel(byte code, String desc) {
-            this.code = code;
-            this.desc = desc;
-        }
-
-        public String getDesc() {
-            return desc;
-        }
-
-        public void setDesc(String desc) {
-            this.desc = desc;
-        }
-
-        public byte getCode() {
-            return code;
-        }
-
-        public void setCode(byte code) {
-            this.code = code;
-        }
-
-        @Override
-        public Object getValue() {
-            return code;
-        }
-    }
-
-    public enum Target implements EnumMessage {
-        // 操作目标。0：瘾卡；1：按次消费
-        CARD((byte)0, "瘾卡"),
-        PAY_PER_VIEW((byte)1, "按次消费");
-
-        public byte code;
-
-        public String desc;
-
-        Target(byte code, String desc) {
             this.code = code;
             this.desc = desc;
         }
@@ -90,42 +55,6 @@ public class FundDetailVO extends FundDetail{
         public String desc;
 
         Direction(byte code, String desc) {
-            this.code = code;
-            this.desc = desc;
-        }
-
-        public String getDesc() {
-            return desc;
-        }
-
-        public void setDesc(String desc) {
-            this.desc = desc;
-        }
-
-        public byte getCode() {
-            return code;
-        }
-
-        public void setCode(byte code) {
-            this.code = code;
-        }
-
-        @Override
-        public Object getValue() {
-            return code;
-        }
-    }
-
-    public enum AccountType implements EnumMessage {
-        // 账号类型。1：现金；2：赠送
-        CASH((byte)0, "现金"),
-        GIFT((byte)1, "赠送");
-
-        public byte code;
-
-        public String desc;
-
-        AccountType(byte code, String desc) {
             this.code = code;
             this.desc = desc;
         }
