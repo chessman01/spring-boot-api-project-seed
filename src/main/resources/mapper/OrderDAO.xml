@@ -23,5 +23,6 @@
     <result column="online_rule" jdbcType="VARCHAR" property="onlineRule" />
     <result column="coupon_discount" jdbcType="INTEGER" property="couponDiscount" />
     <result column="coupon_id" jdbcType="BIGINT" property="couponId" />
+    <result column="pay_order_id" jdbcType="VARCHAR" property="payOrderId" />
   </resultMap>
 </mapper>

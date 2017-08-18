@@ -113,6 +113,12 @@ public class Order {
     private Long couponId;
 
     /**
+     * 外部支付订单号
+     */
+    @Column(name = "pay_order_id")
+    private String payOrderId;
+
+    /**
      * 获取主键
      *
      * @return id - 主键
@@ -434,5 +440,23 @@ public class Order {
      */
     public void setCouponId(Long couponId) {
         this.couponId = couponId;
+    }
+
+    /**
+     * 获取外部支付订单号
+     *
+     * @return pay_order_id - 外部支付订单号
+     */
+    public String getPayOrderId() {
+        return payOrderId;
+    }
+
+    /**
+     * 设置外部支付订单号
+     *
+     * @param payOrderId 外部支付订单号
+     */
+    public void setPayOrderId(String payOrderId) {
+        this.payOrderId = payOrderId;
     }
 }
