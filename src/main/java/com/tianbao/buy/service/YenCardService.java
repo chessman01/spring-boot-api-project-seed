@@ -19,4 +19,6 @@ public interface YenCardService {
     YenCard getDefault(long userId);
 
     YenCard getSpecify(long userId, final long cardId);
+
+    void initNormalCard(long userId);
 }

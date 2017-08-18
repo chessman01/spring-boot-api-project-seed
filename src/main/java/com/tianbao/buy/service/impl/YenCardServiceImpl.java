@@ -15,6 +15,7 @@ import com.tianbao.buy.vo.Button;
 import com.tianbao.buy.vo.CouponVO;
 import com.tianbao.buy.vo.YenCardVO;
 import org.apache.commons.lang3.math.NumberUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import tk.mybatis.mapper.entity.Condition;
@@ -23,10 +24,15 @@ import javax.annotation.Resource;
 import java.text.NumberFormat;
 import java.util.List;
 
+import static com.google.common.base.Preconditions.checkArgument;
+
 @Service
 public class YenCardServiceImpl extends BaseService implements YenCardService{
+    @Value("${biz.card.discount.rate}")
+    private int cardDiscountRate;
+
     @Resource
-    private YenCardManager YenCardManager;
+    private YenCardManager yenCardManager;
 
     @Resource
     private UserService userService;
@@ -111,6 +117,18 @@ public class YenCardServiceImpl extends BaseService implements YenCardService{
         throw new BizException("名下未找到指定的瘾卡");
     }
 
+    @Override
+    public void initNormalCard(long userId) {
+        checkArgument(userId > NumberUtils.LONG_ZERO);
+
+        YenCard card = new YenCard();
+
+        card.setUserId(userId);
+        card.setDiscountRate(cardDiscountRate);
+
+        yenCardManager.save(card);
+    }
+
     public List<YenCard> getCardByUser(long userId) {
         Condition condition = new Condition(YenCard.class);
         condition.orderBy("type"); // 统一按卡类型排序
@@ -118,7 +136,7 @@ public class YenCardServiceImpl extends BaseService implements YenCardService{
         condition.createCriteria().andCondition("user_id=", userId)
                 .andCondition("status=", YenCardVO.Status.NORMAL.getCode());
 
-        return YenCardManager.findByCondition(condition);
+        return yenCardManager.findByCondition(condition);
     }
 
     private YenCardVO convert2CardVO(YenCard YenCard) {

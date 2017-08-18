@@ -2,32 +2,24 @@ package com.tianbao.buy.service.impl;
 
 import com.tianbao.buy.core.BizException;
 import com.tianbao.buy.domain.User;
-import com.tianbao.buy.domain.YenCard;
 import com.tianbao.buy.manager.UserManager;
-import com.tianbao.buy.manager.YenCardManager;
 import com.tianbao.buy.service.BaseService;
 import com.tianbao.buy.service.UserService;
+import com.tianbao.buy.service.YenCardService;
 import com.tianbao.buy.vo.UserVO;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.math.NumberUtils;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 
-import static com.google.common.base.Preconditions.checkArgument;
-
 @Service
 public class UserServiceImpl extends BaseService implements UserService {
-    @Value("${biz.card.discount.rate}")
-    private int cardDiscountRate;
-
     @Resource
     protected UserManager userManager;
 
     @Resource
-    private YenCardManager yenCardManager;
+    private YenCardService yenCardService;
 
     @Override
     public User getUserByuserId(long userId) {
@@ -40,7 +32,7 @@ public class UserServiceImpl extends BaseService implements UserService {
     @Transactional
     public User getUserByWxUnionId() {
         // todo 这里是要依据微信接口拿到用户uid，到userManager查用户，然后得到用户ID
-        String wxUnionId = "12345";
+        String wxUnionId = "1234567";
 
         if (StringUtils.isBlank(wxUnionId)) {
             // todo log
@@ -55,7 +47,7 @@ public class UserServiceImpl extends BaseService implements UserService {
 
             user = userManager.findBy("wxUnionId", wxUnionId);
 
-            initNormalCard(user.getId());
+            yenCardService.initNormalCard(user.getId());
         }
 
         if (user == null) throw new BizException("用户没发现");
@@ -82,15 +74,5 @@ public class UserServiceImpl extends BaseService implements UserService {
         userManager.save(user);
     }
 
-    /* 初始化普通瘾卡 */
-    private void initNormalCard(long userId) {
-        checkArgument(userId > NumberUtils.LONG_ZERO);
 
-        YenCard card = new YenCard();
-
-        card.setUserId(userId);
-        card.setDiscountRate(cardDiscountRate);
-
-        yenCardManager.save(card);
-    }
 }
