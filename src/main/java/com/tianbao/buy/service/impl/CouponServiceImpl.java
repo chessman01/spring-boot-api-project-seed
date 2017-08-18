@@ -3,6 +3,7 @@ package com.tianbao.buy.service.impl;
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 import com.google.common.collect.*;
+import com.tianbao.buy.core.BizException;
 import com.tianbao.buy.domain.Context;
 import com.tianbao.buy.domain.CouponTemplate;
 import com.tianbao.buy.domain.CouponUser;
@@ -54,13 +55,15 @@ public class CouponServiceImpl implements CouponService {
     @Override
     public List<CouponVO> getCardRechargeTemplate(Context context) {
         // 1. 得到所有的模版
-        List<CouponTemplate> couponTemplates = getTemplateList();
+        List<CouponTemplate> couponTemplates = getAllTemplate();
 
         // 2. 过滤出充值满送部分的模版
         Predicate<CouponTemplate> predicate = PredicateWrapper.getPredicate4Template(Sets.newHashSet(CouponVO.Status.RECHARGE.getCode()), null, null, new Date());
 
         Predicate<CouponTemplate> unionPredicate = Predicates.and(predicate);
         List<CouponTemplate> filterResult = Lists.newArrayList(Iterators.filter(couponTemplates.iterator(), unionPredicate));
+
+        if (CollectionUtils.isEmpty(filterResult)) throw new BizException("没找到的充值模版");
 
         // 3. 按赠送金额排序
         Comparator<CouponTemplate> userComparator = Ordering.from(new priceComparator());
@@ -86,7 +89,7 @@ public class CouponServiceImpl implements CouponService {
 
     private List<CouponVO> getCoupon(Context context, long userId, int price, Set<Byte> payTypeSet, Set<Byte> statusSet, Long selectId) {
         // 1. 得到所有的模版
-        List<CouponTemplate> couponTemplates = getTemplateList();
+        List<CouponTemplate> couponTemplates = getAllTemplate();
 
         if (CollectionUtils.isEmpty(couponTemplates)) return Lists.newArrayList();
 
@@ -160,7 +163,7 @@ public class CouponServiceImpl implements CouponService {
     }
 
     /* 得到瘾卡充值时的模版 */
-    private List<CouponTemplate> getTemplateList() {
+    private List<CouponTemplate> getAllTemplate() {
         Condition condition = new Condition(CouponTemplate.class);
 
         condition.createCriteria().andNotEqualTo("status", CouponVO.Status.DEL.getCode());
@@ -197,7 +200,6 @@ public class CouponServiceImpl implements CouponService {
             String rulePrice = numberFormat.format(couponTemplate.getRulePrice() / 100f);
             couponVO.setPrice(price);
             couponVO.setRulePrice("使用条件：订单满" + rulePrice);
-            couponVO.setRulePriceOrgin(couponTemplate.getRulePrice());
 
             DateTime start = new DateTime(couponTemplate.getStartTime());
             DateTime end = new DateTime(couponTemplate.getEndTime());

@@ -10,7 +10,7 @@ public interface YenCardService {
 
     List<YenCard> getCardByUser(long userId);
 
-    YenCardVO build();
+    YenCardVO build(long cardId);
 
     String create(long cardId, long rechargeId, long couponId);
 

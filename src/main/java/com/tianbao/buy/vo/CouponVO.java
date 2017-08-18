@@ -23,8 +23,6 @@ public class CouponVO {
 
     private String rulePrice;
 
-    private Integer rulePriceOrgin;
-
     private String payType;
 
     private String status;

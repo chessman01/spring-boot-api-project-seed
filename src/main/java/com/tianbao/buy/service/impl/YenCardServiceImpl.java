@@ -21,7 +21,6 @@ import org.springframework.util.CollectionUtils;
 import tk.mybatis.mapper.entity.Condition;
 
 import javax.annotation.Resource;
-import java.text.NumberFormat;
 import java.util.List;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -49,11 +48,17 @@ public class YenCardServiceImpl extends BaseService implements YenCardService{
     }
 
     @Override
-    public YenCardVO build() {
+    public YenCardVO build(long cardId) {
         // 1. 找到用户的瘾卡
         User user = userService.getUserByWxUnionId();
 
-        YenCard card = getDefault(user.getId());
+        YenCard card;
+        if (cardId > NumberUtils.LONG_ZERO) {
+            card = getSpecify(user.getId(), cardId);
+        } else {
+            card = getDefault(user.getId());
+        }
+
         YenCardVO cardVO = convert2CardVO(card);
 
         Context context = new Context();
@@ -67,7 +72,7 @@ public class YenCardServiceImpl extends BaseService implements YenCardService{
 
         // 3. 找到充值礼券
         List<CouponVO> couponVOs = couponService.getCoupon4Recharge(user.getId(),
-                templates.get(NumberUtils.INTEGER_ZERO).getRulePriceOrgin(), null, context);
+                context.getTemplate().getRulePrice(), null, context);
         cardVO.setCouponVOs(couponVOs);
 
         // 4. 充值按钮
@@ -101,7 +106,10 @@ public class YenCardServiceImpl extends BaseService implements YenCardService{
     public YenCard getDefault(long userId){
         List<YenCard> cards = getCardByUser(userId);
 
-        if (!CollectionUtils.isEmpty(cards)) return cards.get(NumberUtils.INTEGER_ZERO);
+        if (!CollectionUtils.isEmpty(cards)
+                && cards.get(NumberUtils.INTEGER_ZERO).getType().equals(YenCardVO.Type.NORMAL)) {
+            return cards.get(NumberUtils.INTEGER_ZERO);
+        }
 
         throw new BizException("名下未找到指定的瘾卡");
     }
