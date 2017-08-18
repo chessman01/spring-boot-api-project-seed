@@ -2,13 +2,9 @@ package com.tianbao.buy.vo;
 
 import com.tianbao.buy.domain.FundDetail;
 import com.tianbao.buy.utils.enums.EnumMessage;
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
 public class FundDetailVO extends FundDetail{
     // 这里直接继承了FundDetail，不需要对字段进行转义给前端
 
