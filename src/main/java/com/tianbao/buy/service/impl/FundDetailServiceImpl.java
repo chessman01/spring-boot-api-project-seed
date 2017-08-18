@@ -3,6 +3,7 @@ package com.tianbao.buy.service.impl;
 import com.google.common.collect.Lists;
 import com.tianbao.buy.domain.FundDetail;
 import com.tianbao.buy.manager.FundDetailManager;
+import com.tianbao.buy.service.FundDetailService;
 import com.tianbao.buy.vo.FundDetailVO;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.stereotype.Service;
@@ -12,11 +13,12 @@ import javax.annotation.Resource;
 import java.util.List;
 
 @Service
-public class FundDetailServiceImpl {
+public class FundDetailServiceImpl implements FundDetailService {
     @Resource
     private FundDetailManager fundDetailManager;
 
-    public void update(Long orderId, FundDetailVO.Status status) {
+    @Override
+    public void updateStatus(Long orderId, FundDetailVO.Status status) {
         FundDetail fundDetail = new FundDetail();
         fundDetail.setStatus(status.getCode());
 
@@ -26,7 +28,7 @@ public class FundDetailServiceImpl {
         fundDetailManager.update(fundDetail, condition);
     }
 
-    // 按次购买
+    @Override
     public void initFund4PerIn(Long orderId, Integer price4wx, Integer price4Card, Integer price4Coupon) {
         List<FundDetail> fundDetails = Lists.newArrayList();
 
@@ -49,7 +51,7 @@ public class FundDetailServiceImpl {
         fundDetailManager.save(fundDetails);
     }
 
-    // 按次退款
+    @Override
     public void initFund4PerOut(Long orderId, Integer price4wx, Integer price4Card, Integer price4Coupon) {
         List<FundDetail> fundDetails = Lists.newArrayList();
 
@@ -72,7 +74,7 @@ public class FundDetailServiceImpl {
         fundDetailManager.save(fundDetails);
     }
 
-    // 瘾卡充值
+    @Override
     public void initFund4RechargIn(Long orderId, Integer price4wx, Integer price4Gift, Integer price4Coupon) {
         List<FundDetail> fundDetails = Lists.newArrayList();
 
