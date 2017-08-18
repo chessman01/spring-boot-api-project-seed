@@ -2,14 +2,9 @@ package com.tianbao.buy.service.impl;
 
 import com.google.common.collect.Lists;
 import com.tianbao.buy.core.BizException;
-import com.tianbao.buy.domain.Context;
-import com.tianbao.buy.domain.User;
-import com.tianbao.buy.domain.YenCard;
+import com.tianbao.buy.domain.*;
 import com.tianbao.buy.manager.YenCardManager;
-import com.tianbao.buy.service.BaseService;
-import com.tianbao.buy.service.CouponService;
-import com.tianbao.buy.service.UserService;
-import com.tianbao.buy.service.YenCardService;
+import com.tianbao.buy.service.*;
 import com.tianbao.buy.utils.MoneyUtils;
 import com.tianbao.buy.vo.Button;
 import com.tianbao.buy.vo.CouponVO;
@@ -39,6 +34,9 @@ public class YenCardServiceImpl extends BaseService implements YenCardService{
     @Resource
     private CouponService couponService;
 
+    @Resource
+    private FundDetailService fundDetailService;
+
     @Override
     public List<YenCardVO> getAllByUser() {
         User user = userService.getUserByWxUnionId();
@@ -53,20 +51,61 @@ public class YenCardServiceImpl extends BaseService implements YenCardService{
     }
 
     @Override
-    public String create(long cardId, long rechargeId, long couponId) {
+    public String create(long cardId, long rechargeId, long couponUserId) {
         // 1. 找到用户的瘾卡
-//        Long userId = getUserByWxUnionId().getId();
-//
-//        YenCardVO YenCardVO = getYenCard(userId, cardId);
+        User user = userService.getUserByWxUnionId();
+
+        YenCard card = getSpecify(user.getId(), cardId);
 
         // 2. 找礼券
+        CouponTemplate template = couponService.getTemplate(rechargeId);
 
+        if (!template.getStatus().equals(CouponVO.Status.RECHARGE.getCode()) ||
+                !template.getPayType().equals(CouponVO.PayType.RECHARGE.getCode())) {
+            throw new BizException("充值模版无效。id=" + rechargeId);
+        }
+
+        CouponUser couponUser = couponService.getCouponUser(couponUserId);
+
+        if (!couponUser.getStatus().equals(CouponVO.Status.NORMAL.getCode())) {
+            throw new BizException("礼券无效。id=" + couponUserId);
+        }
+
+        CouponTemplate coupon = couponService.getTemplate(couponUser.getCouponTemplateId());
+
+        if (coupon.getRulePrice() > template.getRulePrice()) throw new BizException("礼券无效。");
+        Long orderId = null;
+        Integer price4wx = template.getRulePrice() - coupon.getPrice();
+        Integer price4Gift = template.getPrice();
+        Integer price4Coupon = coupon.getPrice();
+
+        fundDetailService.initFund4RechargIn(orderId, price4wx, price4Gift, price4Coupon);
+
+//        updatePrice(price4wx, card.getCashAccount(), price4Gift + price4Coupon, card.getGiftAccount(), card.getId());
+
+        // 生成个订单
         return null;
     }
 
     @Override
     public YenCardVO adjust(long cardId, long rechargeId, long couponId) {
         return render(cardId, rechargeId, couponId);
+    }
+
+    private void updatePrice(int newCash, int oldCash, int newGift, int oldGift, long id) {
+        Condition condition = new Condition(YenCard.class);
+
+        condition.createCriteria().andCondition("id=", id)
+                .andCondition("status=", YenCardVO.Status.NORMAL.getCode())
+                .andCondition("cash_account=", oldCash).andCondition("gift_account=", oldGift);
+
+        YenCard card = new YenCard();
+        card.setGiftAccount(oldGift + newGift);
+        card.setCashAccount(oldCash + newCash);
+
+        int num = yenCardManager.update(card, condition);
+
+        if (num != 1) throw new BizException("瘾卡更新钱失败");
     }
 
     private YenCardVO render(Long cardId, Long rechargeId, Long couponId) {

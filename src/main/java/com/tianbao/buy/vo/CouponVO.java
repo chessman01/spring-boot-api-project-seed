@@ -13,6 +13,8 @@ public class CouponVO {
 
     private Long couponUserId;
 
+    private Integer originPrice;
+
     private String price;
 
     private String sourceDesc;

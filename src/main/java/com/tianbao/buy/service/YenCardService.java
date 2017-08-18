@@ -12,7 +12,7 @@ public interface YenCardService {
 
     YenCardVO build(long cardId);
 
-    String create(long cardId, long rechargeId, long couponId);
+    String create(long cardId, long rechargeId, long couponUserId);
 
     YenCardVO adjust(long cardId, long rechargeId, long couponId);
 
