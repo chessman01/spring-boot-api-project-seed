@@ -49,11 +49,32 @@ public class YenCardServiceImpl extends BaseService implements YenCardService{
 
     @Override
     public YenCardVO build(long cardId) {
+        return render(cardId, null, null);
+    }
+
+    @Override
+    public String create(long cardId, long rechargeId, long couponId) {
+        // 1. 找到用户的瘾卡
+//        Long userId = getUserByWxUnionId().getId();
+//
+//        YenCardVO YenCardVO = getYenCard(userId, cardId);
+
+        // 2. 找礼券
+
+        return null;
+    }
+
+    @Override
+    public YenCardVO adjust(long cardId, long rechargeId, long couponId) {
+        return render(cardId, rechargeId, couponId);
+    }
+
+    private YenCardVO render(Long cardId, Long rechargeId, Long couponId) {
         // 1. 找到用户的瘾卡
         User user = userService.getUserByWxUnionId();
 
         YenCard card;
-        if (cardId > NumberUtils.LONG_ZERO) {
+        if (cardId != null && cardId > NumberUtils.LONG_ZERO) {
             card = getSpecify(user.getId(), cardId);
         } else {
             card = getDefault(user.getId());
@@ -66,13 +87,13 @@ public class YenCardServiceImpl extends BaseService implements YenCardService{
         context.setCard(card);
 
         // 2. 找到充值模版
-        List<CouponVO> templates = couponService.getCardRechargeTemplate(context);
+        List<CouponVO> templates = couponService.getCardRechargeTemplate(context, rechargeId);
         if (CollectionUtils.isEmpty(templates)) throw new BizException("没有瘾卡充值模版");
         cardVO.setTemplates(templates);
 
         // 3. 找到充值礼券
         List<CouponVO> couponVOs = couponService.getCoupon4Recharge(user.getId(),
-                context.getTemplate().getRulePrice(), null, context);
+                context.getTemplate().getRulePrice(), couponId, context);
         cardVO.setCoupon(couponVOs);
 
         // 4. 充值按钮
@@ -90,23 +111,6 @@ public class YenCardServiceImpl extends BaseService implements YenCardService{
         button.setTitle("支付（￥" + price + "）");
 
         return cardVO;
-    }
-
-    @Override
-    public String create(long cardId, long rechargeId, long couponId) {
-        // 1. 找到用户的瘾卡
-//        Long userId = getUserByWxUnionId().getId();
-//
-//        YenCardVO YenCardVO = getYenCard(userId, cardId);
-
-        // 2. 找礼券
-
-        return null;
-    }
-
-    @Override
-    public YenCardVO adjust(long cardId, long rechargeId, long couponId) {
-        return null;
     }
 
     @Override

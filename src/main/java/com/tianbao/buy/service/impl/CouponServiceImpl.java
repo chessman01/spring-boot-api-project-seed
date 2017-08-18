@@ -53,7 +53,7 @@ public class CouponServiceImpl implements CouponService {
     }
 
     @Override
-    public List<CouponVO> getCardRechargeTemplate(Context context) {
+    public List<CouponVO> getCardRechargeTemplate(Context context, Long selectId) {
         // 1. 得到所有的模版
         List<CouponTemplate> couponTemplates = getAllTemplate();
 
@@ -74,15 +74,40 @@ public class CouponServiceImpl implements CouponService {
 
         // 5. 置为已选择
         if (couponVOs == null) return Lists.newArrayList();
-        if (couponVOs.size() > 1) {
-            couponVOs.get(1).setSelected(true);
-            context.setTemplate(filterResult.get(1));
+
+        boolean isSelect = false;
+        if (selectId != null) {
+            for (CouponVO couponVO : couponVOs) {
+                if (couponVO.getId().equals(selectId)) {
+                    couponVO.setSelected(true);
+                    isSelect = true;
+                    break;
+                }
+            }
+
+            filterResult.forEach(item -> {
+                if (item.getId().equals(selectId)) {
+                    context.setTemplate(item);
+                }
+            });
         }
 
-        if (couponVOs.size() == 1) {
-            couponVOs.get(0).setSelected(true);
-            context.setTemplate(filterResult.get(0));
+        if (isSelect == false) {
+            if (couponVOs.size() > 1) {
+                couponVOs.get(1).setSelected(true);
+                context.setTemplate(filterResult.get(1));
+            }
+
+            if (couponVOs.size() == 1) {
+                couponVOs.get(0).setSelected(true);
+                context.setTemplate(filterResult.get(0));
+            }
+
+            return couponVOs;
         }
+
+
+
 
         return couponVOs;
     }

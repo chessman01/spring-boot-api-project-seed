@@ -10,7 +10,7 @@ public interface CouponService {
 
     List<CouponVO> getCoupon4PayPerView(long userId, int price, Long selectId, Context context);
 
-    List<CouponVO> getCardRechargeTemplate(Context context);
+    List<CouponVO> getCardRechargeTemplate(Context context, Long selectId);
 
     List<CouponVO> getCoupon(long userId, byte status, Context context);
 }
