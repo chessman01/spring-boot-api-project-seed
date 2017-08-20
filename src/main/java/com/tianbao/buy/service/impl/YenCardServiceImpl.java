@@ -92,7 +92,7 @@ public class YenCardServiceImpl extends BaseService implements YenCardService{
 
         // 生成订单
         Order order = orderService.convert(orderId, user.getId(), card.getId(), price4wx, template.getRulePrice(),
-                0, 0, card.getId(), 0, "0", price4Coupon, couponUser.getId(), price4Gift, OrderVO.Status.PENDING);
+                0, 0, card.getId(), 0, "0", price4Coupon, couponUser.getId(), price4Gift, OrderVO.Status.PENDING.getCode());
 
         orderService.sava(order);
         // 礼券要锁定

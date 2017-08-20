@@ -67,7 +67,7 @@ public class OrderServiceImpl implements OrderService{
     @Override
     public Order convert(String orderId, Long userId, Long classId, Integer realPay, Integer totalPrice,
                           Integer yenCarPayPrice, Integer yenCarDiscount, Long yenCarId, Integer onlineDiscount,
-                          String onlineRule, Integer couponDiscount, Long couponId, Integer giftDiscount, OrderVO.Status status) {
+                          String onlineRule, Integer couponDiscount, Long couponId, Integer giftDiscount, Byte status) {
         Order order = new Order();
 
         order.setOrderId(orderId);
@@ -83,7 +83,7 @@ public class OrderServiceImpl implements OrderService{
         order.setCouponDiscount(couponDiscount);
         order.setCouponId(couponId);
         order.setGiftDiscount(giftDiscount);
-        order.setStatus(status.getCode());
+        order.setStatus(status);
 
         return order;
     }
