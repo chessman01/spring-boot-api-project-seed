@@ -41,6 +41,26 @@ public class CouponServiceImpl implements CouponService {
     private UserService userService;
 
     @Override
+    public CouponUser getCouponUser(long id) {
+        CouponUser couponUser = couponUserManager.findBy("id", id);
+
+        if (couponUser != null) return couponUser;
+
+        throw new BizException("没找到模版.id=" + id);
+    }
+
+    @Override
+    public CouponTemplate getTemplate(long id) {
+        List<CouponTemplate> couponTemplates = getAllTemplate();
+
+        for (CouponTemplate couponTemplate : couponTemplates) {
+            if (couponTemplate.getId().equals(id)) return couponTemplate;
+        }
+
+        throw new BizException("没找到模版.id=" + id);
+    }
+
+    @Override
     public void updateCouponUserStatus(long recordId, byte newStatus, byte originStatus) {
         CouponUser couponUser = new CouponUser();
 
@@ -286,24 +306,6 @@ public class CouponServiceImpl implements CouponService {
         }
 
         return map;
-    }
-
-    public CouponUser getCouponUser(long id) {
-        CouponUser couponUser = couponUserManager.findBy("id", id);
-
-        if (couponUser != null) return couponUser;
-
-        throw new BizException("没找到模版.id=" + id);
-    }
-
-    public CouponTemplate getTemplate(long id) {
-        List<CouponTemplate> couponTemplates = getAllTemplate();
-
-        for (CouponTemplate couponTemplate : couponTemplates) {
-            if (couponTemplate.getId().equals(id)) return couponTemplate;
-        }
-
-        throw new BizException("没找到模版.id=" + id);
     }
 
     /* 得到瘾卡充值时的模版 */
