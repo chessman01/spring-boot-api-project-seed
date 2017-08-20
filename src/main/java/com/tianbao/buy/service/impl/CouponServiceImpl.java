@@ -208,6 +208,7 @@ public class CouponServiceImpl implements CouponService {
 
         Map<Long, CouponTemplate> couponTemplateMap = getUserTemplateMap(couponTemplates);
         List<CouponVO> couponVOs = Lists.newArrayList();
+        boolean selected = false;
 
         // 5. 转化为前端要的vo
         for (CouponUser couponUser : couponUsers) {
@@ -234,7 +235,10 @@ public class CouponServiceImpl implements CouponService {
                 }
 
                 couponVO.setEndTime(couponUser.getEndTime());
-                if (couponUser.equals(selectId)) couponVO.setSelected(true);
+                if (couponUser.getId().equals(selectId)) {
+                    couponVO.setSelected(true);
+                    selected = true;
+                }
                 context.setCoupon(couponTemplateMap.get(couponUser.getCouponTemplateId()));
 
                 couponVOs.add(couponVO);
@@ -247,7 +251,7 @@ public class CouponServiceImpl implements CouponService {
         if (CollectionUtils.isEmpty(couponVOs)) return Lists.newArrayList();
 
         // 5. 置为已选择
-        if (selectId == null) {
+        if (selectId == null || selected == false) {
             couponVOs.get(NumberUtils.INTEGER_ZERO).setSelected(true);
             context.setCoupon(couponTemplateMap.get(couponVOs.get(NumberUtils.INTEGER_ZERO).getId()));
         }

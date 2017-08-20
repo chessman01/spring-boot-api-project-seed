@@ -105,7 +105,7 @@ public class YenCardServiceImpl extends BaseService implements YenCardService{
 
         int num = yenCardManager.update(card, condition);
 
-        if (num != 1) throw new BizException("瘾卡更新钱失败");
+        if (num != 1) throw new BizException("瘾卡更新账户失败");
     }
 
     private YenCardVO render(Long cardId, Long rechargeId, Long couponId) {
@@ -148,6 +148,7 @@ public class YenCardServiceImpl extends BaseService implements YenCardService{
 
         String price = MoneyUtils.format(2, realPay / 100);
         button.setTitle("支付（￥" + price + "）");
+        cardVO.setButton(button);
 
         return cardVO;
     }

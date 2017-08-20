@@ -31,4 +31,13 @@ public class YenCardRpc extends BaseRpc{
 
         return ResultGenerator.genSuccessResult(cardVO);
     }
+
+    @PostMapping("/adjust")
+    public Result adjust(Long cardId, Long rechargeId, Long couponId) {
+        YenCardVO cardVO = yenCardServiceImpl.adjust(cardId, rechargeId, couponId);
+
+        return ResultGenerator.genSuccessResult(cardVO);
+    }
+
+
 }
