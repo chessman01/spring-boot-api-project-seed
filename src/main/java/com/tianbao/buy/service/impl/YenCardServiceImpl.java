@@ -26,9 +26,6 @@ public class YenCardServiceImpl extends BaseService implements YenCardService{
     @Value("${biz.card.discount.rate}")
     private int cardDiscountRate;
 
-    @Value("${biz.pay.online.discount.rate}")
-    private int onlineDiscountRate;
-
     @Resource
     private YenCardManager yenCardManager;
 
@@ -79,6 +76,7 @@ public class YenCardServiceImpl extends BaseService implements YenCardService{
             throw new BizException("礼券无效。id=" + couponUserId);
         }
 
+        // 4. 礼券用的模版
         CouponTemplate couponTemplate = couponService.getTemplate(couponUser.getCouponTemplateId());
 
         if (couponTemplate.getRulePrice() < template.getRulePrice()) throw new BizException("礼券无效。");
@@ -92,10 +90,13 @@ public class YenCardServiceImpl extends BaseService implements YenCardService{
         updatePrice(price4wx, card.getCashAccount(), price4Gift + price4Coupon, card.getGiftAccount(), card.getId());
 
         // 生成订单
-        orderService.convert(orderId, user.getId(), card.getId(), price4wx, couponTemplate.getRulePrice(),
-                0, 0, card.getId(), 0, "1", price4Coupon, couponUser.getId());
+        Order order = orderService.convert(orderId, user.getId(), card.getId(), price4wx, template.getRulePrice(),
+                0, 0, card.getId(), 0, "0", price4Coupon, couponUser.getId(), price4Gift);
 
+        orderService.sava(order);
         // 礼券要锁定
+
+        couponService.updateStatus(couponUser.getId(), CouponVO.Status.PENDING.getCode());
 
         return null;
     }

@@ -24,4 +24,6 @@ public interface CouponService {
     void obtain(Long couponTemplateId);
 
     void obtain(Long couponTemplateId, Set<Byte> sourceSet, long userId);
+
+    void updateStatus(long id, byte status);
 }

@@ -119,6 +119,12 @@ public class Order {
     private String payOrderId;
 
     /**
+     * 赠送金额
+     */
+    @Column(name = "gift_discount")
+    private Integer giftDiscount;
+
+    /**
      * 获取主键
      *
      * @return id - 主键
@@ -458,5 +464,23 @@ public class Order {
      */
     public void setPayOrderId(String payOrderId) {
         this.payOrderId = payOrderId;
+    }
+
+    /**
+     * 获取赠送金额
+     *
+     * @return gift_discount - 赠送金额
+     */
+    public Integer getGiftDiscount() {
+        return giftDiscount;
+    }
+
+    /**
+     * 设置赠送金额
+     *
+     * @param giftDiscount 赠送金额
+     */
+    public void setGiftDiscount(Integer giftDiscount) {
+        this.giftDiscount = giftDiscount;
     }
 }

@@ -45,6 +45,10 @@ public class OrderServiceImpl implements OrderService{
 //        return 0;
 //    }
 
+    public void sava (Order order) {
+        orderManager.save(order);
+    }
+
     private void updateStatus(Long orderId, OrderVO.Status status, OrderVO.Status oldStatus,
                               Date payTime, String payOrderId) {
         Condition condition = new Condition(Order.class);
@@ -60,9 +64,10 @@ public class OrderServiceImpl implements OrderService{
         orderManager.update(order, condition);
     }
 
+    @Override
     public Order convert(Long orderId, Long userId, Long classId, Integer realPay, Integer totalPrice,
                           Integer yenCarPayPrice, Integer yenCarDiscount, Long yenCarId, Integer onlineDiscount,
-                          String onlineRule, Integer couponDiscount, Long couponId) {
+                          String onlineRule, Integer couponDiscount, Long couponId, Integer giftDiscount) {
         Order order = new Order();
 
         order.setOrderId(orderId);
@@ -77,6 +82,7 @@ public class OrderServiceImpl implements OrderService{
         order.setOnlineRule(onlineRule);
         order.setCouponDiscount(couponDiscount);
         order.setCouponId(couponId);
+        order.setGiftDiscount(giftDiscount);
 
         return order;
     }

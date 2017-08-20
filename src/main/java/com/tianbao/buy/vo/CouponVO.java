@@ -186,11 +186,12 @@ public class CouponVO {
     }
 
     public enum Status implements EnumMessage {
-        // 状态。0：删除；1：正常；2：已过期；3：已使用
+        // 状态。0：删除；1：正常；2：已过期；3：已使用；4：待使用
         DEL((byte)0, "已删除"),
         NORMAL((byte)1, "正常"),
         EXPIRED((byte)2, "已过期"),
         USED((byte)3, "已使用"),
+        PENDING((byte)4, "待使用"),
         RECHARGE((byte)8, "充值瘾卡赠送模版-保留");
 
         public byte code;

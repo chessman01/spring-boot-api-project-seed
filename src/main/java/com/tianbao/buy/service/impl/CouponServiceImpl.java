@@ -40,6 +40,19 @@ public class CouponServiceImpl implements CouponService {
     @Resource
     private UserService userService;
 
+    public void updateStatus(long id, byte status) {
+        CouponUser couponUser = new CouponUser();
+
+        couponUser.setId(id);
+        couponUser.setStatus(status);
+
+        Condition condition = new Condition(CouponUser.class);
+        condition.createCriteria().andCondition("id=", id)
+                .andIn("status", Lists.newArrayList(CouponVO.Status.NORMAL.getCode()));
+
+        couponUserManager.update(couponUser, condition);
+    }
+
     @Override
     public List<CouponVO> getCoupon(byte status) {
         User user = userService.getUserByWxUnionId();

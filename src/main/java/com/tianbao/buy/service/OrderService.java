@@ -10,7 +10,9 @@ public interface OrderService {
 
     Order convert(Long orderId, Long userId, Long classId, Integer realPay, Integer totalPrice,
                   Integer yenCarPayPrice, Integer yenCarDiscount, Long yenCarId, Integer onlineDiscount,
-                  String onlineRule, Integer couponDiscount, Long couponId);
+                  String onlineRule, Integer couponDiscount, Long couponId, Integer giftDiscount);
+
+    void sava (Order order);
 
 //    long create(long courseId, long cardId, long couponId, int personTime);
 
