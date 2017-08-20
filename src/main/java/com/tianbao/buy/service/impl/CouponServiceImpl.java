@@ -13,6 +13,7 @@ import com.tianbao.buy.manager.CouponUserManager;
 import com.tianbao.buy.service.PredicateWrapper;
 import com.tianbao.buy.service.CouponService;
 import com.tianbao.buy.service.UserService;
+import com.tianbao.buy.utils.DateUtils;
 import com.tianbao.buy.utils.MoneyUtils;
 import com.tianbao.buy.utils.enums.EnumUtil;
 import com.tianbao.buy.vo.CouponVO;
@@ -89,10 +90,14 @@ public class CouponServiceImpl implements CouponService {
 
         // 5. 保存领用记录
         CouponUser couponUser = new CouponUser();
+        DateTime start = DateUtils.getStart();
+        DateTime end = DateUtils.getEnd(start, couponTemplate.getValidityUnit(), couponTemplate.getValidityValue());
 
         couponUser.setStatus(CouponVO.Status.NORMAL.getCode());
         couponUser.setCouponTemplateId(couponTemplateId);
         couponUser.setUserId(user.getId());
+        couponUser.setStartTime(start.toDate());
+        couponUser.setEndTime(end.toDate());
 
         couponUserManager.save(couponUser);
     }

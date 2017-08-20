@@ -1,5 +1,8 @@
 package com.tianbao.buy.utils;
 
+import com.tianbao.buy.core.BizException;
+import com.tianbao.buy.domain.CouponTemplate;
+import com.tianbao.buy.vo.CouponVO;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeConstants;
@@ -7,6 +10,29 @@ import org.joda.time.Period;
 import org.joda.time.PeriodType;
 
 public class DateUtils {
+    public static DateTime getStart(DateTime start) {
+        if (start == null) start = new DateTime();
+
+        return start.withMillisOfDay(0);
+    }
+
+    public static DateTime getStart() {
+        return getStart(null);
+    }
+
+    public static DateTime getEnd(DateTime start, byte validityUnit, int validityValue) {
+        switch(validityUnit) {
+            case 3:
+                return start.plusMonths(validityValue).minusSeconds(NumberUtils.INTEGER_ONE);
+            case 2:
+                return start.plusWeeks(validityValue).minusSeconds(NumberUtils.INTEGER_ONE);
+            case 1:
+                return start.plusDays(validityValue).minusSeconds(NumberUtils.INTEGER_ONE);
+            default:
+                throw new BizException("system error.");
+        }
+    }
+
     public static DateTime plusDays(int num, DateTime current) {
         return current.plusDays(num);
     }

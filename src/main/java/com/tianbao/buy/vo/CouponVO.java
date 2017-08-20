@@ -31,7 +31,7 @@ public class CouponVO {
 
     private boolean selected;
 
-    public enum VlidityUnit implements EnumMessage {
+    public enum ValidityUnit implements EnumMessage {
         // 有效期内容。1：天；2：周；3：月
         DAY((byte)1, "天"),
         WEEK((byte)2, "周"),
@@ -41,7 +41,7 @@ public class CouponVO {
 
         public String desc;
 
-        VlidityUnit(byte code, String desc) {
+        ValidityUnit(byte code, String desc) {
             this.code = code;
             this.desc = desc;
         }
