@@ -29,6 +29,8 @@ public class CouponVO {
 
     private String status;
 
+    private String remind;
+
     private boolean selected;
 
     public enum ValidityUnit implements EnumMessage {
@@ -146,7 +148,7 @@ public class CouponVO {
         // 支付类型。1：瘾卡充值；2：按次支付；
         RECHARGE((byte)1, "瘾卡充值"),
         PAY_PER_VIEW((byte)2, "按次支付"),
-        ALL((byte)3, "所有");
+        ALL((byte)3, "通用");
 
         public byte code;
 

@@ -41,61 +41,85 @@ public class CouponServiceImpl implements CouponService {
     private UserService userService;
 
     @Override
-    public List<CouponVO> getCoupon(long userId, byte status, Context context) {
-        return getCoupon(context,userId, Integer.MAX_VALUE, Sets.newHashSet(CouponVO.PayType.RECHARGE.getCode(),
-                CouponVO.PayType.PAY_PER_VIEW.getCode()), Sets.newHashSet(status), null);
+    public List<CouponVO> getCoupon(byte status) {
+        User user = userService.getUserByWxUnionId();
+
+        Set payTypeSet = Sets.newHashSet(CouponVO.PayType.RECHARGE.getCode(),
+                CouponVO.PayType.ALL.getCode(), CouponVO.PayType.PAY_PER_VIEW.getCode());
+        Set couponUserStatusSet = Sets.newHashSet(status);
+        Set templateStatusSet = Sets.newHashSet(CouponVO.Status.NORMAL.getCode(),
+                CouponVO.Status.EXPIRED.getCode(), CouponVO.Status.USED.getCode());
+
+        return getCoupon(new Context(), user.getId(), Integer.MAX_VALUE, payTypeSet, templateStatusSet, couponUserStatusSet, null);
     }
 
     @Override
     public List<CouponVO> getCoupon4Recharge(long userId, int price, Long selectId, Context context) {
-        return getCoupon(context, userId, price, Sets.newHashSet(CouponVO.PayType.RECHARGE.getCode()),
-                Sets.newHashSet(CouponVO.Status.NORMAL.getCode()), selectId);
+        Set payTypeSet = Sets.newHashSet(CouponVO.PayType.RECHARGE.getCode());
+        Set couponUserStatusSet = Sets.newHashSet(CouponVO.Status.NORMAL);
+        Set templateStatusSet = Sets.newHashSet(CouponVO.Status.NORMAL.getCode(),
+                CouponVO.Status.EXPIRED.getCode(), CouponVO.Status.USED.getCode());
+
+        return getCoupon(context, userId, price, payTypeSet, templateStatusSet, couponUserStatusSet, selectId);
     }
 
     @Override
     public List<CouponVO> getCoupon4PayPerView(long userId, int price, Long selectId, Context context) {
-        return getCoupon(context, userId, price, Sets.newHashSet(CouponVO.PayType.PAY_PER_VIEW.getCode()),
-                Sets.newHashSet(CouponVO.Status.NORMAL.getCode()), selectId);
+        Set payTypeSet = Sets.newHashSet(CouponVO.PayType.RECHARGE.getCode(),
+                CouponVO.PayType.ALL.getCode(), CouponVO.PayType.PAY_PER_VIEW.getCode());
+
+        Set couponUserStatusSet = Sets.newHashSet(CouponVO.Status.NORMAL.getCode());
+        Set templateStatusSet = Sets.newHashSet(CouponVO.Status.NORMAL.getCode(),
+                CouponVO.Status.EXPIRED.getCode(), CouponVO.Status.USED.getCode());
+
+        return getCoupon(context, userId, price, payTypeSet, templateStatusSet, couponUserStatusSet, selectId);
     }
 
     @Override
     public void obtain(Long couponTemplateId) {
+        // 获取用户信息
+        User user = userService.getUserByWxUnionId();
+
+        obtain(couponTemplateId, Sets.newHashSet(CouponVO.Source.OFFLINE.getCode(),
+                CouponVO.Source.WEIXIN.getCode()), user.getId());
+    }
+
+    @Override
+    public void obtain(Long couponTemplateId, Set<Byte> sourceSet, long userId) {
         // 1. 获取到礼券模版
         CouponTemplate couponTemplate = getTemplate(couponTemplateId);
 
-        if ((!couponTemplate.getSource().equals(CouponVO.Source.OFFLINE.getCode()) &&
-                !couponTemplate.getSource().equals(CouponVO.Source.WEIXIN.getCode())) ||
+        if (!sourceSet.contains(couponTemplate.getSource()) ||
                 !couponTemplate.getStatus().equals(CouponVO.Status.NORMAL.getCode())) {
             throw new BizException("此券不能领用");
         }
 
-        // 2. 获取用户信息
-        User user = userService.getUserByWxUnionId();
+        // 2. 判断此礼券用户领用是否超限额
+        if (!couponTemplate.getUseNum().equals(NumberUtils.BYTE_ZERO)) {
+            // 3. 获取用户礼券领用记录
+            List<CouponUser> couponUsers = getRelation(userId);
 
-        // 3. 获取用户礼券领用记录
-        List<CouponUser> couponUsers = getRelation(user.getId());
+            int useNum = NumberUtils.INTEGER_ZERO;
 
-        // 4. 判断此礼券用户领用是否超限额
-        int useNum = NumberUtils.INTEGER_ZERO;
+            for (CouponUser couponUser :couponUsers) {
+                if (couponUser.getCouponTemplateId().equals(couponTemplateId)) {
+                    useNum++;
+                }
+            }
 
-        for (CouponUser couponUser :couponUsers) {
-            if (couponUser.getCouponTemplateId().equals(couponTemplateId)) {
-                useNum++;
+            if (useNum >= couponTemplate.getUseNum()) {
+                throw new BizException("已达到您此礼券领用上限");
             }
         }
 
-        if (couponTemplate.getUseNum().equals( NumberUtils.BYTE_ZERO) || useNum >= couponTemplate.getUseNum()) {
-            throw new BizException("已达到您此礼券领用上限");
-        }
-
-        // 5. 保存领用记录
+        // 4. 保存领用记录
         CouponUser couponUser = new CouponUser();
         DateTime start = DateUtils.getStart();
         DateTime end = DateUtils.getEnd(start, couponTemplate.getValidityUnit(), couponTemplate.getValidityValue());
 
         couponUser.setStatus(CouponVO.Status.NORMAL.getCode());
         couponUser.setCouponTemplateId(couponTemplateId);
-        couponUser.setUserId(user.getId());
+        couponUser.setUserId(userId);
         couponUser.setStartTime(start.toDate());
         couponUser.setEndTime(end.toDate());
 
@@ -159,14 +183,15 @@ public class CouponServiceImpl implements CouponService {
         return couponVOs;
     }
 
-    private List<CouponVO> getCoupon(Context context, long userId, int price, Set<Byte> payTypeSet, Set<Byte> statusSet, Long selectId) {
+    private List<CouponVO> getCoupon(Context context, long userId, int rulePrice, Set<Byte> payTypeSet,
+                                     Set<Byte> templateStatusSet, Set<Byte> couponUserStatusSet, Long selectId) {
         // 1. 得到所有的模版
         List<CouponTemplate> allCouponTemplates = getAllTemplate();
 
         if (CollectionUtils.isEmpty(allCouponTemplates)) return Lists.newArrayList();
 
         // 2. 过滤模版
-        Predicate<CouponTemplate> predicate = PredicateWrapper.getPredicate4Template(statusSet, payTypeSet, price, new Date());
+        Predicate<CouponTemplate> predicate = PredicateWrapper.getPredicate4Template(templateStatusSet, payTypeSet, rulePrice, new Date());
 
         Predicate<CouponTemplate> unionPredicate = Predicates.and(predicate);
         List<CouponTemplate> couponTemplates = Lists.newArrayList(Iterators.filter(allCouponTemplates.iterator(), unionPredicate));
@@ -177,7 +202,7 @@ public class CouponServiceImpl implements CouponService {
         if (CollectionUtils.isEmpty(allCouponUsers)) return Lists.newArrayList();
 
         // 4. 过滤礼券
-        Predicate<CouponUser> predicateUserStatus = PredicateWrapper.getPredicate4CouponUser(Sets.newHashSet(statusSet));
+        Predicate<CouponUser> predicateUserStatus = PredicateWrapper.getPredicate4CouponUser(Sets.newHashSet(couponUserStatusSet));
         Predicate<CouponUser> unionUserPredicate = Predicates.and(predicateUserStatus);
         List<CouponUser> couponUsers = Lists.newArrayList(Iterators.filter(allCouponUsers.iterator(), unionUserPredicate));
         if (CollectionUtils.isEmpty(couponUsers)) return Lists.newArrayList();
@@ -191,6 +216,18 @@ public class CouponServiceImpl implements CouponService {
                 CouponVO couponVO = convert2CouponVO(couponTemplateMap.get(couponUser.getCouponTemplateId()));
                 couponVO.setOriginPrice(couponTemplateMap.get(couponUser.getCouponTemplateId()).getPrice());
                 couponVO.setCouponUserId(couponUser.getId());
+
+                DateTime start = new DateTime(couponUser.getStartTime());
+                DateTime end = new DateTime(couponUser.getEndTime());
+
+                couponVO.setTime("有效期：" + start.toString("yyyy.MM.dd") + "至" + end.toString("yyyy.MM.dd"));
+
+                //计算区间天数
+                Period p = new Period(new DateTime(), end, PeriodType.days());
+                int days = p.getDays();
+
+                if (days <= 7) couponVO.setRemind(days + "天后过期");
+
                 if (couponUser.equals(selectId)) couponVO.setSelected(true);
                 context.setCoupon(couponTemplateMap.get(couponUser.getCouponTemplateId()));
 
@@ -286,11 +323,6 @@ public class CouponServiceImpl implements CouponService {
         couponVO.setOriginPrice(couponTemplate.getPrice());
         couponVO.setRulePrice("使用条件：订单满" + rulePrice);
 
-        DateTime start = new DateTime(couponTemplate.getStartTime());
-        DateTime end = new DateTime(couponTemplate.getEndTime());
-
-        couponVO.setTime("有效期：" + start.toString("yyyy.MM.dd") + "至" + end.toString("yyyy.MM.dd"));
-
         if (couponTemplate.getPayType().equals(CouponVO.PayType.PAY_PER_VIEW.getCode())) {
             couponVO.setPayType("仅限单次购买时使用。");
         }
@@ -298,12 +330,6 @@ public class CouponServiceImpl implements CouponService {
         if (couponTemplate.getPayType().equals(CouponVO.PayType.RECHARGE.getCode())) {
             couponVO.setPayType("仅限瘾卡充值时使用。");
         }
-
-        //计算区间天数
-        Period p = new Period(new DateTime(), end, PeriodType.days());
-        int days = p.getDays();
-
-        if (days <= 7) couponVO.setTime(days + "天后过期");
 
         CouponVO.Source enumSource = EnumUtil.getEnumObject(couponTemplate.getSource(), CouponVO.Source.class);
 

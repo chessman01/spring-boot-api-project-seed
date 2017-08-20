@@ -6,6 +6,7 @@ import com.tianbao.buy.domain.CouponUser;
 import com.tianbao.buy.vo.CouponVO;
 
 import java.util.List;
+import java.util.Set;
 
 public interface CouponService {
     List<CouponVO> getCoupon4Recharge(long userId, int price, Long selectId, Context context);
@@ -14,11 +15,13 @@ public interface CouponService {
 
     List<CouponVO> getCardRechargeTemplate(Context context, Long selectId);
 
-    List<CouponVO> getCoupon(long userId, byte status, Context context);
+    List<CouponVO> getCoupon(byte status);
 
     CouponUser getCouponUser(long id);
 
     CouponTemplate getTemplate(long id);
 
     void obtain(Long couponTemplateId);
+
+    void obtain(Long couponTemplateId, Set<Byte> sourceSet, long userId);
 }

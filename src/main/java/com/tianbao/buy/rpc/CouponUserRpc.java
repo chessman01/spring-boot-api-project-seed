@@ -2,10 +2,6 @@ package com.tianbao.buy.rpc;
 
 import com.tianbao.buy.core.Result;
 import com.tianbao.buy.core.ResultGenerator;
-import com.tianbao.buy.domain.CouponUser;
-import com.tianbao.buy.manager.CouponUserManager;
-import com.github.pagehelper.PageHelper;
-import com.github.pagehelper.PageInfo;
 import com.tianbao.buy.service.impl.CouponServiceImpl;
 import com.tianbao.buy.vo.CouponVO;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -26,9 +22,6 @@ public class CouponUserRpc {
     @Resource
     private CouponServiceImpl couponService;
 
-    @Resource
-    private CouponUserManager couponUserManager;
-
     @PostMapping("/obtain")
     public Result obtain(@RequestParam(defaultValue = "0") long couponTemplateId) {
         couponService.obtain(couponTemplateId);
@@ -36,20 +29,8 @@ public class CouponUserRpc {
     }
 
     @PostMapping("/list")
-    public Result list(@RequestParam(defaultValue = "0") Integer page, @RequestParam(defaultValue = "0") Integer size) {
-        PageHelper.startPage(page, size);
-        List<CouponUser> list = couponUserManager.findAll();
-        PageInfo pageInfo = new PageInfo(list);
-        return ResultGenerator.genSuccessResult(pageInfo);
-    }
-
-    @PostMapping("/test")
-    public Result test() {
-//        List<CouponVO> couponVOs = couponService.getCardRechargeTemplate();
-//        List<CouponVO> couponVOs = couponService.getCoupon4Recharge(123l, 500000);
-
-        List<CouponVO> couponVOs = couponService.getCoupon(123l, (byte) 1, null);
-
+    public Result list(@RequestParam(defaultValue = "1") Byte status) {
+        List<CouponVO> couponVOs = couponService.getCoupon(status);
         return ResultGenerator.genSuccessResult(couponVOs);
     }
 }
