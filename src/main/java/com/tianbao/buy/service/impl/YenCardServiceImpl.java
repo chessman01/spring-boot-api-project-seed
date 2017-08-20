@@ -91,7 +91,7 @@ public class YenCardServiceImpl extends BaseService implements YenCardService{
         updatePrice(price4wx, card.getCashAccount(), price4Gift + price4Coupon, card.getGiftAccount(), card.getId());
 
         // 生成订单
-        Order order = orderService.convert(orderId, user.getId(), card.getId(), price4wx, template.getRulePrice(),
+        OrderMain order = orderService.convert(orderId, user.getId(), card.getId(), price4wx, template.getRulePrice(),
                 0, 0, card.getId(), 0, "0", price4Coupon, couponUser.getId(), price4Gift, OrderVO.Status.PENDING.getCode());
 
         orderService.sava(order);

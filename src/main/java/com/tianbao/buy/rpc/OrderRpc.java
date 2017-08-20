@@ -2,8 +2,8 @@ package com.tianbao.buy.rpc;
 
 import com.tianbao.buy.core.Result;
 import com.tianbao.buy.core.ResultGenerator;
-import com.tianbao.buy.domain.Order;
-import com.tianbao.buy.manager.OrderManager;
+import com.tianbao.buy.domain.OrderMain;
+import com.tianbao.buy.manager.OrderMainManager;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -21,10 +21,10 @@ import java.util.List;
 @RequestMapping("/order")
 public class OrderRpc {
     @Resource
-    private OrderManager orderManager;
+    private OrderMainManager orderManager;
 
     @PostMapping("/add")
-    public Result add(Order order) {
+    public Result add(OrderMain order) {
         orderManager.save(order);
         return ResultGenerator.genSuccessResult();
     }
@@ -36,21 +36,21 @@ public class OrderRpc {
     }
 
     @PostMapping("/update")
-    public Result update(Order order) {
+    public Result update(OrderMain order) {
         orderManager.update(order);
         return ResultGenerator.genSuccessResult();
     }
 
     @PostMapping("/detail")
     public Result detail(@RequestParam Long id) {
-        Order order = orderManager.findById(id);
+        OrderMain order = orderManager.findById(id);
         return ResultGenerator.genSuccessResult(order);
     }
 
     @PostMapping("/list")
     public Result list(@RequestParam(defaultValue = "0") Integer page, @RequestParam(defaultValue = "0") Integer size) {
         PageHelper.startPage(page, size);
-        List<Order> list = orderManager.findAll();
+        List<OrderMain> list = orderManager.findAll();
         PageInfo pageInfo = new PageInfo(list);
         return ResultGenerator.genSuccessResult(pageInfo);
     }
