@@ -15,8 +15,6 @@ public class CourseVO {
 
     private String title;
 
-    private String address;
-
     private String time;
 
     private String price;
@@ -48,6 +46,8 @@ public class CourseVO {
     private CoachVO coach;
 
     private Button button;
+
+    private Address address;
 
     public enum Status implements EnumMessage {
         // 状态。0：软删除；1：正常

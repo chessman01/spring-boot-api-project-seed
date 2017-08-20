@@ -41,17 +41,4 @@ public class ScheduleVO {
 
         private boolean selected;
     }
-
-    @Data
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class Address {
-        private String longitude;
-
-        private String latitude;
-
-        private String detailAddress;
-
-        private String name;
-    }
 }

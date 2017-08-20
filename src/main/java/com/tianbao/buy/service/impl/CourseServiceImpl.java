@@ -1,15 +1,16 @@
 package com.tianbao.buy.service.impl;
 
-import com.google.common.base.Joiner;
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.tianbao.buy.domain.*;
 import com.tianbao.buy.manager.CourseManager;
 import com.tianbao.buy.service.*;
 import com.tianbao.buy.utils.DateUtils;
+import com.tianbao.buy.utils.MoneyUtils;
 import com.tianbao.buy.vo.*;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -20,10 +21,8 @@ import org.springframework.stereotype.Service;
 import tk.mybatis.mapper.entity.Condition;
 
 import javax.annotation.Resource;
-import java.text.NumberFormat;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 @Service
 public class CourseServiceImpl implements CourseService {
@@ -52,6 +51,20 @@ public class CourseServiceImpl implements CourseService {
     private UserService userService;
 
     @Override
+    public Map<Long, CourseVO> getCourse() {
+        List<Course> courses = courseManager.findAll();
+
+        List<CourseVO> courseVOs = convert2CourseVO(courses, false, true);
+        Map<Long, CourseVO> map = Maps.newHashMap();
+
+        for (CourseVO courseVO : courseVOs) {
+            map.put(courseVO.getId(), courseVO);
+        }
+
+        return map;
+    }
+
+    @Override
     public ScheduleVO schedule(String date, int num) {
         ScheduleVO scheduleVO = new ScheduleVO();
         DateTime in = StringUtils.isBlank(date) ? new DateTime().withMillisOfDay(0)
@@ -59,7 +72,7 @@ public class CourseServiceImpl implements CourseService {
 
         setCalendar(in, scheduleVO);
         setBanner(scheduleVO);
-        setAddress(scheduleVO);
+        scheduleVO.setAddress(getAddress(false));
         setCourse(num, scheduleVO);
 
         return scheduleVO;
@@ -72,18 +85,21 @@ public class CourseServiceImpl implements CourseService {
         return convert2CourseVO(course, true);
     }
 
-    private void setAddress(ScheduleVO scheduleVO) {
+    private Address getAddress(boolean isShort) {
         String[] tmp = tianmaAddress.split(",");
-        ScheduleVO.Address address = new ScheduleVO.Address();
+        Address address = new Address();
 
-        if (tmp.length != 4) return;
+        if (tmp.length != 4) return null;
 
-        address.setDetailAddress(tmp[0]);
+        if (!isShort) {
+            address.setDetailAddress(tmp[0]);
+            address.setLatitude(tmp[2]);
+            address.setLongitude(tmp[3]);
+        }
+
         address.setName(tmp[1]);
-        address.setLatitude(tmp[2]);
-        address.setLongitude(tmp[3]);
 
-        scheduleVO.setAddress(address);
+        return address;
     }
 
     private void setCalendar(DateTime in, ScheduleVO scheduleVO) {
@@ -123,12 +139,6 @@ public class CourseServiceImpl implements CourseService {
         scheduleVO.setBanner(banners);
     }
 
-    private List<CourseVO> getCourse(Set<Long> ids) {
-        List<Course> courses = courseManager.findByIds(Joiner.on(",").join(ids));
-
-        return convert2CourseVO(courses, false, true);
-    }
-
     /** 获取到指定天数的课程，并按日期分组 **/
     private void setCourse(int days, ScheduleVO scheduleVO) {
         DateTime current = new DateTime().withMillisOfDay(0);
@@ -162,30 +172,27 @@ public class CourseServiceImpl implements CourseService {
         CourseVO courseVO = convert2CourseVO(Lists.newArrayList(course), needDesc, true).get(NumberUtils.INTEGER_ZERO);
 
         BeanUtils.copyProperties(course, courseVO);
-
-
-        String[] tmp = tianmaAddress.split(",");
-
-        if (tmp.length == 4) {
-            courseVO.setAddress(tmp[0]);
-        }
+        courseVO.setAddress(getAddress(false));
 
         return courseVO;
     }
 
-    private List<CourseVO> convert2CourseVO(List<Course> course4Day, boolean needDesc, boolean fullTime) {
+    private List<CourseVO> convert2CourseVO(List<Course> courses, boolean needDesc, boolean fullTime) {
         List<CourseVO> courseVOs = Lists.newArrayList();
 
-        for (Course course : course4Day) {
+        for (Course course : courses) {
             CourseVO courseVO = new CourseVO();
+
+            courseVO.setAddress(getAddress(true));
 
             courseVO.setTitle(course.getTitle());
             courseVO.setTags(course.getTags().split("\\."));
-            courseVO.setTime(DateUtils.hourMinuteFormat(new DateTime(course.getStartTime())) + "-"
-                    + DateUtils.hourMinuteFormat(new DateTime(course.getEndTime())));
 
             if (fullTime) {
                 courseVO.setTime(DateUtils.yearMonthDayFormat(new DateTime(course.getStartTime())) + " " + courseVO.getTime());
+            } else {
+                courseVO.setTime(DateUtils.hourMinuteFormat(new DateTime(course.getStartTime())) + "-"
+                        + DateUtils.hourMinuteFormat(new DateTime(course.getEndTime())));
             }
 
             Button button = new Button();
@@ -207,12 +214,7 @@ public class CourseServiceImpl implements CourseService {
             courseVO.setStock(course.getStock());
 
             // 处理原价
-            NumberFormat numberFormat = NumberFormat.getNumberInstance();
-
-            numberFormat.setGroupingUsed(false);
-            numberFormat.setMaximumFractionDigits(2);
-
-            courseVO.setPrice(numberFormat.format(course.getPrice() / 100f));
+            courseVO.setPrice(MoneyUtils.format(2, course.getPrice() / 100f));
 
             // 处理瘾卡折扣价
             int minDiscountRate = 100;
@@ -224,7 +226,7 @@ public class CourseServiceImpl implements CourseService {
             }
 
             double yenPrice = (course.getPrice() / 100f) * (minDiscountRate / 100f);
-            courseVO.setYenPrice(numberFormat.format(yenPrice));
+            courseVO.setYenPrice(MoneyUtils.format(2, yenPrice / 100f));
             courseVO.setCoach(coachService.getCoach(course.getCoachId(), needDesc));
 
             courseVOs.add(courseVO);
