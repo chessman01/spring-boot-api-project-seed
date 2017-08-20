@@ -45,7 +45,7 @@ public class YenCardServiceImpl extends BaseService implements YenCardService{
     private OrderService orderService;
 
     @Override
-    public List<YenCardVO> getAllByUser() {
+    public List<YenCardVO> getCardByUser() {
         User user = userService.getUserByWxUnionId();
         List<YenCard> YenCards = getCardByUser(user.getId());
 
@@ -55,6 +55,11 @@ public class YenCardServiceImpl extends BaseService implements YenCardService{
     @Override
     public YenCardVO build(long cardId) {
         return render(cardId, null, null);
+    }
+
+    @Override
+    public YenCardVO adjust(long cardId, long rechargeId, long couponId) {
+        return render(cardId, rechargeId, couponId);
     }
 
     @Override
@@ -91,15 +96,13 @@ public class YenCardServiceImpl extends BaseService implements YenCardService{
 
         fundDetailService.initFund4RechargIn(orderId, price4wx, price4Gift, price4Coupon, new Date());
 
-        updatePrice(price4wx, card.getCashAccount(), price4Gift + price4Coupon, card.getGiftAccount(), card.getId());
-
         // 生成订单
         OrderMain order = orderService.convert(orderId, user.getId(), card.getId(), price4wx, template.getRulePrice(),
                 0, 0, card.getId(), 0, "0", price4Coupon, couponUser.getId(), price4Gift, OrderVO.Status.PENDING.getCode());
 
         orderService.sava(order);
-        // 礼券要锁定
 
+        // 礼券要锁定
         couponService.updateCouponUserStatus(couponUser.getId(), CouponVO.Status.PENDING.getCode(),
                 CouponVO.Status.NORMAL.getCode());
 
@@ -107,11 +110,7 @@ public class YenCardServiceImpl extends BaseService implements YenCardService{
     }
 
     @Override
-    public YenCardVO adjust(long cardId, long rechargeId, long couponId) {
-        return render(cardId, rechargeId, couponId);
-    }
-
-    private void updatePrice(int newCash, int oldCash, int newGift, int oldGift, long id) {
+    public void updatePrice(int newCash, int oldCash, int newGift, int oldGift, long id) {
         Condition condition = new Condition(YenCard.class);
 
         condition.createCriteria().andCondition("id=", id)
@@ -125,6 +124,52 @@ public class YenCardServiceImpl extends BaseService implements YenCardService{
         int num = yenCardManager.update(card, condition);
 
         if (num != 1) throw new BizException("瘾卡更新账户失败");
+    }
+
+    @Override
+    public YenCard getDefault(long userId){
+        List<YenCard> cards = getCardByUser(userId);
+
+        if (!CollectionUtils.isEmpty(cards)
+                && cards.get(NumberUtils.INTEGER_ZERO).getType().equals(YenCardVO.Type.NORMAL.getCode())) {
+            return cards.get(NumberUtils.INTEGER_ZERO);
+        }
+
+        throw new BizException("名下未找到指定的瘾卡");
+    }
+
+    @Override
+    public YenCard getSpecify(long userId, final long cardId){
+        List<YenCard> YenCards = getCardByUser(userId);
+
+        for (YenCard card : YenCards) {
+            if (card.getId().equals(cardId)) return card;
+        }
+
+        throw new BizException("名下未找到指定的瘾卡");
+    }
+
+    @Override
+    public void initNormalCard(long userId) {
+        checkArgument(userId > NumberUtils.LONG_ZERO);
+
+        YenCard card = new YenCard();
+
+        card.setUserId(userId);
+        card.setDiscountRate(cardDiscountRate);
+
+        yenCardManager.save(card);
+    }
+
+    @Override
+    public List<YenCard> getCardByUser(long userId) {
+        Condition condition = new Condition(YenCard.class);
+        condition.orderBy("type"); // 统一按卡类型排序
+
+        condition.createCriteria().andCondition("user_id=", userId)
+                .andCondition("status=", YenCardVO.Status.NORMAL.getCode());
+
+        return yenCardManager.findByCondition(condition);
     }
 
     private YenCardVO render(Long cardId, Long rechargeId, Long couponId) {
@@ -172,51 +217,6 @@ public class YenCardServiceImpl extends BaseService implements YenCardService{
         return cardVO;
     }
 
-    @Override
-    public YenCard getDefault(long userId){
-        List<YenCard> cards = getCardByUser(userId);
-
-        if (!CollectionUtils.isEmpty(cards)
-                && cards.get(NumberUtils.INTEGER_ZERO).getType().equals(YenCardVO.Type.NORMAL.getCode())) {
-            return cards.get(NumberUtils.INTEGER_ZERO);
-        }
-
-        throw new BizException("名下未找到指定的瘾卡");
-    }
-
-    @Override
-    public YenCard getSpecify(long userId, final long cardId){
-        List<YenCard> YenCards = getCardByUser(userId);
-
-        for (YenCard card : YenCards) {
-            if (card.getId().equals(cardId)) return card;
-        }
-
-        throw new BizException("名下未找到指定的瘾卡");
-    }
-
-    @Override
-    public void initNormalCard(long userId) {
-        checkArgument(userId > NumberUtils.LONG_ZERO);
-
-        YenCard card = new YenCard();
-
-        card.setUserId(userId);
-        card.setDiscountRate(cardDiscountRate);
-
-        yenCardManager.save(card);
-    }
-
-    public List<YenCard> getCardByUser(long userId) {
-        Condition condition = new Condition(YenCard.class);
-        condition.orderBy("type"); // 统一按卡类型排序
-
-        condition.createCriteria().andCondition("user_id=", userId)
-                .andCondition("status=", YenCardVO.Status.NORMAL.getCode());
-
-        return yenCardManager.findByCondition(condition);
-    }
-
     private YenCardVO convert2CardVO(YenCard YenCard) {
         String gift = MoneyUtils.format(2, YenCard.getGiftAccount() / 100f);
         String cash = MoneyUtils.format(2, YenCard.getCashAccount() / 100f);
@@ -229,13 +229,13 @@ public class YenCardServiceImpl extends BaseService implements YenCardService{
                 discount, "http://xxx.xxx.com/recharge.xx", null, null, null);
     }
 
-    private List<YenCardVO> convert2CardVO(List<YenCard> YenCards) {
-        List<YenCardVO> voList = Lists.newArrayList();
+    private List<YenCardVO> convert2CardVO(List<YenCard> cards) {
+        List<YenCardVO> cardVOs = Lists.newArrayList();
 
-        for (YenCard YenCard : YenCards) {
-            voList.add(convert2CardVO(YenCard));
+        for (YenCard card : cards) {
+            cardVOs.add(convert2CardVO(card));
         }
 
-        return voList;
+        return cardVOs;
     }
 }

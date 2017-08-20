@@ -20,7 +20,7 @@ public class YenCardRpc {
 
     @PostMapping("/list")
     public Result list() {
-        List<YenCardVO> voList = yenCardServiceImpl.getAllByUser();
+        List<YenCardVO> voList = yenCardServiceImpl.getCardByUser();
 
         return ResultGenerator.genSuccessResult(voList);
     }
