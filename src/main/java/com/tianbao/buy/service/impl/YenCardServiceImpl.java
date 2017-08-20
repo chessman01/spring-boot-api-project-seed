@@ -9,6 +9,7 @@ import com.tianbao.buy.utils.MakeOrderNum;
 import com.tianbao.buy.utils.MoneyUtils;
 import com.tianbao.buy.vo.Button;
 import com.tianbao.buy.vo.CouponVO;
+import com.tianbao.buy.vo.OrderVO;
 import com.tianbao.buy.vo.YenCardVO;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Value;
@@ -91,7 +92,7 @@ public class YenCardServiceImpl extends BaseService implements YenCardService{
 
         // 生成订单
         Order order = orderService.convert(orderId, user.getId(), card.getId(), price4wx, template.getRulePrice(),
-                0, 0, card.getId(), 0, "0", price4Coupon, couponUser.getId(), price4Gift);
+                0, 0, card.getId(), 0, "0", price4Coupon, couponUser.getId(), price4Gift, OrderVO.Status.PENDING);
 
         orderService.sava(order);
         // 礼券要锁定
