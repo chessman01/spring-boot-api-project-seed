@@ -23,7 +23,7 @@ public class CourseVO {
 
     private String yenPrice;
 
-    private String desc;
+    private String description;
 
     private String[] tags;
 
@@ -45,7 +45,7 @@ public class CourseVO {
 
     private Short stock;
 
-    private CoachVO coachVO;
+    private CoachVO coach;
 
     private Button button;
 

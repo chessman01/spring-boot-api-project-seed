@@ -47,7 +47,7 @@ public class Coach {
     /**
      * 描述
      */
-    private String desc;
+    private String description;
 
     /**
      * 头相
@@ -188,19 +188,19 @@ public class Coach {
     /**
      * 获取描述
      *
-     * @return desc - 描述
+     * @return description - 描述
      */
-    public String getDesc() {
-        return desc;
+    public String getDescription() {
+        return description;
     }
 
     /**
      * 设置描述
      *
-     * @param desc 描述
+     * @param description 描述
      */
-    public void setDesc(String desc) {
-        this.desc = desc;
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     /**

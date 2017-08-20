@@ -19,14 +19,14 @@ public class CoachServiceImpl implements CoachService {
     private CoachManager coachManager;
 
     @Override
-    public CoachVO getCoach(long id) {
-        Map<Long, CoachVO> coachVOMap = getAllCoach();
+    public CoachVO getCoach(long id, boolean needDesc) {
+        Map<Long, CoachVO> coachVOMap = getAllCoach(needDesc);
 
         return coachVOMap.get(id);
     }
 
     /** 获取到所有教练 **/
-    private Map<Long, CoachVO> getAllCoach() {
+    private Map<Long, CoachVO> getAllCoach(boolean needDesc) {
         Condition condition = new Condition(Coach.class);
 
         condition.createCriteria().andCondition("status=", CoachVO.Status.NORMAL.getCode());
@@ -37,6 +37,7 @@ public class CoachServiceImpl implements CoachService {
         coaches.stream().forEach(coach -> {
             CoachVO coachVO = new CoachVO();
             BeanUtils.copyProperties(coach, coachVO);
+            if (needDesc) coachVO.setDesc(coach.getDescription());
             coachVOs.put(coachVO.getId(), coachVO);
         });
 

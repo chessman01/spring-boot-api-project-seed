@@ -12,7 +12,7 @@
     <result column="phone" jdbcType="VARCHAR" property="phone" />
     <result column="qr_code" jdbcType="VARCHAR" property="qrCode" />
     <result column="sex" jdbcType="TINYINT" property="sex" />
-    <result column="desc" jdbcType="VARCHAR" property="desc" />
+    <result column="description" jdbcType="VARCHAR" property="description" />
     <result column="avatar" jdbcType="VARCHAR" property="avatar" />
     <result column="status" jdbcType="TINYINT" property="status" />
   </resultMap>
