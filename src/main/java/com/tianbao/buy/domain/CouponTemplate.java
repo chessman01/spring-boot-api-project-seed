@@ -88,8 +88,8 @@ public class CouponTemplate {
     /**
      * 有效期内容。1：天；2：周；3：月
      */
-    @Column(name = "vlidity_unit")
-    private Byte vlidityUnit;
+    @Column(name = "validity_unit")
+    private Byte validityUnit;
 
     /**
      * 获取主键
@@ -346,18 +346,18 @@ public class CouponTemplate {
     /**
      * 获取有效期内容。1：天；2：周；3：月
      *
-     * @return vlidity_unit - 有效期内容。1：天；2：周；3：月
+     * @return validity_unit - 有效期内容。1：天；2：周；3：月
      */
-    public Byte getVlidityUnit() {
-        return vlidityUnit;
+    public Byte getValidityUnit() {
+        return validityUnit;
     }
 
     /**
      * 设置有效期内容。1：天；2：周；3：月
      *
-     * @param vlidityUnit 有效期内容。1：天；2：周；3：月
+     * @param validityUnit 有效期内容。1：天；2：周；3：月
      */
-    public void setVlidityUnit(Byte vlidityUnit) {
-        this.vlidityUnit = vlidityUnit;
+    public void setValidityUnit(Byte validityUnit) {
+        this.validityUnit = validityUnit;
     }
 }
