@@ -25,7 +25,7 @@ public class CourseVO {
 
     private String desc;
 
-    private String tags;
+    private String[] tags;
 
     private String hotIcon;
 

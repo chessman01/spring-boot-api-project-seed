@@ -8,10 +8,7 @@ import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
 import com.tianbao.buy.domain.*;
 import com.tianbao.buy.manager.CourseManager;
-import com.tianbao.buy.service.CourseService;
-import com.tianbao.buy.service.PredicateWrapper;
-import com.tianbao.buy.service.UserService;
-import com.tianbao.buy.service.YenCardService;
+import com.tianbao.buy.service.*;
 import com.tianbao.buy.utils.DateUtils;
 import com.tianbao.buy.vo.*;
 import org.apache.commons.lang3.StringUtils;
@@ -43,6 +40,9 @@ public class CourseServiceImpl implements CourseService {
 
     @Resource
     private CourseManager courseManager;
+
+    @Resource
+    private CoachService coachService;
 
     @Resource
     private YenCardService yenCardService;
@@ -141,8 +141,6 @@ public class CourseServiceImpl implements CourseService {
         condition.createCriteria().andCondition("status=", CourseVO.Status.NORMAL.getCode())
                 .andCondition("start_time<", current);
 
-//                .andGreaterThanOrEqualTo("startTime", current).andLessThanOrEqualTo("endTime", current.plusDays(days));
-
         List<Course> courses = courseManager.findByCondition(condition);
 
         DateTime tmp;
@@ -165,7 +163,7 @@ public class CourseServiceImpl implements CourseService {
 
     private CourseVO convert2CourseVO(Course course) {
         CourseVO courseVO = convert2CourseVO(Lists.newArrayList(course)).get(NumberUtils.INTEGER_ZERO);
-//        Map<Long, CoachVO> coachVOMap = getAllCoach();   ????????????
+//        Map<Long, CoachVO> coachVOMap = getAllCoach();
 
 
 
@@ -179,7 +177,7 @@ public class CourseServiceImpl implements CourseService {
             CourseVO courseVO = new CourseVO();
 
             courseVO.setTitle(course.getTitle());
-            courseVO.setTags(course.getTags());
+            courseVO.setTags(course.getTags().split("\\."));
             courseVO.setTime(DateUtils.hourMinuteFormat(new DateTime(course.getStartTime())) + "-"
                     + DateUtils.hourMinuteFormat(new DateTime(course.getEndTime())));
 
@@ -191,7 +189,6 @@ public class CourseServiceImpl implements CourseService {
 
             if (course.getStock() < 10) {
                 courseVO.setStockIcon(lowStockPic);
-
             }
 
             if (course.getStock() == 0) {
@@ -221,6 +218,7 @@ public class CourseServiceImpl implements CourseService {
 
             double yenPrice = (course.getPrice() / 100f) * (minDiscountRate / 100f);
             courseVO.setYenPrice(numberFormat.format(yenPrice));
+            courseVO.setCoachVO(coachService.getCoach(course.getCoachId()));
 
             courseVOs.add(courseVO);
         }
