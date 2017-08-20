@@ -53,7 +53,8 @@ public class CourseServiceImpl implements CourseService {
     @Override
     public ScheduleVO schedule(String date, int num) {
         ScheduleVO scheduleVO = new ScheduleVO();
-        DateTime in = StringUtils.isBlank(date) ? new DateTime().withMillisOfDay(0) : new DateTime(date);
+        DateTime in = StringUtils.isBlank(date) ? new DateTime().withMillisOfDay(0)
+                : new DateTime(date).withMillisOfDay(0);
 
         setCalendar(in, scheduleVO);
         setBanner(scheduleVO);

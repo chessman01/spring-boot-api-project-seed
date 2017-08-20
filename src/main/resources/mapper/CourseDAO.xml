@@ -13,7 +13,7 @@
     <result column="start_time" jdbcType="TIMESTAMP" property="startTime" />
     <result column="end_time" jdbcType="TIMESTAMP" property="endTime" />
     <result column="price" jdbcType="INTEGER" property="price" />
-    <result column="desc" jdbcType="VARCHAR" property="desc" />
+    <result column="description" jdbcType="VARCHAR" property="description" />
     <result column="tag_ids" jdbcType="VARCHAR" property="tagIds" />
     <result column="main_pic1" jdbcType="VARCHAR" property="mainPic1" />
     <result column="main_pic2" jdbcType="VARCHAR" property="mainPic2" />
