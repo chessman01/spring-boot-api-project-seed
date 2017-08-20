@@ -8,7 +8,7 @@
     <id column="id" jdbcType="BIGINT" property="id" />
     <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
     <result column="modify_time" jdbcType="TIMESTAMP" property="modifyTime" />
-    <result column="order_id" jdbcType="BIGINT" property="orderId" />
+    <result column="order_id" jdbcType="VARCHAR" property="orderId" />
     <result column="price" jdbcType="INTEGER" property="price" />
     <result column="from_channel" jdbcType="TINYINT" property="fromChannel" />
     <result column="to_channel" jdbcType="TINYINT" property="toChannel" />

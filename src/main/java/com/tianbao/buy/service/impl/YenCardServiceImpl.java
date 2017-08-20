@@ -79,8 +79,8 @@ public class YenCardServiceImpl extends BaseService implements YenCardService{
         // 4. 礼券用的模版
         CouponTemplate couponTemplate = couponService.getTemplate(couponUser.getCouponTemplateId());
 
-        if (couponTemplate.getRulePrice() < template.getRulePrice()) throw new BizException("礼券无效。");
-        Long orderId = MakeOrderNum.makeOrderNum();
+        if (couponTemplate.getRulePrice() > template.getRulePrice()) throw new BizException("礼券无效。");
+        String orderId = MakeOrderNum.makeOrderNum();
         int price4wx = template.getRulePrice() - couponTemplate.getPrice();
         int price4Gift = template.getPrice();
         int price4Coupon = couponTemplate.getPrice();
@@ -98,7 +98,7 @@ public class YenCardServiceImpl extends BaseService implements YenCardService{
 
         couponService.updateStatus(couponUser.getId(), CouponVO.Status.PENDING.getCode());
 
-        return null;
+        return "weixin url";
     }
 
     @Override

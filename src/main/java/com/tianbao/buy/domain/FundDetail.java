@@ -28,7 +28,7 @@ public class FundDetail {
      * 订单ID
      */
     @Column(name = "order_id")
-    private Long orderId;
+    private String orderId;
 
     /**
      * 支付金额(单位：分)
@@ -116,7 +116,7 @@ public class FundDetail {
      *
      * @return order_id - 订单ID
      */
-    public Long getOrderId() {
+    public String getOrderId() {
         return orderId;
     }
 
@@ -125,7 +125,7 @@ public class FundDetail {
      *
      * @param orderId 订单ID
      */
-    public void setOrderId(Long orderId) {
+    public void setOrderId(String orderId) {
         this.orderId = orderId;
     }
 

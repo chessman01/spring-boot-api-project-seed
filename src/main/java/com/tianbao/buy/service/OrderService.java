@@ -8,7 +8,7 @@ public interface OrderService {
 
     OrderVO adjust(long courseId, long couponId, int personTime);
 
-    Order convert(Long orderId, Long userId, Long classId, Integer realPay, Integer totalPrice,
+    Order convert(String orderId, Long userId, Long classId, Integer realPay, Integer totalPrice,
                   Integer yenCarPayPrice, Integer yenCarDiscount, Long yenCarId, Integer onlineDiscount,
                   String onlineRule, Integer couponDiscount, Long couponId, Integer giftDiscount);
 

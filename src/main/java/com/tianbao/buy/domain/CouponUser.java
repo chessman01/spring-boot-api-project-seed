@@ -37,7 +37,7 @@ public class CouponUser {
     private Long userId;
 
     /**
-     * 状态。0：删除；1：正常；2：已过期；3：已使用
+     * 状态。0：删除；1：正常；2：已过期；3：已使用；4：待使用
      */
     private Byte status;
 
@@ -144,18 +144,18 @@ public class CouponUser {
     }
 
     /**
-     * 获取状态。0：删除；1：正常；2：已过期；3：已使用
+     * 获取状态。0：删除；1：正常；2：已过期；3：已使用；4：待使用
      *
-     * @return status - 状态。0：删除；1：正常；2：已过期；3：已使用
+     * @return status - 状态。0：删除；1：正常；2：已过期；3：已使用；4：待使用
      */
     public Byte getStatus() {
         return status;
     }
 
     /**
-     * 设置状态。0：删除；1：正常；2：已过期；3：已使用
+     * 设置状态。0：删除；1：正常；2：已过期；3：已使用；4：待使用
      *
-     * @param status 状态。0：删除；1：正常；2：已过期；3：已使用
+     * @param status 状态。0：删除；1：正常；2：已过期；3：已使用；4：待使用
      */
     public void setStatus(Byte status) {
         this.status = status;

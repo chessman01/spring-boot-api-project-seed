@@ -39,5 +39,11 @@ public class YenCardRpc extends BaseRpc{
         return ResultGenerator.genSuccessResult(cardVO);
     }
 
+    @PostMapping("/create")
+    public Result create(long cardId, long rechargeId, Long couponId) {
+        String url = yenCardServiceImpl.create(cardId, rechargeId, couponId);
+
+        return ResultGenerator.genSuccessResult(url);
+    }
 
 }

@@ -27,7 +27,7 @@ public class Order {
      * 订单号
      */
     @Column(name = "order_id")
-    private Long orderId;
+    private String orderId;
 
     /**
      * 用户ID
@@ -183,7 +183,7 @@ public class Order {
      *
      * @return order_id - 订单号
      */
-    public Long getOrderId() {
+    public String getOrderId() {
         return orderId;
     }
 
@@ -192,7 +192,7 @@ public class Order {
      *
      * @param orderId 订单号
      */
-    public void setOrderId(Long orderId) {
+    public void setOrderId(String orderId) {
         this.orderId = orderId;
     }
 

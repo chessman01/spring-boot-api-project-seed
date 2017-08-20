@@ -29,7 +29,7 @@ public class FundDetailServiceImpl implements FundDetailService {
     }
 
     @Override
-    public void initFund4PerIn(Long orderId, Integer price4wx, Integer price4Card, Integer price4Coupon) {
+    public void initFund4PerIn(String orderId, Integer price4wx, Integer price4Card, Integer price4Coupon) {
         List<FundDetail> fundDetails = Lists.newArrayList();
 
         // 从瘾卡消费现金
@@ -52,7 +52,7 @@ public class FundDetailServiceImpl implements FundDetailService {
     }
 
     @Override
-    public void initFund4PerOut(Long orderId, Integer price4wx, Integer price4Card, Integer price4Coupon) {
+    public void initFund4PerOut(String orderId, Integer price4wx, Integer price4Card, Integer price4Coupon) {
         List<FundDetail> fundDetails = Lists.newArrayList();
 
         // 从瘾卡退款现金
@@ -75,7 +75,7 @@ public class FundDetailServiceImpl implements FundDetailService {
     }
 
     @Override
-    public void initFund4RechargIn(Long orderId, Integer price4wx, Integer price4Gift, Integer price4Coupon) {
+    public void initFund4RechargIn(String orderId, Integer price4wx, Integer price4Gift, Integer price4Coupon) {
         List<FundDetail> fundDetails = Lists.newArrayList();
 
         // 瘾卡从微信进一笔现金；
@@ -97,7 +97,7 @@ public class FundDetailServiceImpl implements FundDetailService {
         fundDetailManager.save(fundDetails);
     }
 
-    private FundDetail convert(Long id, Long orderId, FundDetailVO.Channel fromChannel, FundDetailVO.Channel toChannel,
+    private FundDetail convert(Long id, String orderId, FundDetailVO.Channel fromChannel, FundDetailVO.Channel toChannel,
                                Integer price, FundDetailVO.Direction direction, FundDetailVO.Status status) {
         FundDetail fundDetail = new FundDetail();
 

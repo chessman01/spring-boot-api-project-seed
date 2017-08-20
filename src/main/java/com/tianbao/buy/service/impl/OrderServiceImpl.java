@@ -65,7 +65,7 @@ public class OrderServiceImpl implements OrderService{
     }
 
     @Override
-    public Order convert(Long orderId, Long userId, Long classId, Integer realPay, Integer totalPrice,
+    public Order convert(String orderId, Long userId, Long classId, Integer realPay, Integer totalPrice,
                           Integer yenCarPayPrice, Integer yenCarDiscount, Long yenCarId, Integer onlineDiscount,
                           String onlineRule, Integer couponDiscount, Long couponId, Integer giftDiscount) {
         Order order = new Order();

@@ -26,7 +26,7 @@ public class MakeOrderNum {
     /**
      * 生成非重复订单号，理论上限1毫秒1000个，可扩展
      */
-    public static long makeOrderNum() {
+    public static String makeOrderNum() {
         try {
             // 最终生成的订单号
             String finOrderNum;
@@ -41,7 +41,7 @@ public class MakeOrderNum {
                 String countStr = maxPerMSECSize + orderNumCount + "";
                 finOrderNum = nowLong+countStr.substring(1);
                 orderNumCount++;
-                return Long.valueOf(finOrderNum);
+                return finOrderNum;
             }
         } catch (Exception e) {
             throw new BizException("订单号生成错误");
