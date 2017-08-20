@@ -139,7 +139,9 @@ public class CourseServiceImpl implements CourseService {
 
         condition.orderBy("startTime");
         condition.createCriteria().andCondition("status=", CourseVO.Status.NORMAL.getCode())
-                .andGreaterThanOrEqualTo("startTime", current).andLessThanOrEqualTo("endTime", current.plusDays(days));
+                .andCondition("start_time<", current);
+
+//                .andGreaterThanOrEqualTo("startTime", current).andLessThanOrEqualTo("endTime", current.plusDays(days));
 
         List<Course> courses = courseManager.findByCondition(condition);
 
@@ -178,8 +180,8 @@ public class CourseServiceImpl implements CourseService {
 
             courseVO.setTitle(course.getTitle());
             courseVO.setTags(course.getTags());
-            courseVO.setTime(DateUtils.monthDayFormat(new DateTime(course.getStartTime())) + "-"
-                    + DateUtils.monthDayFormat(new DateTime(course.getStartTime())));
+            courseVO.setTime(DateUtils.hourMinuteFormat(new DateTime(course.getStartTime())) + "-"
+                    + DateUtils.hourMinuteFormat(new DateTime(course.getEndTime())));
 
             Button button = new Button();
 

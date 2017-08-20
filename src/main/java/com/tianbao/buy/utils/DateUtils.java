@@ -87,6 +87,10 @@ public class DateUtils {
         return dt.toString("MM.dd");
     }
 
+    public static String hourMinuteFormat(DateTime dt) {
+        return dt.toString("hh.mm");
+    }
+
     public static String getDayOfWeek (DateTime dt) {
         //星期
         switch(dt.getDayOfWeek()) {
