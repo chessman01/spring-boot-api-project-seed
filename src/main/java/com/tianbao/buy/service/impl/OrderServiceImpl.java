@@ -1,8 +1,8 @@
 package com.tianbao.buy.service.impl;
 
 import com.tianbao.buy.domain.FundDetail;
-import com.tianbao.buy.domain.Order;
-import com.tianbao.buy.manager.OrderManager;
+import com.tianbao.buy.domain.OrderMain;
+import com.tianbao.buy.manager.OrderMainManager;
 import com.tianbao.buy.service.OrderService;
 import com.tianbao.buy.vo.FundDetailVO;
 import com.tianbao.buy.vo.OrderVO;
@@ -15,7 +15,7 @@ import java.util.Date;
 @Service
 public class OrderServiceImpl implements OrderService{
     @Resource
-    private OrderManager orderManager;
+    private OrderMainManager orderManager;
 
     @Override
     public OrderVO build(long courseId) {
@@ -45,18 +45,18 @@ public class OrderServiceImpl implements OrderService{
 //        return 0;
 //    }
 
-    public void sava (Order order) {
+    public void sava (OrderMain order) {
         orderManager.save(order);
     }
 
     private void updateStatus(Long orderId, OrderVO.Status status, OrderVO.Status oldStatus,
                               Date payTime, String payOrderId) {
-        Condition condition = new Condition(Order.class);
+        Condition condition = new Condition(OrderMain.class);
 
         condition.createCriteria().andCondition("order_id=", orderId)
                 .andCondition("status=", oldStatus.getCode());
 
-        Order order = new Order();
+        OrderMain order = new OrderMain();
         order.setStatus(status.getCode());
         order.setPayTime(payTime);
         order.setPayOrderId(payOrderId);
@@ -65,10 +65,10 @@ public class OrderServiceImpl implements OrderService{
     }
 
     @Override
-    public Order convert(String orderId, Long userId, Long classId, Integer realPay, Integer totalPrice,
+    public OrderMain convert(String orderId, Long userId, Long classId, Integer realPay, Integer totalPrice,
                           Integer yenCarPayPrice, Integer yenCarDiscount, Long yenCarId, Integer onlineDiscount,
                           String onlineRule, Integer couponDiscount, Long couponId, Integer giftDiscount, Byte status) {
-        Order order = new Order();
+        OrderMain order = new OrderMain();
 
         order.setOrderId(orderId);
         order.setUserId(userId);

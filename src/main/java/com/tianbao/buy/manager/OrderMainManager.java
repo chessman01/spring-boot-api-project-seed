@@ -1,11 +1,11 @@
 package com.tianbao.buy.manager;
 
-import com.tianbao.buy.domain.Order;
+import com.tianbao.buy.domain.OrderMain;
 import com.tianbao.buy.core.Manager;
 
 /**
  * Created by CodeGenerator on 2017/08/20.
  */
-public interface OrderManager extends Manager<Order> {
+public interface OrderMainManager extends Manager<OrderMain> {
 
 }

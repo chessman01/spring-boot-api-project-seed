@@ -1,6 +1,6 @@
 package com.tianbao.buy.service;
 
-import com.tianbao.buy.domain.Order;
+import com.tianbao.buy.domain.OrderMain;
 import com.tianbao.buy.vo.OrderVO;
 
 public interface OrderService {
@@ -8,11 +8,11 @@ public interface OrderService {
 
     OrderVO adjust(long courseId, long couponId, int personTime);
 
-    Order convert(String orderId, Long userId, Long classId, Integer realPay, Integer totalPrice,
+    OrderMain convert(String orderId, Long userId, Long classId, Integer realPay, Integer totalPrice,
                   Integer yenCarPayPrice, Integer yenCarDiscount, Long yenCarId, Integer onlineDiscount,
                   String onlineRule, Integer couponDiscount, Long couponId, Integer giftDiscount, Byte status);
 
-    void sava (Order order);
+    void sava (OrderMain order);
 
 //    long create(long courseId, long cardId, long couponId, int personTime);
 

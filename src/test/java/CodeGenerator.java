@@ -37,7 +37,7 @@ public class CodeGenerator {
     private static final String DATE = new SimpleDateFormat("yyyy/MM/dd").format(new Date());//@date
 
     public static void main(String[] args) {
-        genCode("coach", "coupon_template", "coupon_user", "course", "fund_detail", "order", "tag", "user", "yen_card");
+        genCode("coach", "coupon_template", "coupon_user", "course", "fund_detail", "order_main", "tag", "user", "yen_card");
         //genCode("输入表名","输入自定义Model名称");
     }
 

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tianbao.buy.dao.OrderMainDAO">
+  <resultMap id="BaseResultMap" type="com.tianbao.buy.domain.OrderMain">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="modify_time" jdbcType="TIMESTAMP" property="modifyTime" />
+    <result column="order_id" jdbcType="VARCHAR" property="orderId" />
+    <result column="user_id" jdbcType="BIGINT" property="userId" />
+    <result column="class_id" jdbcType="BIGINT" property="classId" />
+    <result column="real_pay" jdbcType="INTEGER" property="realPay" />
+    <result column="status" jdbcType="TINYINT" property="status" />
+    <result column="pay_time" jdbcType="TIMESTAMP" property="payTime" />
+    <result column="total_price" jdbcType="INTEGER" property="totalPrice" />
+    <result column="person_time" jdbcType="TINYINT" property="personTime" />
+    <result column="yen_car_pay_price" jdbcType="INTEGER" property="yenCarPayPrice" />
+    <result column="yen_car_discount" jdbcType="INTEGER" property="yenCarDiscount" />
+    <result column="yen_car_id" jdbcType="BIGINT" property="yenCarId" />
+    <result column="online_discount" jdbcType="INTEGER" property="onlineDiscount" />
+    <result column="online_rule" jdbcType="VARCHAR" property="onlineRule" />
+    <result column="coupon_discount" jdbcType="INTEGER" property="couponDiscount" />
+    <result column="coupon_id" jdbcType="BIGINT" property="couponId" />
+    <result column="pay_order_id" jdbcType="VARCHAR" property="payOrderId" />
+    <result column="gift_discount" jdbcType="INTEGER" property="giftDiscount" />
+  </resultMap>
+</mapper>

@@ -3,7 +3,8 @@ package com.tianbao.buy.domain;
 import java.util.Date;
 import javax.persistence.*;
 
-public class Order {
+@Table(name = "order_main")
+public class OrderMain {
     /**
      * 主键
      */
