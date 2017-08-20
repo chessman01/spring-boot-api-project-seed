@@ -7,10 +7,12 @@ import com.tianbao.buy.core.BizException;
 import com.tianbao.buy.domain.Context;
 import com.tianbao.buy.domain.CouponTemplate;
 import com.tianbao.buy.domain.CouponUser;
+import com.tianbao.buy.domain.User;
 import com.tianbao.buy.manager.CouponTemplateManager;
 import com.tianbao.buy.manager.CouponUserManager;
 import com.tianbao.buy.service.PredicateWrapper;
 import com.tianbao.buy.service.CouponService;
+import com.tianbao.buy.service.UserService;
 import com.tianbao.buy.utils.MoneyUtils;
 import com.tianbao.buy.utils.enums.EnumUtil;
 import com.tianbao.buy.vo.CouponVO;
@@ -24,7 +26,6 @@ import org.springframework.util.CollectionUtils;
 import tk.mybatis.mapper.entity.Condition;
 
 import javax.annotation.Resource;
-import java.text.NumberFormat;
 import java.util.*;
 
 @Service
@@ -34,6 +35,9 @@ public class CouponServiceImpl implements CouponService {
 
     @Resource
     private CouponTemplateManager couponTemplateManager;
+
+    @Resource
+    private UserService userService;
 
     @Override
     public List<CouponVO> getCoupon(long userId, byte status, Context context) {
@@ -51,6 +55,46 @@ public class CouponServiceImpl implements CouponService {
     public List<CouponVO> getCoupon4PayPerView(long userId, int price, Long selectId, Context context) {
         return getCoupon(context, userId, price, Sets.newHashSet(CouponVO.PayType.PAY_PER_VIEW.getCode()),
                 Sets.newHashSet(CouponVO.Status.NORMAL.getCode()), selectId);
+    }
+
+    @Override
+    public void obtain(Long couponTemplateId) {
+        // 1. 获取到礼券模版
+        CouponTemplate couponTemplate = getTemplate(couponTemplateId);
+
+        if ((!couponTemplate.getSource().equals(CouponVO.Source.OFFLINE.getCode()) &&
+                !couponTemplate.getSource().equals(CouponVO.Source.WEIXIN.getCode())) ||
+                !couponTemplate.getStatus().equals(CouponVO.Status.NORMAL.getCode())) {
+            throw new BizException("此券不能领用");
+        }
+
+        // 2. 获取用户信息
+        User user = userService.getUserByWxUnionId();
+
+        // 3. 获取用户礼券领用记录
+        List<CouponUser> couponUsers = getRelation(user.getId());
+
+        // 4. 判断此礼券用户领用是否超限额
+        int useNum = NumberUtils.INTEGER_ZERO;
+
+        for (CouponUser couponUser :couponUsers) {
+            if (couponUser.getCouponTemplateId().equals(couponTemplateId)) {
+                useNum++;
+            }
+        }
+
+        if (couponTemplate.getUseNum().equals( NumberUtils.BYTE_ZERO) || useNum >= couponTemplate.getUseNum()) {
+            throw new BizException("已达到您此礼券领用上限");
+        }
+
+        // 5. 保存领用记录
+        CouponUser couponUser = new CouponUser();
+
+        couponUser.setStatus(CouponVO.Status.NORMAL.getCode());
+        couponUser.setCouponTemplateId(couponTemplateId);
+        couponUser.setUserId(user.getId());
+
+        couponUserManager.save(couponUser);
     }
 
     @Override

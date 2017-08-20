@@ -30,7 +30,7 @@ public class CouponTemplate {
     private Integer price;
 
     /**
-     * 来源类型。1：邀请好友；2：线下领取；3：微信领取；
+     * 来源类型。1：邀请好友；2：线下领取；3：微信领取；4：系统发放
      */
     private Byte source;
 
@@ -58,15 +58,26 @@ public class CouponTemplate {
     private Integer rulePrice;
 
     /**
-     * 支付类型。1：瘾卡充值；2：按次支付；
+     * 支付类型。1：瘾卡充值；2：按次支付；3: 所有
      */
     @Column(name = "pay_type")
     private Byte payType;
 
     /**
+     * 使用次数。0：不限制。其他：次数
+     */
+    @Column(name = "use_num")
+    private Byte useNum;
+
+    /**
      * 状态。0：删除；1：正常；2：已过期；8：充值瘾卡赠送模版-保留；
      */
     private Byte status;
+
+    /**
+     * 描述
+     */
+    private String description;
 
     /**
      * 获取主键
@@ -141,18 +152,18 @@ public class CouponTemplate {
     }
 
     /**
-     * 获取来源类型。1：邀请好友；2：线下领取；3：微信领取；
+     * 获取来源类型。1：邀请好友；2：线下领取；3：微信领取；4：系统发放
      *
-     * @return source - 来源类型。1：邀请好友；2：线下领取；3：微信领取；
+     * @return source - 来源类型。1：邀请好友；2：线下领取；3：微信领取；4：系统发放
      */
     public Byte getSource() {
         return source;
     }
 
     /**
-     * 设置来源类型。1：邀请好友；2：线下领取；3：微信领取；
+     * 设置来源类型。1：邀请好友；2：线下领取；3：微信领取；4：系统发放
      *
-     * @param source 来源类型。1：邀请好友；2：线下领取；3：微信领取；
+     * @param source 来源类型。1：邀请好友；2：线下领取；3：微信领取；4：系统发放
      */
     public void setSource(Byte source) {
         this.source = source;
@@ -231,21 +242,39 @@ public class CouponTemplate {
     }
 
     /**
-     * 获取支付类型。1：瘾卡充值；2：按次支付；
+     * 获取支付类型。1：瘾卡充值；2：按次支付；3: 所有
      *
-     * @return pay_type - 支付类型。1：瘾卡充值；2：按次支付；
+     * @return pay_type - 支付类型。1：瘾卡充值；2：按次支付；3: 所有
      */
     public Byte getPayType() {
         return payType;
     }
 
     /**
-     * 设置支付类型。1：瘾卡充值；2：按次支付；
+     * 设置支付类型。1：瘾卡充值；2：按次支付；3: 所有
      *
-     * @param payType 支付类型。1：瘾卡充值；2：按次支付；
+     * @param payType 支付类型。1：瘾卡充值；2：按次支付；3: 所有
      */
     public void setPayType(Byte payType) {
         this.payType = payType;
+    }
+
+    /**
+     * 获取使用次数。0：不限制。其他：次数
+     *
+     * @return use_num - 使用次数。0：不限制。其他：次数
+     */
+    public Byte getUseNum() {
+        return useNum;
+    }
+
+    /**
+     * 设置使用次数。0：不限制。其他：次数
+     *
+     * @param useNum 使用次数。0：不限制。其他：次数
+     */
+    public void setUseNum(Byte useNum) {
+        this.useNum = useNum;
     }
 
     /**
@@ -264,5 +293,23 @@ public class CouponTemplate {
      */
     public void setStatus(Byte status) {
         this.status = status;
+    }
+
+    /**
+     * 获取描述
+     *
+     * @return description - 描述
+     */
+    public String getDescription() {
+        return description;
+    }
+
+    /**
+     * 设置描述
+     *
+     * @param description 描述
+     */
+    public void setDescription(String description) {
+        this.description = description;
     }
 }

@@ -19,4 +19,6 @@ public interface CouponService {
     CouponUser getCouponUser(long id);
 
     CouponTemplate getTemplate(long id);
+
+    void obtain(Long couponTemplateId);
 }

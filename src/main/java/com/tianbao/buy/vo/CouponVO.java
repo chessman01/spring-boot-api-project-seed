@@ -32,10 +32,11 @@ public class CouponVO {
     private boolean selected;
 
     public enum Source implements EnumMessage {
-        // 来源类型。1：邀请好友；2：线下领取；3：微信领取；
+        // 来源类型。1：邀请好友；2：线下领取；3：微信领取；4：系统发放
         FRIEND((byte)1, "邀请好友"),
         OFFLINE((byte)2, "线下领取"),
-        ONLINE((byte)3, "微信领取");
+        WEIXIN((byte)3, "微信领取"),
+        SYS((byte)3, "系统发放");
 
         public byte code;
 
@@ -107,7 +108,8 @@ public class CouponVO {
     public enum PayType implements EnumMessage {
         // 支付类型。1：瘾卡充值；2：按次支付；
         RECHARGE((byte)1, "瘾卡充值"),
-        PAY_PER_VIEW((byte)2, "按次支付");
+        PAY_PER_VIEW((byte)2, "按次支付"),
+        ALL((byte)3, "所有");
 
         public byte code;
 

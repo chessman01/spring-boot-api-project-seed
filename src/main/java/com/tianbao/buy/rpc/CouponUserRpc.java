@@ -29,28 +29,10 @@ public class CouponUserRpc {
     @Resource
     private CouponUserManager couponUserManager;
 
-    @PostMapping("/add")
-    public Result add(CouponUser couponUser) {
-        couponUserManager.save(couponUser);
-        return ResultGenerator.genSuccessResult();
-    }
-
-    @PostMapping("/delete")
-    public Result delete(@RequestParam Long id) {
-        couponUserManager.deleteById(id);
-        return ResultGenerator.genSuccessResult();
-    }
-
-    @PostMapping("/update")
-    public Result update(CouponUser couponUser) {
-        couponUserManager.update(couponUser);
-        return ResultGenerator.genSuccessResult();
-    }
-
-    @PostMapping("/detail")
-    public Result detail(@RequestParam Long id) {
-        CouponUser couponUser = couponUserManager.findById(id);
-        return ResultGenerator.genSuccessResult(couponUser);
+    @PostMapping("/obtain")
+    public Result obtain(@RequestParam(defaultValue = "0") long couponTemplateId) {
+        couponService.obtain(couponTemplateId);
+        return ResultGenerator.genSuccessResult("领券成功");
     }
 
     @PostMapping("/list")

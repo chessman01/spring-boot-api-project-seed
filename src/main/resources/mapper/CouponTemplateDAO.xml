@@ -15,6 +15,8 @@
     <result column="rule" jdbcType="TINYINT" property="rule" />
     <result column="rule_price" jdbcType="INTEGER" property="rulePrice" />
     <result column="pay_type" jdbcType="TINYINT" property="payType" />
+    <result column="use_num" jdbcType="TINYINT" property="useNum" />
     <result column="status" jdbcType="TINYINT" property="status" />
+    <result column="description" jdbcType="VARCHAR" property="description" />
   </resultMap>
 </mapper>
