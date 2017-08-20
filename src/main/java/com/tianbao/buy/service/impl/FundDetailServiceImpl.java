@@ -19,7 +19,7 @@ public class FundDetailServiceImpl implements FundDetailService {
     private FundDetailManager fundDetailManager;
 
     @Override
-    public void updateStatus(Long orderId, FundDetailVO.Status status) {
+    public void updateStatus(String orderId, FundDetailVO.Status status) {
         FundDetail fundDetail = new FundDetail();
         fundDetail.setStatus(status.getCode());
 
