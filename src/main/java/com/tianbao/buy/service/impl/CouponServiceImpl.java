@@ -40,15 +40,16 @@ public class CouponServiceImpl implements CouponService {
     @Resource
     private UserService userService;
 
-    public void updateStatus(long id, byte status) {
+    @Override
+    public void updateCouponUserStatus(long recordId, byte newStatus, byte originStatus) {
         CouponUser couponUser = new CouponUser();
 
-        couponUser.setId(id);
-        couponUser.setStatus(status);
+        couponUser.setId(recordId);
+        couponUser.setStatus(newStatus);
 
         Condition condition = new Condition(CouponUser.class);
-        condition.createCriteria().andCondition("id=", id)
-                .andIn("status", Lists.newArrayList(CouponVO.Status.NORMAL.getCode()));
+        condition.createCriteria().andCondition("id=", recordId)
+                .andCondition("status=", originStatus);
 
         couponUserManager.update(couponUser, condition);
     }
@@ -88,18 +89,19 @@ public class CouponServiceImpl implements CouponService {
     }
 
     @Override
-    public void obtain(Long couponTemplateId) {
+    public void obtain(Long templateId) {
         // 获取用户信息
         User user = userService.getUserByWxUnionId();
 
-        obtain(couponTemplateId, Sets.newHashSet(CouponVO.Source.OFFLINE.getCode(),
-                CouponVO.Source.WEIXIN.getCode()), user.getId());
+        // 领券，只有这两源的券能被领
+        Set<Byte> sourceSet = Sets.newHashSet(CouponVO.Source.OFFLINE.getCode(), CouponVO.Source.WEIXIN.getCode());
+        obtain(templateId, sourceSet, user.getId());
     }
 
     @Override
-    public void obtain(Long couponTemplateId, Set<Byte> sourceSet, long userId) {
+    public void obtain(Long templateId, Set<Byte> sourceSet, long userId) {
         // 1. 获取到礼券模版
-        CouponTemplate couponTemplate = getTemplate(couponTemplateId);
+        CouponTemplate couponTemplate = getTemplate(templateId);
 
         if (!sourceSet.contains(couponTemplate.getSource()) ||
                 !couponTemplate.getStatus().equals(CouponVO.Status.NORMAL.getCode())) {
@@ -114,7 +116,7 @@ public class CouponServiceImpl implements CouponService {
             int useNum = NumberUtils.INTEGER_ZERO;
 
             for (CouponUser couponUser :couponUsers) {
-                if (couponUser.getCouponTemplateId().equals(couponTemplateId)) {
+                if (couponUser.getCouponTemplateId().equals(templateId)) {
                     useNum++;
                 }
             }
@@ -130,7 +132,7 @@ public class CouponServiceImpl implements CouponService {
         DateTime end = DateUtils.getEnd(start, couponTemplate.getValidityUnit(), couponTemplate.getValidityValue());
 
         couponUser.setStatus(CouponVO.Status.NORMAL.getCode());
-        couponUser.setCouponTemplateId(couponTemplateId);
+        couponUser.setCouponTemplateId(templateId);
         couponUser.setUserId(userId);
         couponUser.setStartTime(start.toDate());
         couponUser.setEndTime(end.toDate());
@@ -144,7 +146,8 @@ public class CouponServiceImpl implements CouponService {
         List<CouponTemplate> couponTemplates = getAllTemplate();
 
         // 2. 过滤出充值满送部分的模版
-        Predicate<CouponTemplate> predicate = PredicateWrapper.getPredicate4Template(Sets.newHashSet(CouponVO.Status.RECHARGE.getCode()), null, null, new Date());
+        Predicate<CouponTemplate> predicate = PredicateWrapper.getPredicate4Template(
+                Sets.newHashSet(CouponVO.Status.RECHARGE.getCode()), null, null, new Date());
 
         Predicate<CouponTemplate> unionPredicate = Predicates.and(predicate);
         List<CouponTemplate> filterResult = Lists.newArrayList(Iterators.filter(couponTemplates.iterator(), unionPredicate));

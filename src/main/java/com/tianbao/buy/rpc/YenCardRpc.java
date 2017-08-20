@@ -14,7 +14,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/yen/card")
-public class YenCardRpc extends BaseRpc{
+public class YenCardRpc {
     @Resource
     private YenCardServiceImpl yenCardServiceImpl;
 

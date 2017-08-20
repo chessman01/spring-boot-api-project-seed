@@ -100,7 +100,8 @@ public class YenCardServiceImpl extends BaseService implements YenCardService{
         orderService.sava(order);
         // 礼券要锁定
 
-        couponService.updateStatus(couponUser.getId(), CouponVO.Status.PENDING.getCode());
+        couponService.updateCouponUserStatus(couponUser.getId(), CouponVO.Status.PENDING.getCode(),
+                CouponVO.Status.NORMAL.getCode());
 
         return "weixin url";
     }
