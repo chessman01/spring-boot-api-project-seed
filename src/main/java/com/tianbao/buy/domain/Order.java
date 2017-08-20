@@ -39,7 +39,7 @@ public class Order {
      * 课程ID
      */
     @Column(name = "class_id")
-    private Integer classId;
+    private Long classId;
 
     /**
      * 实付金额
@@ -213,7 +213,7 @@ public class Order {
      *
      * @return class_id - 课程ID
      */
-    public Integer getClassId() {
+    public Long getClassId() {
         return classId;
     }
 
@@ -222,7 +222,7 @@ public class Order {
      *
      * @param classId 课程ID
      */
-    public void setClassId(Integer classId) {
+    public void setClassId(Long classId) {
         this.classId = classId;
     }
 

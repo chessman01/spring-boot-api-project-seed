@@ -10,7 +10,7 @@
     <result column="modify_time" jdbcType="TIMESTAMP" property="modifyTime" />
     <result column="order_id" jdbcType="BIGINT" property="orderId" />
     <result column="user_id" jdbcType="BIGINT" property="userId" />
-    <result column="class_id" jdbcType="INTEGER" property="classId" />
+    <result column="class_id" jdbcType="BIGINT" property="classId" />
     <result column="real_pay" jdbcType="INTEGER" property="realPay" />
     <result column="status" jdbcType="TINYINT" property="status" />
     <result column="pay_time" jdbcType="TIMESTAMP" property="payTime" />

@@ -5,6 +5,7 @@ import com.tianbao.buy.core.BizException;
 import com.tianbao.buy.domain.*;
 import com.tianbao.buy.manager.YenCardManager;
 import com.tianbao.buy.service.*;
+import com.tianbao.buy.utils.MakeOrderNum;
 import com.tianbao.buy.utils.MoneyUtils;
 import com.tianbao.buy.vo.Button;
 import com.tianbao.buy.vo.CouponVO;
@@ -25,6 +26,9 @@ public class YenCardServiceImpl extends BaseService implements YenCardService{
     @Value("${biz.card.discount.rate}")
     private int cardDiscountRate;
 
+    @Value("${biz.pay.online.discount.rate}")
+    private int onlineDiscountRate;
+
     @Resource
     private YenCardManager yenCardManager;
 
@@ -36,6 +40,9 @@ public class YenCardServiceImpl extends BaseService implements YenCardService{
 
     @Resource
     private FundDetailService fundDetailService;
+
+    @Resource
+    private OrderService orderService;
 
     @Override
     public List<YenCardVO> getAllByUser() {
@@ -57,7 +64,7 @@ public class YenCardServiceImpl extends BaseService implements YenCardService{
 
         YenCard card = getSpecify(user.getId(), cardId);
 
-        // 2. 找礼券
+        // 2. 找充值模版
         CouponTemplate template = couponService.getTemplate(rechargeId);
 
         if (!template.getStatus().equals(CouponVO.Status.RECHARGE.getCode()) ||
@@ -65,25 +72,31 @@ public class YenCardServiceImpl extends BaseService implements YenCardService{
             throw new BizException("充值模版无效。id=" + rechargeId);
         }
 
+        // 3. 找礼券
         CouponUser couponUser = couponService.getCouponUser(couponUserId);
 
         if (!couponUser.getStatus().equals(CouponVO.Status.NORMAL.getCode())) {
             throw new BizException("礼券无效。id=" + couponUserId);
         }
 
-        CouponTemplate coupon = couponService.getTemplate(couponUser.getCouponTemplateId());
+        CouponTemplate couponTemplate = couponService.getTemplate(couponUser.getCouponTemplateId());
 
-        if (coupon.getRulePrice() > template.getRulePrice()) throw new BizException("礼券无效。");
-        Long orderId = null;
-        Integer price4wx = template.getRulePrice() - coupon.getPrice();
-        Integer price4Gift = template.getPrice();
-        Integer price4Coupon = coupon.getPrice();
+        if (couponTemplate.getRulePrice() < template.getRulePrice()) throw new BizException("礼券无效。");
+        Long orderId = MakeOrderNum.makeOrderNum();
+        int price4wx = template.getRulePrice() - couponTemplate.getPrice();
+        int price4Gift = template.getPrice();
+        int price4Coupon = couponTemplate.getPrice();
 
         fundDetailService.initFund4RechargIn(orderId, price4wx, price4Gift, price4Coupon);
 
-//        updatePrice(price4wx, card.getCashAccount(), price4Gift + price4Coupon, card.getGiftAccount(), card.getId());
+        updatePrice(price4wx, card.getCashAccount(), price4Gift + price4Coupon, card.getGiftAccount(), card.getId());
 
-        // 生成个订单
+        // 生成订单
+        orderService.convert(orderId, user.getId(), card.getId(), price4wx, couponTemplate.getRulePrice(),
+                0, 0, card.getId(), 0, "1", price4Coupon, couponUser.getId());
+
+        // 礼券要锁定
+
         return null;
     }
 

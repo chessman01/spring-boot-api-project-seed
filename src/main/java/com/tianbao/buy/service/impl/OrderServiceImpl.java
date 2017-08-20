@@ -33,10 +33,17 @@ public class OrderServiceImpl implements OrderService{
         return null;
     }
 
-    @Override
-    public long create(long courseId, long cardId, long couponId, int personTime) {
-        return 0;
-    }
+//    @Override
+//    public long create(long orderId, long userId, Integer classId, long courseId, long cardId, long couponId, int personTime) {
+////        convert(orderId, userId, classId, Integer realPay, Integer totalPrice,
+////                Integer yenCarPayPrice, Integer yenCarDiscount, Long yenCarId, Integer onlineDiscount,
+////                String onlineRule, Integer couponDiscount, Long couponId)
+//
+//
+//
+//
+//        return 0;
+//    }
 
     private void updateStatus(Long orderId, OrderVO.Status status, OrderVO.Status oldStatus,
                               Date payTime, String payOrderId) {
@@ -53,7 +60,7 @@ public class OrderServiceImpl implements OrderService{
         orderManager.update(order, condition);
     }
 
-    private Order convert(Long orderId, Long userId, Integer classId, Integer realPay, Integer totalPrice,
+    public Order convert(Long orderId, Long userId, Long classId, Integer realPay, Integer totalPrice,
                           Integer yenCarPayPrice, Integer yenCarDiscount, Long yenCarId, Integer onlineDiscount,
                           String onlineRule, Integer couponDiscount, Long couponId) {
         Order order = new Order();
