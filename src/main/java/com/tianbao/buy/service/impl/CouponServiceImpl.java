@@ -55,8 +55,8 @@ public class CouponServiceImpl implements CouponService {
 
     @Override
     public List<CouponVO> getCoupon4Recharge(long userId, int price, Long selectId, Context context) {
-        Set payTypeSet = Sets.newHashSet(CouponVO.PayType.RECHARGE.getCode());
-        Set couponUserStatusSet = Sets.newHashSet(CouponVO.Status.NORMAL);
+        Set payTypeSet = Sets.newHashSet(CouponVO.PayType.RECHARGE.getCode(),CouponVO.PayType.ALL.getCode());
+        Set couponUserStatusSet = Sets.newHashSet(CouponVO.Status.NORMAL.getCode());
         Set templateStatusSet = Sets.newHashSet(CouponVO.Status.NORMAL.getCode(),
                 CouponVO.Status.EXPIRED.getCode(), CouponVO.Status.USED.getCode());
 
@@ -65,8 +65,7 @@ public class CouponServiceImpl implements CouponService {
 
     @Override
     public List<CouponVO> getCoupon4PayPerView(long userId, int price, Long selectId, Context context) {
-        Set payTypeSet = Sets.newHashSet(CouponVO.PayType.RECHARGE.getCode(),
-                CouponVO.PayType.ALL.getCode(), CouponVO.PayType.PAY_PER_VIEW.getCode());
+        Set payTypeSet = Sets.newHashSet(CouponVO.PayType.ALL.getCode(), CouponVO.PayType.PAY_PER_VIEW.getCode());
 
         Set couponUserStatusSet = Sets.newHashSet(CouponVO.Status.NORMAL.getCode());
         Set templateStatusSet = Sets.newHashSet(CouponVO.Status.NORMAL.getCode(),
@@ -202,7 +201,7 @@ public class CouponServiceImpl implements CouponService {
         if (CollectionUtils.isEmpty(allCouponUsers)) return Lists.newArrayList();
 
         // 4. 过滤礼券
-        Predicate<CouponUser> predicateUserStatus = PredicateWrapper.getPredicate4CouponUser(Sets.newHashSet(couponUserStatusSet));
+        Predicate<CouponUser> predicateUserStatus = PredicateWrapper.getPredicate4CouponUser(couponUserStatusSet);
         Predicate<CouponUser> unionUserPredicate = Predicates.and(predicateUserStatus);
         List<CouponUser> couponUsers = Lists.newArrayList(Iterators.filter(allCouponUsers.iterator(), unionUserPredicate));
         if (CollectionUtils.isEmpty(couponUsers)) return Lists.newArrayList();
@@ -222,12 +221,19 @@ public class CouponServiceImpl implements CouponService {
 
                 couponVO.setTime("有效期：" + start.toString("yyyy.MM.dd") + "至" + end.toString("yyyy.MM.dd"));
 
+                if (!couponUser.getStatus().equals(CouponVO.Status.NORMAL.getCode())) {
+                    couponVO.setRemind(EnumUtil.getEnumObject(couponUser.getStatus(), CouponVO.Status.class).getDesc());
+                }
+
                 //计算区间天数
-                Period p = new Period(new DateTime(), end, PeriodType.days());
-                int days = p.getDays();
+                if (couponUser.getStatus().equals(CouponVO.Status.NORMAL.getCode())) {
+                    Period p = new Period(new DateTime(), end, PeriodType.days());
+                    int days = p.getDays();
 
-                if (days <= 7) couponVO.setRemind(days + "天后过期");
+                    if (days <= 7) couponVO.setRemind(days + "天后过期");
+                }
 
+                couponVO.setEndTime(couponUser.getEndTime());
                 if (couponUser.equals(selectId)) couponVO.setSelected(true);
                 context.setCoupon(couponTemplateMap.get(couponUser.getCouponTemplateId()));
 
@@ -236,7 +242,7 @@ public class CouponServiceImpl implements CouponService {
         }
 
         // 6. 按赠送金额排序
-        Comparator<CouponVO> userComparator = Ordering.from(new priceComparator()).reversed();
+        Comparator<CouponVO> userComparator = Ordering.from(new PriceComparator()).compound(new EndTimeComparator());
         Collections.sort(couponVOs, userComparator);
         if (CollectionUtils.isEmpty(couponVOs)) return Lists.newArrayList();
 
@@ -321,7 +327,8 @@ public class CouponServiceImpl implements CouponService {
         String rulePrice = MoneyUtils.format(2, couponTemplate.getRulePrice() / 100f);
         couponVO.setPrice(price);
         couponVO.setOriginPrice(couponTemplate.getPrice());
-        couponVO.setRulePrice("使用条件：订单满" + rulePrice);
+        couponVO.setRule("使用条件：订单满" + rulePrice);
+        couponVO.setRulePrice(rulePrice);
 
         if (couponTemplate.getPayType().equals(CouponVO.PayType.PAY_PER_VIEW.getCode())) {
             couponVO.setPayType("仅限单次购买时使用。");
@@ -339,10 +346,18 @@ public class CouponServiceImpl implements CouponService {
     }
 }
 
-class priceComparator implements Comparator<CouponVO> {
+class PriceComparator implements Comparator<CouponVO> {
     @Override
     public int compare(CouponVO o1, CouponVO o2) {
-        return o1.getOriginPrice() > o2.getOriginPrice() ? 1 : (o1.getOriginPrice() == o2.getOriginPrice() ? 0 : -1);
+        return o1.getOriginPrice() < o2.getOriginPrice() ? 1 : (o1.getOriginPrice() == o2.getOriginPrice() ? 0 : -1);
+    }
+}
+
+class EndTimeComparator implements Comparator<CouponVO> {
+    @Override
+    public int compare(CouponVO o1, CouponVO o2) {
+        return o1.getEndTime().getTime() < o2.getEndTime().getTime()
+                ? 1 : (o1.getEndTime().getTime() == o2.getEndTime().getTime() ? 0 : -1);
     }
 }
 

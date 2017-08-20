@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Date;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -30,6 +32,8 @@ public class CouponVO {
     private String status;
 
     private String remind;
+
+    private Date endTime;
 
     private boolean selected;
 
