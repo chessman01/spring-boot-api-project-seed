@@ -80,6 +80,18 @@ public class CouponTemplate {
     private String description;
 
     /**
+     * 有效期。
+     */
+    @Column(name = "validity_value")
+    private Integer validityValue;
+
+    /**
+     * 有效期内容。1：天；2：周；3：月
+     */
+    @Column(name = "vlidity_unit")
+    private Byte vlidityUnit;
+
+    /**
      * 获取主键
      *
      * @return id - 主键
@@ -311,5 +323,41 @@ public class CouponTemplate {
      */
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    /**
+     * 获取有效期。
+     *
+     * @return validity_value - 有效期。
+     */
+    public Integer getValidityValue() {
+        return validityValue;
+    }
+
+    /**
+     * 设置有效期。
+     *
+     * @param validityValue 有效期。
+     */
+    public void setValidityValue(Integer validityValue) {
+        this.validityValue = validityValue;
+    }
+
+    /**
+     * 获取有效期内容。1：天；2：周；3：月
+     *
+     * @return vlidity_unit - 有效期内容。1：天；2：周；3：月
+     */
+    public Byte getVlidityUnit() {
+        return vlidityUnit;
+    }
+
+    /**
+     * 设置有效期内容。1：天；2：周；3：月
+     *
+     * @param vlidityUnit 有效期内容。1：天；2：周；3：月
+     */
+    public void setVlidityUnit(Byte vlidityUnit) {
+        this.vlidityUnit = vlidityUnit;
     }
 }

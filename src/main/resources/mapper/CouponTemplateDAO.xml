@@ -18,5 +18,7 @@
     <result column="use_num" jdbcType="TINYINT" property="useNum" />
     <result column="status" jdbcType="TINYINT" property="status" />
     <result column="description" jdbcType="VARCHAR" property="description" />
+    <result column="validity_value" jdbcType="INTEGER" property="validityValue" />
+    <result column="vlidity_unit" jdbcType="TINYINT" property="vlidityUnit" />
   </resultMap>
 </mapper>

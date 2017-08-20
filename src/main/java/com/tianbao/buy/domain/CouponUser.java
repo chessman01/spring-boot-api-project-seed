@@ -42,6 +42,18 @@ public class CouponUser {
     private Byte status;
 
     /**
+     * 开始时间
+     */
+    @Column(name = "start_time")
+    private Date startTime;
+
+    /**
+     * 结束时间
+     */
+    @Column(name = "end_time")
+    private Date endTime;
+
+    /**
      * 获取主键
      *
      * @return id - 主键
@@ -147,5 +159,41 @@ public class CouponUser {
      */
     public void setStatus(Byte status) {
         this.status = status;
+    }
+
+    /**
+     * 获取开始时间
+     *
+     * @return start_time - 开始时间
+     */
+    public Date getStartTime() {
+        return startTime;
+    }
+
+    /**
+     * 设置开始时间
+     *
+     * @param startTime 开始时间
+     */
+    public void setStartTime(Date startTime) {
+        this.startTime = startTime;
+    }
+
+    /**
+     * 获取结束时间
+     *
+     * @return end_time - 结束时间
+     */
+    public Date getEndTime() {
+        return endTime;
+    }
+
+    /**
+     * 设置结束时间
+     *
+     * @param endTime 结束时间
+     */
+    public void setEndTime(Date endTime) {
+        this.endTime = endTime;
     }
 }
