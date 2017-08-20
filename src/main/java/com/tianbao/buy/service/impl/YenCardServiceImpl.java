@@ -14,10 +14,12 @@ import com.tianbao.buy.vo.YenCardVO;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import tk.mybatis.mapper.entity.Condition;
 
 import javax.annotation.Resource;
+import java.util.Date;
 import java.util.List;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -56,6 +58,7 @@ public class YenCardServiceImpl extends BaseService implements YenCardService{
     }
 
     @Override
+    @Transactional
     public String create(long cardId, long rechargeId, long couponUserId) {
         // 1. 找到用户的瘾卡
         User user = userService.getUserByWxUnionId();
@@ -86,7 +89,7 @@ public class YenCardServiceImpl extends BaseService implements YenCardService{
         int price4Gift = template.getPrice();
         int price4Coupon = couponTemplate.getPrice();
 
-        fundDetailService.initFund4RechargIn(orderId, price4wx, price4Gift, price4Coupon);
+        fundDetailService.initFund4RechargIn(orderId, price4wx, price4Gift, price4Coupon, new Date());
 
         updatePrice(price4wx, card.getCashAccount(), price4Gift + price4Coupon, card.getGiftAccount(), card.getId());
 
