@@ -6,6 +6,10 @@ import com.tianbao.buy.domain.OrderMain;
 import com.tianbao.buy.manager.OrderMainManager;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.tianbao.buy.service.OrderService;
+import com.tianbao.buy.service.impl.YenCardServiceImpl;
+import com.tianbao.buy.vo.OrderVO;
+import com.tianbao.buy.vo.YenCardVO;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -21,37 +25,33 @@ import java.util.List;
 @RequestMapping("/order")
 public class OrderRpc {
     @Resource
-    private OrderMainManager orderManager;
+    private OrderService orderService;
 
-    @PostMapping("/add")
-    public Result add(OrderMain order) {
-        orderManager.save(order);
-        return ResultGenerator.genSuccessResult();
-    }
+//    @PostMapping("/list")
+//    public Result list() {
+//        List<YenCardVO> voList = yenCardServiceImpl.getCardByUser();
+//
+//        return ResultGenerator.genSuccessResult(voList);
+//    }
 
-    @PostMapping("/delete")
-    public Result delete(@RequestParam Long id) {
-        orderManager.deleteById(id);
-        return ResultGenerator.genSuccessResult();
-    }
+    @PostMapping("/build")
+    public Result build(@RequestParam(defaultValue = "0") long courseId) {
+        OrderVO order = orderService.build(courseId);
 
-    @PostMapping("/update")
-    public Result update(OrderMain order) {
-        orderManager.update(order);
-        return ResultGenerator.genSuccessResult();
-    }
-
-    @PostMapping("/detail")
-    public Result detail(@RequestParam Long id) {
-        OrderMain order = orderManager.findById(id);
         return ResultGenerator.genSuccessResult(order);
     }
 
-    @PostMapping("/list")
-    public Result list(@RequestParam(defaultValue = "0") Integer page, @RequestParam(defaultValue = "0") Integer size) {
-        PageHelper.startPage(page, size);
-        List<OrderMain> list = orderManager.findAll();
-        PageInfo pageInfo = new PageInfo(list);
-        return ResultGenerator.genSuccessResult(pageInfo);
+    @PostMapping("/adjust")
+    public Result adjust(long courseId, Long cardId, Long couponId, int personTime) {
+        OrderVO order = orderService.adjust(courseId, cardId, couponId, personTime);
+
+        return ResultGenerator.genSuccessResult(order);
+    }
+
+    @PostMapping("/create")
+    public Result create(long courseId, long couponId, int personTime, long cardId) {
+        String url = orderService.create(courseId, couponId, personTime, cardId);
+
+        return ResultGenerator.genSuccessResult(url);
     }
 }
