@@ -84,7 +84,7 @@ public class CouponServiceImpl implements CouponService {
         Set templateStatusSet = Sets.newHashSet(CouponVO.Status.NORMAL.getCode(),
                 CouponVO.Status.EXPIRED.getCode(), CouponVO.Status.USED.getCode());
 
-        return getCoupon(new Context(), user.getId(), Integer.MAX_VALUE, payTypeSet, templateStatusSet, couponUserStatusSet, null);
+        return getCoupon(new Context(), user.getId(), Integer.MAX_VALUE, payTypeSet, templateStatusSet, couponUserStatusSet, null, false, false);
     }
 
     @Override
@@ -94,7 +94,7 @@ public class CouponServiceImpl implements CouponService {
         Set templateStatusSet = Sets.newHashSet(CouponVO.Status.NORMAL.getCode(),
                 CouponVO.Status.EXPIRED.getCode(), CouponVO.Status.USED.getCode());
 
-        return getCoupon(context, userId, price, payTypeSet, templateStatusSet, couponUserStatusSet, selectId);
+        return getCoupon(context, userId, price, payTypeSet, templateStatusSet, couponUserStatusSet, selectId, true, true);
     }
 
     @Override
@@ -105,7 +105,7 @@ public class CouponServiceImpl implements CouponService {
         Set templateStatusSet = Sets.newHashSet(CouponVO.Status.NORMAL.getCode(),
                 CouponVO.Status.EXPIRED.getCode(), CouponVO.Status.USED.getCode());
 
-        return getCoupon(context, userId, price, payTypeSet, templateStatusSet, couponUserStatusSet, selectId);
+        return getCoupon(context, userId, price, payTypeSet, templateStatusSet, couponUserStatusSet, selectId, true, true);
     }
 
     @Override
@@ -201,6 +201,13 @@ public class CouponServiceImpl implements CouponService {
             });
         }
 
+        couponVOs.forEach(item -> {
+            item.setEndTime(null);
+            item.setOriginPrice(null);
+            item.setPayType(null);
+            item.setRule(null);
+        });
+
         if (isSelect == false) {
             if (couponVOs.size() > 1) {
                 couponVOs.get(1).setSelected(true);
@@ -218,8 +225,8 @@ public class CouponServiceImpl implements CouponService {
         return couponVOs;
     }
 
-    private List<CouponVO> getCoupon(Context context, long userId, int rulePrice, Set<Byte> payTypeSet,
-                                     Set<Byte> templateStatusSet, Set<Byte> couponUserStatusSet, Long selectId) {
+    private List<CouponVO> getCoupon(Context context, long userId, int rulePrice, Set<Byte> payTypeSet, Set<Byte> templateStatusSet,
+                                     Set<Byte> couponUserStatusSet, Long selectId, boolean isOrderByPrice, boolean isFilter) {
         // 1. 得到所有的模版
         List<CouponTemplate> allCouponTemplates = getAllTemplate();
 
@@ -282,15 +289,38 @@ public class CouponServiceImpl implements CouponService {
         }
 
         // 6. 按赠送金额排序
-        Comparator<CouponVO> userComparator = Ordering.from(new PriceComparator()).compound(new EndTimeComparator());
-        Collections.sort(couponVOs, userComparator);
-        if (CollectionUtils.isEmpty(couponVOs)) return Lists.newArrayList();
+        if (isOrderByPrice) {
+            Comparator<CouponVO> userComparator = Ordering.from(new PriceComparator()).compound(new EndTimeComparator());
+            Collections.sort(couponVOs, userComparator);
+            if (CollectionUtils.isEmpty(couponVOs)) return Lists.newArrayList();
+        }
 
         // 5. 置为已选择
         if (selectId == null || selected == false) {
             couponVOs.get(NumberUtils.INTEGER_ZERO).setSelected(true);
             context.setCoupon(couponTemplateMap.get(couponVOs.get(NumberUtils.INTEGER_ZERO).getId()));
         }
+
+        if (!isFilter) {
+            couponVOs.forEach(item -> {
+                item.setEndTime(null);
+                item.setId(null);
+                item.setOriginPrice(null);
+                item.setRulePrice(null);
+            });
+            return couponVOs;
+        }
+
+        couponVOs.forEach(item -> {
+            item.setEndTime(null);
+            item.setId(null);
+            item.setOriginPrice(null);
+            item.setPayType(null);
+            item.setRule(null);
+            item.setRulePrice(null);
+            item.setSourceDesc(null);
+            item.setTime(null);
+        });
 
         return couponVOs;
     }
@@ -349,15 +379,19 @@ public class CouponServiceImpl implements CouponService {
         String rulePrice = MoneyUtils.format(2, couponTemplate.getRulePrice() / 100f);
         couponVO.setPrice(price);
         couponVO.setOriginPrice(couponTemplate.getPrice());
-        couponVO.setRule("使用条件：订单满" + rulePrice);
+        couponVO.setRule("使用条件：订单满" + rulePrice + "元");
         couponVO.setRulePrice(rulePrice);
 
         if (couponTemplate.getPayType().equals(CouponVO.PayType.PAY_PER_VIEW.getCode())) {
-            couponVO.setPayType("仅限单次购买时使用。");
+            couponVO.setPayType("仅限单次购买时使用");
         }
 
         if (couponTemplate.getPayType().equals(CouponVO.PayType.RECHARGE.getCode())) {
-            couponVO.setPayType("仅限瘾卡充值时使用。");
+            couponVO.setPayType("仅限瘾卡充值时使用");
+        }
+
+        if (couponTemplate.getPayType().equals(CouponVO.PayType.ALL.getCode())) {
+            couponVO.setPayType("瘾卡充值和单次购买时均可使用");
         }
 
         CouponVO.Source enumSource = EnumUtil.getEnumObject(couponTemplate.getSource(), CouponVO.Source.class);
