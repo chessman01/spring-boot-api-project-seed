@@ -1,17 +1,28 @@
 package com.tianbao.buy.service.impl;
 
 import com.tianbao.buy.core.BizException;
+import com.tianbao.buy.domain.CouponTemplate;
+import com.tianbao.buy.domain.CouponUser;
 import com.tianbao.buy.domain.User;
+import com.tianbao.buy.manager.CouponTemplateManager;
+import com.tianbao.buy.manager.CouponUserManager;
 import com.tianbao.buy.manager.UserManager;
 import com.tianbao.buy.service.BaseService;
 import com.tianbao.buy.service.UserService;
 import com.tianbao.buy.service.YenCardService;
+import com.tianbao.buy.utils.MoneyUtils;
+import com.tianbao.buy.vo.CouponVO;
+import com.tianbao.buy.vo.InvitationVO;
 import com.tianbao.buy.vo.UserVO;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
+import tk.mybatis.mapper.entity.Condition;
 
 import javax.annotation.Resource;
+import java.util.List;
 
 @Service
 public class UserServiceImpl extends BaseService implements UserService {
@@ -20,6 +31,39 @@ public class UserServiceImpl extends BaseService implements UserService {
 
     @Resource
     private YenCardService yenCardService;
+
+    @Resource
+    private CouponTemplateManager couponTemplateManager;
+
+    @Resource
+    private CouponUserManager couponUserManager;
+
+    @Override
+    public InvitationVO invitation() {
+        InvitationVO invitationVO = new InvitationVO();
+        User user = getUserByWxUnionId();
+
+        Condition condition = new Condition(CouponTemplate.class);
+
+        condition.createCriteria().andCondition("source=", CouponVO.Source.FRIEND.getCode())
+                .andCondition("status=", CouponVO.Status.NORMAL.getCode());
+        List<CouponTemplate> couponTemplates = couponTemplateManager.findByCondition(condition);
+
+        if (CollectionUtils.isEmpty(couponTemplates)) throw new BizException("没找到微信邀请好友礼券");
+
+        Condition couponUserManagerCondition = new Condition(CouponUser.class);
+
+        couponUserManagerCondition.createCriteria().andCondition("coupon_template_id=", couponTemplates.get(NumberUtils.INTEGER_ZERO).getId())
+                .andCondition("user_id=", user.getId());
+        List<CouponUser> couponUsers = couponUserManager.findByCondition(couponUserManagerCondition);
+
+        invitationVO.setTotalPrize(MoneyUtils.format(2, couponUsers.size()
+                * couponTemplates.get(NumberUtils.INTEGER_ZERO).getPrice() / 100));
+        invitationVO.setInviterId(user.getId());
+        invitationVO.setUrl("url");
+
+        return invitationVO;
+    }
 
     @Override
     public void updatePhone(long userId, String phone) {

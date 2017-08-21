@@ -169,6 +169,20 @@ public class CourseServiceImpl implements CourseService {
 
             List<CourseVO> courseVOs = convert2CourseVO(course4Day);
 
+            courseVOs.forEach(item -> {
+                item.setAddress(null);
+                item.setCare(null);
+                item.setCrowd(null);
+                item.setDescription(null);
+                item.setFaq(null);
+                item.setTrainingEffect(null);
+
+                if (item.getCoach() != null) {
+                    item.getCoach().setDesc(null);
+                    item.getCoach().setNick(null);
+                }
+            });
+
             course4Days.add(new ScheduleVO.Course4Day(DateUtils.yearMonthDayFormat(tmp), courseVOs));
         }
 

@@ -18,9 +18,6 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.annotation.Resource;
 import java.util.List;
 
-/**
-* Created by CodeGenerator on 2017/08/15.
-*/
 @RestController
 @RequestMapping("/order")
 public class OrderRpc {
