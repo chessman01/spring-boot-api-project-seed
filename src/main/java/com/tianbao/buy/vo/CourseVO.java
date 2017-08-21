@@ -54,7 +54,8 @@ public class CourseVO {
     public enum Status implements EnumMessage {
         // 状态。0：软删除；1：正常
         DEL((byte)0, "已删除"),
-        NORMAL((byte)1, "正常");
+        NORMAL((byte)1, "正常"),
+        EXPIRED((byte)2, "已过期"),;
 
         public byte code;
 
