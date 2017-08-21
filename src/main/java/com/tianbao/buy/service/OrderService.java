@@ -18,5 +18,13 @@ public interface OrderService {
 
 //    long create(long courseId, long cardId, long couponId, int personTime);
 
+    public final static String TOTAL_FEE = "课程总价";
 
+    public final static String COUPON_FEE = "礼券";
+
+    public final static String CARD_DISCOUNT = "瘾卡优惠";
+
+    public final static String CARD_PAY_FEE = "瘾卡支付";
+
+    public final static String REAL_PAY_FEE = "实付款";
 }

@@ -14,5 +14,7 @@ public class Context {
 
     private CouponTemplate coupon;
 
+    private CouponUser couponUser;
+
     private Course course;
 }
