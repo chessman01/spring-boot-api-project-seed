@@ -119,7 +119,7 @@ public class OrderServiceImpl implements OrderService {
         // 3. 获取课程信息
         Course course = courseService.getNormalCourse().get(courseId);
         if (course == null) throw new BizException("没找到有效课程");
-        order.setCourse(courseService.convert2CourseVO(course, false));
+        order.setCourse(courseService.convert2CourseVO(course));
 
         context.setUser(user);
         context.setCard(card);
@@ -151,7 +151,7 @@ public class OrderServiceImpl implements OrderService {
         // 4. 按钮
         Button button = new Button();
         button.setEvent(new Button.Event("http://h5.m.taobao.com", "click"));
-        button.setTitle("支付（￥" + realPay.getFee() + "）");
+        button.setTitle("支付（" + realPay.getFee() + "）");
 
 
         order.setButton(button);
@@ -166,7 +166,7 @@ public class OrderServiceImpl implements OrderService {
         int cardPay = map.get("cardPay") != null ? map.get("cardPay").getOriginFee() : NumberUtils.INTEGER_ZERO;
 
         /* 实付款 */
-        int realPayFee = total - couponDiscount - cardDiscount - cardPay;
+        int realPayFee = (total - couponDiscount - cardDiscount - cardPay) / 100;
 
         return new OrderVO.PayDetail(REAL_PAY_FEE, MoneyUtils.unitFormat(2, realPayFee), realPayFee);
     }

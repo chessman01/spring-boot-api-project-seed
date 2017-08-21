@@ -78,7 +78,7 @@ public class CourseServiceImpl implements CourseService {
 
         setCalendar(in, scheduleVO);
         setBanner(scheduleVO);
-        scheduleVO.setAddress(getAddress(false));
+        scheduleVO.setAddress(getAddress());
         setCourse(num, scheduleVO);
 
         return scheduleVO;
@@ -88,22 +88,19 @@ public class CourseServiceImpl implements CourseService {
     public CourseVO detail(long id) {
         Course course = courseManager.findById(id);
 
-        return convert2CourseVO(course, true);
+        return convert2CourseVO(course);
     }
 
-    private Address getAddress(boolean isShort) {
+    private Address getAddress() {
         String[] tmp = tianmaAddress.split(",");
         Address address = new Address();
 
         if (tmp.length != 4) return null;
 
-        if (!isShort) {
-            address.setDetailAddress(tmp[0]);
-            address.setLatitude(tmp[2]);
-            address.setLongitude(tmp[3]);
-        }
-
+        address.setDetailAddress(tmp[0]);
         address.setName(tmp[1]);
+        address.setLatitude(tmp[2]);
+        address.setLongitude(tmp[3]);
 
         return address;
     }
@@ -170,7 +167,7 @@ public class CourseServiceImpl implements CourseService {
             Predicate<Course> unionUserPredicate = Predicates.and(predicateUserStatus);
             List<Course> course4Day = Lists.newArrayList(Iterators.filter(courses.iterator(), unionUserPredicate));
 
-            List<CourseVO> courseVOs = convert2CourseVO(course4Day, false, false);
+            List<CourseVO> courseVOs = convert2CourseVO(course4Day);
 
             course4Days.add(new ScheduleVO.Course4Day(DateUtils.yearMonthDayFormat(tmp), courseVOs));
         }
@@ -189,33 +186,30 @@ public class CourseServiceImpl implements CourseService {
         return map;
     }
 
-    public CourseVO convert2CourseVO(Course course, boolean needDesc) {
-        CourseVO courseVO = convert2CourseVO(Lists.newArrayList(course), needDesc, true).get(NumberUtils.INTEGER_ZERO);
-
-        BeanUtils.copyProperties(course, courseVO);
-        courseVO.setAddress(getAddress(false));
+    public CourseVO convert2CourseVO(Course course) {
+        CourseVO courseVO = convert2CourseVO(Lists.newArrayList(course)).get(NumberUtils.INTEGER_ZERO);
 
         return courseVO;
     }
 
-    public List<CourseVO> convert2CourseVO(List<Course> courses, boolean needDesc, boolean fullTime) {
+    public List<CourseVO> convert2CourseVO(List<Course> courses) {
         List<CourseVO> courseVOs = Lists.newArrayList();
 
         for (Course course : courses) {
             CourseVO courseVO = new CourseVO();
 
-            courseVO.setAddress(getAddress(true));
+            BeanUtils.copyProperties(course, courseVO);
 
+            courseVO.setAddress(getAddress());
             courseVO.setTitle(course.getTitle());
             courseVO.setTags(course.getTags().split("\\."));
+            courseVO.setTime(DateUtils.yearMonthDayFormat(new DateTime(course.getStartTime())) + " " +
+                    DateUtils.hourMinuteFormat(new DateTime(course.getStartTime())) + "-"
+                    + DateUtils.hourMinuteFormat(new DateTime(course.getEndTime())));
+            courseVO.setShortTime(DateUtils.hourMinuteFormat(new DateTime(course.getStartTime())) + "-"
+                    + DateUtils.hourMinuteFormat(new DateTime(course.getEndTime())));
 
-            if (fullTime) {
-                courseVO.setTime(DateUtils.yearMonthDayFormat(new DateTime(course.getStartTime())) + " " + courseVO.getTime());
-            } else {
-                courseVO.setTime(DateUtils.hourMinuteFormat(new DateTime(course.getStartTime())) + "-"
-                        + DateUtils.hourMinuteFormat(new DateTime(course.getEndTime())));
-            }
-
+            // todo 有的要退的
             Button button = new Button();
 
             Button.Event event = new Button.Event("h5.m.taobao.com","click");
@@ -226,7 +220,7 @@ public class CourseServiceImpl implements CourseService {
                 courseVO.setStockIcon(lowStockPic);
             }
 
-            if (course.getStock() == 0) {
+            if (course.getStock() == 0 ) {
                 courseVO.setStockIcon(sellOutPic);
                 button.setDisable(false);
             }
@@ -235,7 +229,7 @@ public class CourseServiceImpl implements CourseService {
             courseVO.setStock(course.getStock());
 
             // 处理原价
-            courseVO.setPrice(MoneyUtils.format(2, course.getPrice() / 100f));
+            courseVO.setPrice(MoneyUtils.unitFormat(2, course.getPrice() / 100f));
 
             // 处理瘾卡折扣价
             int minDiscountRate = 100;
@@ -246,9 +240,9 @@ public class CourseServiceImpl implements CourseService {
                 if (yenCard.getDiscountRate() < minDiscountRate) minDiscountRate = yenCard.getDiscountRate();
             }
 
-            double yenPrice = (course.getPrice() / 100f) * (minDiscountRate / 100f);
-            courseVO.setYenPrice(MoneyUtils.format(2, yenPrice / 100f));
-            courseVO.setCoach(coachService.getCoach(course.getCoachId(), needDesc));
+            double yenPrice = course.getPrice() * (minDiscountRate / 100f);
+            courseVO.setYenPrice(MoneyUtils.unitFormat(2, yenPrice / 100f));
+            courseVO.setCoach(coachService.getCoach(course.getCoachId()));
 
             courseVOs.add(courseVO);
         }

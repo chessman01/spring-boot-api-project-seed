@@ -17,7 +17,7 @@ public interface CourseService {
 
     Map<Long, Course> getCourse(Set<Long> ids);
 
-    CourseVO convert2CourseVO(Course course, boolean needDesc);
+    CourseVO convert2CourseVO(Course course);
 
-    List<CourseVO> convert2CourseVO(List<Course> courses, boolean needDesc, boolean fullTime);
+    List<CourseVO> convert2CourseVO(List<Course> courses);
 }

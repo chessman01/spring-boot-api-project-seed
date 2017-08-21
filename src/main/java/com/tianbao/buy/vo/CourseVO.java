@@ -15,6 +15,8 @@ public class CourseVO {
 
     private String title;
 
+    private String shortTime;
+
     private String time;
 
     private String price;
