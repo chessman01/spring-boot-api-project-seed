@@ -18,11 +18,13 @@ import org.joda.time.DateTime;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import tk.mybatis.mapper.entity.Condition;
 
 import javax.annotation.Resource;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @Service
 public class CourseServiceImpl implements CourseService {
@@ -51,17 +53,21 @@ public class CourseServiceImpl implements CourseService {
     private UserService userService;
 
     @Override
-    public Map<Long, CourseVO> getCourse() {
-        List<Course> courses = courseManager.findAll();
+    public Map<Long, CourseVO> getNormalCourse() {
+        DateTime current = new DateTime().withMillisOfDay(0);
+        List<Course> courses = getSubscribeCourse(current);
 
-        List<CourseVO> courseVOs = convert2CourseVO(courses, false, true);
-        Map<Long, CourseVO> map = Maps.newHashMap();
+        return toMap(courses);
+    }
 
-        for (CourseVO courseVO : courseVOs) {
-            map.put(courseVO.getId(), courseVO);
-        }
+    @Override
+    public Map<Long, CourseVO> getCourse(Set<Long> ids) {
+        Condition condition = new Condition(Course.class);
+        condition.createCriteria().andIn("id", ids);
 
-        return map;
+        List<Course> courses = courseManager.findByCondition(condition);
+
+        return toMap(courses);
     }
 
     @Override
@@ -139,16 +145,20 @@ public class CourseServiceImpl implements CourseService {
         scheduleVO.setBanner(banners);
     }
 
-    /** 获取到指定天数的课程，并按日期分组 **/
-    private void setCourse(int days, ScheduleVO scheduleVO) {
-        DateTime current = new DateTime().withMillisOfDay(0);
+    private List<Course> getSubscribeCourse(DateTime current) {
         Condition condition = new Condition(Course.class);
 
         condition.orderBy("startTime");
         condition.createCriteria().andCondition("status=", CourseVO.Status.NORMAL.getCode())
                 .andCondition("start_time<", current);
 
-        List<Course> courses = courseManager.findByCondition(condition);
+        return courseManager.findByCondition(condition);
+    }
+
+    /** 获取到指定天数的课程，并按日期分组 **/
+    private void setCourse(int days, ScheduleVO scheduleVO) {
+        DateTime current = new DateTime().withMillisOfDay(0);
+        List<Course> courses = getSubscribeCourse(current);
 
         DateTime tmp;
         List<ScheduleVO.Course4Day> course4Days = Lists.newArrayList();
@@ -166,6 +176,19 @@ public class CourseServiceImpl implements CourseService {
         }
 
         scheduleVO.setCourse4Day(course4Days);
+    }
+
+    private Map<Long, CourseVO> toMap (List<Course> courses) {
+        Map<Long, CourseVO> map = Maps.newHashMap();
+        if (CollectionUtils.isEmpty(courses)) return map;
+
+        List<CourseVO> courseVOs = convert2CourseVO(courses, false, true);
+
+        for (CourseVO courseVO : courseVOs) {
+            map.put(courseVO.getId(), courseVO);
+        }
+
+        return map;
     }
 
     private CourseVO convert2CourseVO(Course course, boolean needDesc) {

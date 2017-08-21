@@ -17,9 +17,18 @@ public class OrderVO {
 
     private List<PayDetail> payDetail;
 
-    private String realPay;
-
     private Button creatButton;
+
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class Order{
+        private String orderId;
+
+        private String createTime;
+
+        private Long id;
+    }
 
     @Data
     @NoArgsConstructor
@@ -27,7 +36,7 @@ public class OrderVO {
     public static class PersonTime{
         private String title;
 
-        private int num;
+        private String num;
     }
 
     @Data
@@ -38,7 +47,7 @@ public class OrderVO {
 
         private String price;
 
-        private Boolean isPay;
+        private Boolean isRealPay;
     }
 
     public enum Status implements EnumMessage {
