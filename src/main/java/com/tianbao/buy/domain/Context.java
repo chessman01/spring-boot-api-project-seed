@@ -13,4 +13,6 @@ public class Context {
     private CouponTemplate template;
 
     private CouponTemplate coupon;
+
+    private Course course;
 }

@@ -22,6 +22,14 @@ public class UserServiceImpl extends BaseService implements UserService {
     private YenCardService yenCardService;
 
     @Override
+    public void updatePhone(long userId, String phone) {
+        User user = new User();
+        user.setId(userId);
+        user.setPhone(phone);
+        userManager.update(user);
+    }
+
+    @Override
     public User getUserByuserId(long userId) {
         User user = userManager.findById(userId);
         if (!user.getStatus().equals(UserVO.Status.NORMAL.getCode())) throw new BizException("用户状态异常，请联系系统方");

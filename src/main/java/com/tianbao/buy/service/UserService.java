@@ -6,4 +6,6 @@ public interface UserService {
     User getUserByWxUnionId();
 
     User getUserByuserId(long userId);
+
+    void updatePhone(long userId, String phone);
 }

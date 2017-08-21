@@ -11,13 +11,21 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class OrderVO {
-    private CourseVO courseVO;
+    private CourseVO course;
 
-    private PersonTime personTime;
+    private List<PersonTime> personTime;
 
     private List<PayDetail> payDetail;
 
-    private Button creatButton;
+    private PayDetail realPay;
+
+    private Button button;
+
+    private Order order;
+
+    private List<CouponVO> coupon;
+
+    private YenCardVO card;
 
     @Data
     @NoArgsConstructor
@@ -36,7 +44,9 @@ public class OrderVO {
     public static class PersonTime{
         private String title;
 
-        private String num;
+        private Integer num;
+
+        private boolean isSelect;
     }
 
     @Data
@@ -45,9 +55,9 @@ public class OrderVO {
     public static class PayDetail{
         private String title;
 
-        private String price;
+        private String fee;
 
-        private Boolean isRealPay;
+        private int originFee;
     }
 
     public enum Status implements EnumMessage {

@@ -53,7 +53,7 @@ public class CourseServiceImpl implements CourseService {
     private UserService userService;
 
     @Override
-    public Map<Long, CourseVO> getNormalCourse() {
+    public Map<Long, Course> getNormalCourse() {
         DateTime current = new DateTime().withMillisOfDay(0);
         List<Course> courses = getSubscribeCourse(current);
 
@@ -61,7 +61,7 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    public Map<Long, CourseVO> getCourse(Set<Long> ids) {
+    public Map<Long, Course> getCourse(Set<Long> ids) {
         Condition condition = new Condition(Course.class);
         condition.createCriteria().andIn("id", ids);
 
@@ -178,20 +178,18 @@ public class CourseServiceImpl implements CourseService {
         scheduleVO.setCourse4Day(course4Days);
     }
 
-    private Map<Long, CourseVO> toMap (List<Course> courses) {
-        Map<Long, CourseVO> map = Maps.newHashMap();
+    private Map<Long, Course> toMap (List<Course> courses) {
+        Map<Long, Course> map = Maps.newHashMap();
         if (CollectionUtils.isEmpty(courses)) return map;
 
-        List<CourseVO> courseVOs = convert2CourseVO(courses, false, true);
-
-        for (CourseVO courseVO : courseVOs) {
-            map.put(courseVO.getId(), courseVO);
+        for (Course course : courses) {
+            map.put(course.getId(), course);
         }
 
         return map;
     }
 
-    private CourseVO convert2CourseVO(Course course, boolean needDesc) {
+    public CourseVO convert2CourseVO(Course course, boolean needDesc) {
         CourseVO courseVO = convert2CourseVO(Lists.newArrayList(course), needDesc, true).get(NumberUtils.INTEGER_ZERO);
 
         BeanUtils.copyProperties(course, courseVO);
@@ -200,7 +198,7 @@ public class CourseServiceImpl implements CourseService {
         return courseVO;
     }
 
-    private List<CourseVO> convert2CourseVO(List<Course> courses, boolean needDesc, boolean fullTime) {
+    public List<CourseVO> convert2CourseVO(List<Course> courses, boolean needDesc, boolean fullTime) {
         List<CourseVO> courseVOs = Lists.newArrayList();
 
         for (Course course : courses) {

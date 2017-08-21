@@ -23,4 +23,6 @@ public interface YenCardService {
     String create(long cardId, long rechargeId, long couponUserId);
 
     YenCardVO adjust(long cardId, long rechargeId, long couponId);
+
+    YenCardVO convert2CardVO(YenCard YenCard);
 }

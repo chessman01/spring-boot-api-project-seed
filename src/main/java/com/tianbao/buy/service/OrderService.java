@@ -6,7 +6,9 @@ import com.tianbao.buy.vo.OrderVO;
 public interface OrderService {
     OrderVO build(long courseId);
 
-    OrderVO adjust(long courseId, long couponId, int personTime);
+    OrderVO adjust(long courseId, Long cardId, Long couponId, int personTime);
+
+    String create(long courseId, long couponId, int personTime, long cardId);
 
     OrderMain convert(String orderId, Long userId, Long classId, Integer realPay, Integer totalPrice,
                   Integer yenCarPayPrice, Integer yenCarDiscount, Long yenCarId, Integer onlineDiscount,

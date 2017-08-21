@@ -217,7 +217,7 @@ public class YenCardServiceImpl extends BaseService implements YenCardService{
         return cardVO;
     }
 
-    private YenCardVO convert2CardVO(YenCard YenCard) {
+    public YenCardVO convert2CardVO(YenCard YenCard) {
         String gift = MoneyUtils.format(2, YenCard.getGiftAccount() / 100f);
         String cash = MoneyUtils.format(2, YenCard.getCashAccount() / 100f);
         String total = MoneyUtils.format(2, (YenCard.getGiftAccount() + YenCard.getCashAccount()) / 100f);

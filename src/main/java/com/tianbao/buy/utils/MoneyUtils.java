@@ -11,4 +11,12 @@ public class MoneyUtils {
 
         return numberFormat.format(data);
     }
+
+    public static String minusUnitFormat(int maximumFraction, double data) {
+        return "-¥" + format(maximumFraction, data);
+    }
+
+    public static String unitFormat(int maximumFraction, double data) {
+        return "¥" + format(maximumFraction, data);
+    }
 }
