@@ -58,24 +58,24 @@ public class YenCardServiceImpl extends BaseService implements YenCardService{
     }
 
     @Override
-    public YenCardVO adjust(long cardId, long rechargeId, long couponId) {
-        return render(cardId, rechargeId, couponId);
+    public YenCardVO adjust(long cardId, long templateId, long couponId) {
+        return render(cardId, templateId, couponId);
     }
 
     @Override
     @Transactional
-    public String create(long cardId, long rechargeId, long couponUserId) {
+    public Button create(long cardId, long templateId, long couponUserId) {
         // 1. 找到用户的瘾卡
         User user = userService.getUserByWxUnionId();
 
         YenCard card = getSpecify(user.getId(), cardId);
 
         // 2. 找充值模版
-        CouponTemplate template = couponService.getTemplate(rechargeId);
+        CouponTemplate template = couponService.getTemplate(templateId);
 
         if (!template.getStatus().equals(CouponVO.Status.RECHARGE.getCode()) ||
                 !template.getPayType().equals(CouponVO.PayType.RECHARGE.getCode())) {
-            throw new BizException("充值模版无效。id=" + rechargeId);
+            throw new BizException("充值模版无效。id=" + templateId);
         }
 
         // 3. 找礼券
@@ -106,7 +106,11 @@ public class YenCardServiceImpl extends BaseService implements YenCardService{
         couponService.updateCouponUserStatus(couponUser.getId(), CouponVO.Status.PENDING.getCode(),
                 CouponVO.Status.NORMAL.getCode());
 
-        return "weixin url";
+        Button button = new Button();
+
+        button.setEvent(new Button.Event("http://h5.m.taobao.com", "click"));
+
+        return button;
     }
 
     @Override
@@ -224,9 +228,15 @@ public class YenCardServiceImpl extends BaseService implements YenCardService{
 
         String discount = String.format("消费立打%s折", MoneyUtils.format(1, YenCard.getDiscountRate() / 10f));
 
+        // 4. 充值按钮
+        Button button = new Button();
+
+        button.setEvent(new Button.Event("http://h5.m.taobao.com", "click"));
+        button.setTitle("充值");
+
         return new YenCardVO(YenCard.getId(), "http://gw.alicdn.com/tps/TB1LNMxPXXXXXbhaXXXXXXXXXXX-183-129.png",
                 gift, cash, total,
-                discount, "http://xxx.xxx.com/recharge.xx", null, null, null);
+                discount, null, null, button);
     }
 
     private List<YenCardVO> convert2CardVO(List<YenCard> cards) {

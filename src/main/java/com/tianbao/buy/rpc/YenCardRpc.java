@@ -1,8 +1,10 @@
 package com.tianbao.buy.rpc;
 
+import com.google.common.collect.Maps;
 import com.tianbao.buy.core.Result;
 import com.tianbao.buy.core.ResultGenerator;
 import com.tianbao.buy.service.impl.YenCardServiceImpl;
+import com.tianbao.buy.vo.Button;
 import com.tianbao.buy.vo.YenCardVO;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -33,17 +35,17 @@ public class YenCardRpc {
     }
 
     @PostMapping("/adjust")
-    public Result adjust(Long cardId, Long rechargeId, Long couponId) {
-        YenCardVO cardVO = yenCardServiceImpl.adjust(cardId, rechargeId, couponId);
+    public Result adjust(Long cardId, Long templateId, Long couponId) {
+        YenCardVO cardVO = yenCardServiceImpl.adjust(cardId, templateId, couponId);
 
         return ResultGenerator.genSuccessResult(cardVO);
     }
 
     @PostMapping("/create")
-    public Result create(long cardId, long rechargeId, Long couponId) {
-        String url = yenCardServiceImpl.create(cardId, rechargeId, couponId);
+    public Result create(long cardId, long templateId, Long couponId) {
+        Button button = yenCardServiceImpl.create(cardId, templateId, couponId);
 
-        return ResultGenerator.genSuccessResult(url);
+        return ResultGenerator.genSuccessResult(button);
     }
 
 }

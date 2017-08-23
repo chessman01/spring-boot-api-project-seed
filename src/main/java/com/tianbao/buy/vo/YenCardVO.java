@@ -23,8 +23,6 @@ public class YenCardVO {
 
     private String discount;
 
-    private String rechargeUrl;
-
     private List<CouponVO> coupon;
 
     private List<CouponVO> templates;
