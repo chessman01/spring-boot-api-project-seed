@@ -1,5 +1,6 @@
 package com.tianbao.buy.service.impl;
 
+import com.google.common.base.CharMatcher;
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 import com.google.common.collect.*;
@@ -31,6 +32,8 @@ import java.util.*;
 
 @Service
 public class CouponServiceImpl implements CouponService {
+    private static String TIME_PREFIX = "有效期：";
+
     @Resource
     private CouponUserManager couponUserManager;
 
@@ -263,7 +266,7 @@ public class CouponServiceImpl implements CouponService {
                 DateTime start = new DateTime(couponUser.getStartTime());
                 DateTime end = new DateTime(couponUser.getEndTime());
 
-                couponVO.setTime("有效期：" + start.toString("yyyy.MM.dd") + "至" + end.toString("yyyy.MM.dd"));
+                couponVO.setTime(TIME_PREFIX + start.toString("yyyy.MM.dd") + "至" + end.toString("yyyy.MM.dd"));
 
                 if (!couponUser.getStatus().equals(CouponVO.Status.NORMAL.getCode())) {
                     couponVO.setRemind(EnumUtil.getEnumObject(couponUser.getStatus(), CouponVO.Status.class).getDesc());
@@ -319,7 +322,7 @@ public class CouponServiceImpl implements CouponService {
             item.setRule(null);
             item.setRulePrice(null);
             item.setSourceDesc(null);
-            item.setTime(null);
+            item.setTime(CharMatcher.anyOf(TIME_PREFIX).removeFrom(item.getTime()));
         });
 
         return couponVOs;
