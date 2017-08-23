@@ -132,10 +132,7 @@ public class CourseServiceImpl implements CourseService {
         Map<String,String> kvs = Splitter.onPattern("##").withKeyValueSeparator("??").split(topBanner);
 
         for (Map.Entry<String,String> entry : kvs.entrySet()) {
-            System.out.println(String.format("%s=%s", entry.getKey(),entry.getValue()));
-
             Button banner = new Button(null, null, new Button.Event(entry.getValue(), null), entry.getKey(), true);
-
             banners.add(banner);
         }
 
