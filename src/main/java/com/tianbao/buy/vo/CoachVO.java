@@ -1,6 +1,5 @@
 package com.tianbao.buy.vo;
 
-import com.tianbao.buy.utils.enums.EnumMessage;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -19,7 +18,7 @@ public class CoachVO {
 
     private String avatar;
 
-    public enum Status implements EnumMessage {
+    public enum Status {
         // 状态。0：软删除；1:正常；2：冻结
         DEL((byte)0, "已删除"),
         NORMAL((byte)1, "正常"),
@@ -49,14 +48,9 @@ public class CoachVO {
         public void setCode(byte code) {
             this.code = code;
         }
-
-        @Override
-        public Object getValue() {
-            return code;
-        }
     }
 
-    public enum Sex implements EnumMessage {
+    public enum Sex  {
         // 性别。1：男；0：女
         MALE((byte)1, "男"),
         FEMALE((byte)0, "女");
@@ -84,11 +78,6 @@ public class CoachVO {
 
         public void setCode(byte code) {
             this.code = code;
-        }
-
-        @Override
-        public Object getValue() {
-            return code;
         }
     }
 }

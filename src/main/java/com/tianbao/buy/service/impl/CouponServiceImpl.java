@@ -16,8 +16,8 @@ import com.tianbao.buy.service.CouponService;
 import com.tianbao.buy.service.UserService;
 import com.tianbao.buy.utils.DateUtils;
 import com.tianbao.buy.utils.MoneyUtils;
-import com.tianbao.buy.utils.enums.EnumUtil;
 import com.tianbao.buy.vo.CouponVO;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
@@ -269,7 +269,7 @@ public class CouponServiceImpl implements CouponService {
                 couponVO.setTime(TIME_PREFIX + start.toString("yyyy.MM.dd") + "至" + end.toString("yyyy.MM.dd"));
 
                 if (!couponUser.getStatus().equals(CouponVO.Status.NORMAL.getCode())) {
-                    couponVO.setRemind(EnumUtil.getEnumObject(couponUser.getStatus(), CouponVO.Status.class).getDesc());
+                    couponVO.setRemind(CouponVO.Status.getDesc(couponUser.getStatus()));
                 }
 
                 //计算区间天数
@@ -397,9 +397,9 @@ public class CouponServiceImpl implements CouponService {
             couponVO.setPayType("瘾卡充值和单次购买时均可使用");
         }
 
-        CouponVO.Source enumSource = EnumUtil.getEnumObject(couponTemplate.getSource(), CouponVO.Source.class);
+        String source = CouponVO.Source.getDesc(couponTemplate.getSource());
 
-        if (enumSource != null) couponVO.setSourceDesc("来源：" + enumSource.getDesc());
+        if (!StringUtils.isBlank(source)) couponVO.setSourceDesc("来源：" + source);
 
         return couponVO;
     }

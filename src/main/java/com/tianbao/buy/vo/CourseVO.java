@@ -1,6 +1,5 @@
 package com.tianbao.buy.vo;
 
-import com.tianbao.buy.utils.enums.EnumMessage;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -51,7 +50,7 @@ public class CourseVO {
 
     private Address address;
 
-    public enum Status implements EnumMessage {
+    public enum Status {
         // 状态。0：软删除；1：正常
         DEL((byte)0, "已删除"),
         NORMAL((byte)1, "正常"),
@@ -80,11 +79,6 @@ public class CourseVO {
 
         public void setCode(byte code) {
             this.code = code;
-        }
-
-        @Override
-        public Object getValue() {
-            return code;
         }
     }
 }

@@ -1,6 +1,5 @@
 package com.tianbao.buy.vo;
 
-import com.tianbao.buy.utils.enums.EnumMessage;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -60,7 +59,7 @@ public class OrderVO {
         private int originFee;
     }
 
-    public enum Status implements EnumMessage {
+    public enum Status {
         // 状态。0：软删除；1：待处理；2：已预约；3：已完成；4：已取消；5：冻结
         DEL((byte)0, "已删除"),
         PENDING((byte)1, "待处理"),
@@ -92,11 +91,6 @@ public class OrderVO {
 
         public void setCode(byte code) {
             this.code = code;
-        }
-
-        @Override
-        public Object getValue() {
-            return code;
         }
     }
 }

@@ -1,9 +1,9 @@
 package com.tianbao.buy.vo;
 
-import com.tianbao.buy.utils.enums.EnumMessage;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.Date;
 
@@ -37,7 +37,7 @@ public class CouponVO {
 
     private boolean selected;
 
-    public enum ValidityUnit implements EnumMessage {
+    public enum ValidityUnit {
         // 有效期内容。1：天；2：周；3：月
         DAY((byte)1, "天"),
         WEEK((byte)2, "周"),
@@ -67,14 +67,9 @@ public class CouponVO {
         public void setCode(byte code) {
             this.code = code;
         }
-
-        @Override
-        public Object getValue() {
-            return code;
-        }
     }
 
-    public enum Source implements EnumMessage {
+    public enum Source {
         // 来源类型。1：邀请好友；2：线下领取；3：微信领取；4：系统发放
         FRIEND((byte)1, "邀请好友"),
         OFFLINE((byte)2, "线下领取"),
@@ -106,13 +101,18 @@ public class CouponVO {
             this.code = code;
         }
 
-        @Override
-        public Object getValue() {
-            return code;
+        public static String getDesc (byte code) {
+            for (Source source : Source.values()) {
+                if (source.getCode() == code) {
+                    return source.getDesc();
+                }
+            }
+
+            return StringUtils.EMPTY;
         }
     }
 
-    public enum Rule implements EnumMessage {
+    public enum Rule {
         // 规则。1：满送；2:抵扣
         GIVE((byte)1, "满送"),
         REDUCE((byte)2, "抵扣");
@@ -141,14 +141,9 @@ public class CouponVO {
         public void setCode(byte code) {
             this.code = code;
         }
-
-        @Override
-        public Object getValue() {
-            return code;
-        }
     }
 
-    public enum PayType implements EnumMessage {
+    public enum PayType {
         // 支付类型。1：瘾卡充值；2：按次支付；
         RECHARGE((byte)1, "瘾卡充值"),
         PAY_PER_VIEW((byte)2, "按次支付"),
@@ -178,14 +173,9 @@ public class CouponVO {
         public void setCode(byte code) {
             this.code = code;
         }
-
-        @Override
-        public Object getValue() {
-            return code;
-        }
     }
 
-    public enum Status implements EnumMessage {
+    public enum Status {
         // 状态。0：删除；1：正常；2：已过期；3：已使用；4：待使用
         DEL((byte)0, "已删除"),
         NORMAL((byte)1, "正常"),
@@ -219,9 +209,14 @@ public class CouponVO {
             this.code = code;
         }
 
-        @Override
-        public Object getValue() {
-            return code;
+        public static String getDesc (byte code) {
+            for (Status status : Status.values()) {
+                if (status.getCode() == code) {
+                    return status.getDesc();
+                }
+            }
+
+            return StringUtils.EMPTY;
         }
     }
 }
