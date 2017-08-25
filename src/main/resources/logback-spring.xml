@@ -36,21 +36,29 @@
         </encoder>
     </appender>
 
-    <root level="info">
-        <appender-ref ref="tomcat" />
-    </root>
-
     <!-- 测试环境+开发环境. 多个使用逗号隔开. -->
     <springProfile name="test,dev">
+        <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
+            <encoder>
+                <pattern>%d{HH:mm:ss.SSS} %contextName [%thread] %-5level %logger{36} - %msg%n</pattern>
+            </encoder>
+        </appender>
+        <root level="info">
+            <appender-ref ref="tomcat" />
+            <appender-ref ref="console" />
+        </root>
         <logger name="com.tianbao" level="debug" additivity="false">
-        <appender-ref ref="yen"/>
-        </logger>
-    </springProfile>
-    <!-- 生产环境. -->
-    <springProfile name="pro">
-        <logger name="com.tianbao" level="ERROR" additivity="false">
             <appender-ref ref="yen"/>
         </logger>
     </springProfile>
 
+    <!-- 生产环境. -->
+    <springProfile name="pro">
+        <root level="info">
+            <appender-ref ref="tomcat" />
+        </root>
+        <logger name="com.tianbao" level="ERROR" additivity="false">
+            <appender-ref ref="yen"/>
+        </logger>
+    </springProfile>
 </configuration>
