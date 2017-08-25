@@ -90,8 +90,8 @@ public class UserServiceImpl implements UserService {
         String wxUnionId = "12345";
 
         if (StringUtils.isBlank(wxUnionId)) {
-            logger.error("获取uid错误");
-            throw new BizException("获取uid错误");
+            logger.error("uid为空");
+            throw new BizException("uid为空");
         }
 
         User user = userManager.findBy("wxUnionId", wxUnionId);

@@ -46,9 +46,9 @@ public class YenCardRpc {
 
     @PostMapping("/create")
     public Result create(long cardId, long templateId, Long couponId) {
-        Button button = yenCardServiceImpl.create(cardId, templateId, couponId);
+        String orderId = yenCardServiceImpl.create(cardId, templateId, couponId);
 
-        return ResultGenerator.genSuccessResult(button);
+        return ResultGenerator.genSuccessResult(orderId);
     }
 
 }

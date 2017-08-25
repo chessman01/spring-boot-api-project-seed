@@ -68,7 +68,7 @@ public class YenCardServiceImpl implements YenCardService{
 
     @Override
     @Transactional
-    public Button create(long cardId, long templateId, long couponUserId) {
+    public String create(long cardId, long templateId, long couponUserId) {
         // 1. 找到用户的瘾卡
         User user = userService.getUserByWxUnionId();
 
@@ -110,11 +110,7 @@ public class YenCardServiceImpl implements YenCardService{
         couponService.updateCouponUserStatus(couponUser.getId(), CouponVO.Status.PENDING.getCode(),
                 CouponVO.Status.NORMAL.getCode());
 
-        Button button = new Button();
-
-        button.setEvent(new Button.Event("http://h5.m.taobao.com", "click"));
-
-        return button;
+        return orderId;
     }
 
     @Override
@@ -210,8 +206,6 @@ public class YenCardServiceImpl implements YenCardService{
         // 4. 充值按钮
         Button button = new Button();
 
-        button.setEvent(new Button.Event("http://h5.m.taobao.com", "click"));
-
         long realPay = context.getTemplate().getRulePrice();
 
         if (context.getCoupon() != null && context.getCoupon().getPrice() != null) {
@@ -225,26 +219,28 @@ public class YenCardServiceImpl implements YenCardService{
         return cardVO;
     }
 
-    public YenCardVO convert2CardVO(YenCard YenCard) {
-        String gift = MoneyUtils.format(2, YenCard.getGiftAccount() / 100f);
-        String cash = MoneyUtils.format(2, YenCard.getCashAccount() / 100f);
-        String total = MoneyUtils.format(2, (YenCard.getGiftAccount() + YenCard.getCashAccount()) / 100f);
+    public YenCardVO convert2CardVO(YenCard card) {
+        if (card == null) return new YenCardVO();
 
-        String discount = String.format("消费立打%s折", MoneyUtils.format(1, YenCard.getDiscountRate() / 10f));
+        String gift = MoneyUtils.format(2, card.getGiftAccount() / 100f);
+        String cash = MoneyUtils.format(2, card.getCashAccount() / 100f);
+        String total = MoneyUtils.format(2, (card.getGiftAccount() + card.getCashAccount()) / 100f);
+
+        String discount = String.format("消费立打%s折", MoneyUtils.format(1, card.getDiscountRate() / 10f));
 
         // 4. 充值按钮
         Button button = new Button();
-
-        button.setEvent(new Button.Event("http://h5.m.taobao.com", "click"));
         button.setTitle("充值");
 
-        return new YenCardVO(YenCard.getId(), "http://gw.alicdn.com/tps/TB1LNMxPXXXXXbhaXXXXXXXXXXX-183-129.png",
+        return new YenCardVO(card.getId(), null,
                 gift, cash, total,
-                discount, null, null, button);
+                discount, null, null, card.getType(), button);
     }
 
     private List<YenCardVO> convert2CardVO(List<YenCard> cards) {
         List<YenCardVO> cardVOs = Lists.newArrayList();
+
+        if (CollectionUtils.isEmpty(cards)) return cardVOs;
 
         for (YenCard card : cards) {
             cardVOs.add(convert2CardVO(card));

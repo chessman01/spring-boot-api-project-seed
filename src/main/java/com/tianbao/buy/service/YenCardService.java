@@ -21,7 +21,7 @@ public interface YenCardService {
 
     YenCardVO build(long cardId);
 
-    Button create(long cardId, long templateId, long couponUserId);
+    String create(long cardId, long templateId, long couponUserId);
 
     YenCardVO adjust(long cardId, long templateId, long couponId);
 

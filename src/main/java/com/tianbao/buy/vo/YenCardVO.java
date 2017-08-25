@@ -26,6 +26,8 @@ public class YenCardVO {
 
     private List<CouponVO> templates;
 
+    private Byte type;
+
     private Button button;
 
     public enum Type {
