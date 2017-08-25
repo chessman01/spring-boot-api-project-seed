@@ -84,35 +84,40 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    @Transactional
+
     public User getUserByWxUnionId() {
         // todo 这里是要依据微信接口拿到用户uid，到userManager查用户，然后得到用户ID
         String wxUnionId = "12345";
 
         if (StringUtils.isBlank(wxUnionId)) {
-            // todo log
-            throw new BizException("系统错误");
+            logger.error("获取uid错误");
+            throw new BizException("获取uid错误");
         }
 
         User user = userManager.findBy("wxUnionId", wxUnionId);
 
+        /* 当用户是首次使用时，初始化用户和瘾卡 */
         if (user == null) {
-            initUser(wxUnionId, wxUnionId, "nick", true, "http://gw.alicdn.com/tps/TB1FDOHLVXXXXcZXFXXXXXXXXXX-183-129.png",
+            user = init(wxUnionId, wxUnionId, "nick", true, "http://gw.alicdn.com/tps/TB1FDOHLVXXXXcZXFXXXXXXXXXX-183-129.png",
                     0, "中国", "浙江", "杭州");
-
-            user = userManager.findBy("wxUnionId", wxUnionId);
-
-            yenCardService.initNormalCard(user.getId());
         }
 
-        if (user == null) throw new BizException("用户没发现");
-        if (!user.getStatus().equals(UserVO.Status.NORMAL.getCode())) throw new BizException("用户状态异常，请联系系统方");
+        if (user == null) {
+            logger.error("用户没发现.uic[%s]", wxUnionId);
+            throw new BizException("用户没发现");
+        }
+
+        if (!user.getStatus().equals(UserVO.Status.NORMAL.getCode())) {
+            logger.error(String.format("用户状态异常。用户id[%d]，状态[%d]", user.getId(), user.getStatus()));
+            throw new BizException("用户状态异常，请联系管理员");
+        }
 
         return user;
     }
 
-    /* 当用户是首次使用时，初始化用户和瘾卡 */
-    private void initUser(String wxOpenId, String wxUnionId, String nick, boolean isMale, String avatar
+    /* 初始化用户 */
+    @Transactional
+    private User init(String wxOpenId, String wxUnionId, String nick, boolean isMale, String avatar
             , long refId, String country, String province, String city) {
         User user = new User();
 
@@ -127,6 +132,12 @@ public class UserServiceImpl implements UserService {
         user.setCity(city);
 
         userManager.save(user);
+
+        user = userManager.findBy("wxUnionId", wxUnionId);
+
+        yenCardService.initNormalCard(user.getId());
+
+        return user;
     }
 
 
