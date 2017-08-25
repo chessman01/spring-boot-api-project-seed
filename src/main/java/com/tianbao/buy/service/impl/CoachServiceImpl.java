@@ -5,6 +5,8 @@ import com.tianbao.buy.domain.Coach;
 import com.tianbao.buy.manager.CoachManager;
 import com.tianbao.buy.service.CoachService;
 import com.tianbao.buy.vo.CoachVO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import tk.mybatis.mapper.entity.Condition;
@@ -15,6 +17,8 @@ import java.util.Map;
 
 @Service
 public class CoachServiceImpl implements CoachService {
+    private static Logger logger = LoggerFactory.getLogger(CoachServiceImpl.class);
+
     @Resource
     private CoachManager coachManager;
 

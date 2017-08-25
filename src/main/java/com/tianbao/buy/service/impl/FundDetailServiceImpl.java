@@ -6,6 +6,8 @@ import com.tianbao.buy.manager.FundDetailManager;
 import com.tianbao.buy.service.FundDetailService;
 import com.tianbao.buy.vo.FundDetailVO;
 import org.apache.commons.lang3.math.NumberUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import tk.mybatis.mapper.entity.Condition;
 
@@ -15,6 +17,8 @@ import java.util.List;
 
 @Service
 public class FundDetailServiceImpl implements FundDetailService {
+    private static Logger logger = LoggerFactory.getLogger(FundDetailServiceImpl.class);
+
     @Resource
     private FundDetailManager fundDetailManager;
 

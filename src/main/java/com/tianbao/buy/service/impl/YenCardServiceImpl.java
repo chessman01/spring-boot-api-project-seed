@@ -12,6 +12,8 @@ import com.tianbao.buy.vo.CouponVO;
 import com.tianbao.buy.vo.OrderVO;
 import com.tianbao.buy.vo.YenCardVO;
 import org.apache.commons.lang3.math.NumberUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,7 +27,9 @@ import java.util.List;
 import static com.google.common.base.Preconditions.checkArgument;
 
 @Service
-public class YenCardServiceImpl extends BaseService implements YenCardService{
+public class YenCardServiceImpl implements YenCardService{
+    private static Logger logger = LoggerFactory.getLogger(YenCardServiceImpl.class);
+
     @Value("${biz.card.discount.rate}")
     private int cardDiscountRate;
 

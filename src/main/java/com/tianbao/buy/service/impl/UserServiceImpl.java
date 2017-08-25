@@ -7,7 +7,6 @@ import com.tianbao.buy.domain.User;
 import com.tianbao.buy.manager.CouponTemplateManager;
 import com.tianbao.buy.manager.CouponUserManager;
 import com.tianbao.buy.manager.UserManager;
-import com.tianbao.buy.service.BaseService;
 import com.tianbao.buy.service.UserService;
 import com.tianbao.buy.service.YenCardService;
 import com.tianbao.buy.utils.MoneyUtils;
@@ -16,6 +15,8 @@ import com.tianbao.buy.vo.InvitationVO;
 import com.tianbao.buy.vo.UserVO;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -25,9 +26,11 @@ import javax.annotation.Resource;
 import java.util.List;
 
 @Service
-public class UserServiceImpl extends BaseService implements UserService {
+public class UserServiceImpl implements UserService {
+    private static Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
+
     @Resource
-    protected UserManager userManager;
+    private UserManager userManager;
 
     @Resource
     private YenCardService yenCardService;

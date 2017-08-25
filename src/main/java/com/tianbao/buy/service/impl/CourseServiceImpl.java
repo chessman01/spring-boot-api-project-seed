@@ -15,6 +15,8 @@ import com.tianbao.buy.vo.*;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -28,6 +30,8 @@ import java.util.Set;
 
 @Service
 public class CourseServiceImpl implements CourseService {
+    private static Logger logger = LoggerFactory.getLogger(CourseServiceImpl.class);
+
     @Value("${biz.schedule.top.banner}")
     private String topBanner;
 

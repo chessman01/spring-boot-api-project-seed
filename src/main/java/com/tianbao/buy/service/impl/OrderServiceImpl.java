@@ -11,6 +11,8 @@ import com.tianbao.buy.utils.MoneyUtils;
 import com.tianbao.buy.vo.*;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import tk.mybatis.mapper.entity.Condition;
 
@@ -21,6 +23,8 @@ import java.util.Map;
 
 @Service
 public class OrderServiceImpl implements OrderService {
+    private static Logger logger = LoggerFactory.getLogger(OrderServiceImpl.class);
+
     @Resource
     private OrderMainManager orderManager;
 
