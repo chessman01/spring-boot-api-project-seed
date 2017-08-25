@@ -1,6 +1,5 @@
 package com.tianbao.buy.rpc;
 
-import com.google.common.collect.Maps;
 import com.tianbao.buy.core.Result;
 import com.tianbao.buy.core.ResultGenerator;
 import com.tianbao.buy.service.impl.YenCardServiceImpl;
