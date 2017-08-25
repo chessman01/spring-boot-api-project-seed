@@ -62,13 +62,13 @@ public class YenCardServiceImpl implements YenCardService{
     }
 
     @Override
-    public YenCardVO adjust(long cardId, long templateId, long couponId) {
+    public YenCardVO adjust(long cardId, long templateId, Long couponId) {
         return render(cardId, templateId, couponId);
     }
 
     @Override
     @Transactional
-    public String create(long cardId, long templateId, long couponUserId) {
+    public String create(long cardId, long templateId, Long couponUserId) {
         // 1. 找到用户的瘾卡
         User user = userService.getUserByWxUnionId();
 
@@ -79,36 +79,50 @@ public class YenCardServiceImpl implements YenCardService{
 
         if (!template.getStatus().equals(CouponVO.Status.RECHARGE.getCode()) ||
                 !template.getPayType().equals(CouponVO.PayType.RECHARGE.getCode())) {
-            throw new BizException("充值模版无效。id=" + templateId);
+            logger.error(String.format("充值模版无效。id=%d", templateId));
+            throw new BizException("充值模版无效");
         }
+
+        int templateGift = 0;
 
         // 3. 找礼券
-        CouponUser couponUser = couponService.getCouponUser(couponUserId);
+        if (couponUserId != null) {
+            CouponUser couponUser = couponService.getCouponUser(couponUserId);
 
-        if (!couponUser.getStatus().equals(CouponVO.Status.NORMAL.getCode())) {
-            throw new BizException("礼券无效。id=" + couponUserId);
+            if (!couponUser.getStatus().equals(CouponVO.Status.NORMAL.getCode())) {
+                logger.error(String.format("礼券无效。id=%d", couponUserId));
+                throw new BizException(String.format("礼券无效", couponUserId));
+            }
+
+            // 4. 礼券用的模版
+            CouponTemplate couponTemplate = couponService.getTemplate(couponUser.getCouponTemplateId());
+
+            if (couponTemplate.getRulePrice() > template.getRulePrice()) {
+                logger.error(String.format("礼券无效。id=%d", couponUserId));
+                throw new BizException(String.format("礼券无效", couponUserId));
+            }
+
+            templateGift = couponTemplate.getPrice();
         }
 
-        // 4. 礼券用的模版
-        CouponTemplate couponTemplate = couponService.getTemplate(couponUser.getCouponTemplateId());
-
-        if (couponTemplate.getRulePrice() > template.getRulePrice()) throw new BizException("礼券无效。");
         String orderId = MakeOrderNum.makeOrderNum();
-        int price4wx = template.getRulePrice() - couponTemplate.getPrice();
+        int price4wx = template.getRulePrice() - templateGift;
         int price4Gift = template.getPrice();
-        int price4Coupon = couponTemplate.getPrice();
+        int price4Coupon = templateGift;
 
         fundDetailService.initFund4RechargIn(orderId, price4wx, price4Gift, price4Coupon, new Date());
 
         // 生成订单
         OrderMain order = orderService.convert(orderId, user.getId(), card.getId(), price4wx, template.getRulePrice(),
-                0, 0, card.getId(), 0, "0", price4Coupon, couponUser.getId(), price4Gift, OrderVO.Status.PENDING.getCode());
+                0, 0, card.getId(), 0, "0", price4Coupon, couponUserId, price4Gift, OrderVO.Status.PENDING.getCode());
 
         orderService.sava(order);
 
         // 礼券要锁定
-        couponService.updateCouponUserStatus(couponUser.getId(), CouponVO.Status.PENDING.getCode(),
-                CouponVO.Status.NORMAL.getCode());
+        if (couponUserId != null) {
+            couponService.updateCouponUserStatus(couponUserId, CouponVO.Status.PENDING.getCode(),
+                    CouponVO.Status.NORMAL.getCode());
+        }
 
         return orderId;
     }
@@ -125,13 +139,12 @@ public class YenCardServiceImpl implements YenCardService{
         card.setGiftAccount(oldGift + newGift);
         card.setCashAccount(oldCash + newCash);
 
-        int num = yenCardManager.update(card, condition);
-
-        if (num != 1) throw new BizException("瘾卡更新账户失败");
+        yenCardManager.update(card, condition);
     }
 
     @Override
     public YenCard getDefault(long userId){
+        checkArgument(userId > NumberUtils.LONG_ZERO);
         List<YenCard> cards = getCardByUser(userId);
 
         if (!CollectionUtils.isEmpty(cards)
@@ -139,24 +152,27 @@ public class YenCardServiceImpl implements YenCardService{
             return cards.get(NumberUtils.INTEGER_ZERO);
         }
 
-        throw new BizException("名下未找到指定的瘾卡");
+        logger.error(String.format("名下未找到瘾卡.userId[%d]", userId));
+        throw new BizException("名下未找到瘾卡");
     }
 
     @Override
     public YenCard getSpecify(long userId, final long cardId){
+        checkArgument(userId > NumberUtils.LONG_ZERO);
+        checkArgument(cardId > NumberUtils.LONG_ZERO);
         List<YenCard> YenCards = getCardByUser(userId);
 
         for (YenCard card : YenCards) {
             if (card.getId().equals(cardId)) return card;
         }
 
+        logger.error(String.format("名下未找到指定的瘾卡.userId[%d];cardId[%d]", userId, cardId));
         throw new BizException("名下未找到指定的瘾卡");
     }
 
     @Override
     public void initNormalCard(long userId) {
         checkArgument(userId > NumberUtils.LONG_ZERO);
-
         YenCard card = new YenCard();
 
         card.setUserId(userId);
@@ -167,6 +183,7 @@ public class YenCardServiceImpl implements YenCardService{
 
     @Override
     public List<YenCard> getCardByUser(long userId) {
+        checkArgument(userId > NumberUtils.LONG_ZERO);
         Condition condition = new Condition(YenCard.class);
         condition.orderBy("type"); // 统一按卡类型排序
 
@@ -195,7 +212,10 @@ public class YenCardServiceImpl implements YenCardService{
 
         // 2. 找到充值模版
         List<CouponVO> templates = couponService.getCardRechargeTemplate(context, rechargeId);
-        if (CollectionUtils.isEmpty(templates)) throw new BizException("没有瘾卡充值模版");
+        if (CollectionUtils.isEmpty(templates)) {
+            logger.error("没有瘾卡充值模版");
+            throw new BizException("没有瘾卡充值模版");
+        }
         cardVO.setTemplates(templates);
 
         // 3. 找到充值礼券
@@ -239,7 +259,6 @@ public class YenCardServiceImpl implements YenCardService{
 
     private List<YenCardVO> convert2CardVO(List<YenCard> cards) {
         List<YenCardVO> cardVOs = Lists.newArrayList();
-
         if (CollectionUtils.isEmpty(cards)) return cardVOs;
 
         for (YenCard card : cards) {

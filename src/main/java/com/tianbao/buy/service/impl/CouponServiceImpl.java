@@ -22,6 +22,8 @@ import org.apache.commons.lang3.math.NumberUtils;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
 import org.joda.time.PeriodType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -30,8 +32,12 @@ import tk.mybatis.mapper.entity.Condition;
 import javax.annotation.Resource;
 import java.util.*;
 
+import static com.google.common.base.Preconditions.checkArgument;
+
 @Service
 public class CouponServiceImpl implements CouponService {
+    private static Logger logger = LoggerFactory.getLogger(CouponServiceImpl.class);
+
     private static String TIME_PREFIX = "有效期：";
 
     @Resource
@@ -45,26 +51,31 @@ public class CouponServiceImpl implements CouponService {
 
     @Override
     public CouponUser getCouponUser(long id) {
+        checkArgument(id > NumberUtils.LONG_ZERO);
         CouponUser couponUser = couponUserManager.findBy("id", id);
 
         if (couponUser != null) return couponUser;
 
-        throw new BizException("没找到模版.id=" + id);
+        logger.error(String.format("没找到礼券.id[%d]", id));
+        throw new BizException(String.format("没找到礼券.id[%d]", id));
     }
 
     @Override
     public CouponTemplate getTemplate(long id) {
+        checkArgument(id > NumberUtils.LONG_ZERO);
         List<CouponTemplate> couponTemplates = getAllTemplate();
 
         for (CouponTemplate couponTemplate : couponTemplates) {
             if (couponTemplate.getId().equals(id)) return couponTemplate;
         }
 
-        throw new BizException("没找到模版.id=" + id);
+        logger.error(String.format("没找到模版.id[%d]", id));
+        throw new BizException(String.format("没找到模版.id[%d]", id));
     }
 
     @Override
     public void updateCouponUserStatus(long recordId, byte newStatus, byte originStatus) {
+        checkArgument(recordId > NumberUtils.LONG_ZERO);
         CouponUser couponUser = new CouponUser();
 
         couponUser.setId(recordId);
@@ -92,6 +103,9 @@ public class CouponServiceImpl implements CouponService {
 
     @Override
     public List<CouponVO> getCoupon4Recharge(long userId, int price, Long selectId, Context context) {
+        checkArgument(userId > NumberUtils.LONG_ZERO);
+        checkArgument(price > NumberUtils.INTEGER_ZERO);
+
         Set payTypeSet = Sets.newHashSet(CouponVO.PayType.RECHARGE.getCode(),CouponVO.PayType.ALL.getCode());
         Set couponUserStatusSet = Sets.newHashSet(CouponVO.Status.NORMAL.getCode());
         Set templateStatusSet = Sets.newHashSet(CouponVO.Status.NORMAL.getCode(),
@@ -102,8 +116,10 @@ public class CouponServiceImpl implements CouponService {
 
     @Override
     public List<CouponVO> getCoupon4PayPerView(long userId, int price, Long selectId, Context context) {
-        Set payTypeSet = Sets.newHashSet(CouponVO.PayType.ALL.getCode(), CouponVO.PayType.PAY_PER_VIEW.getCode());
+        checkArgument(userId > NumberUtils.LONG_ZERO);
+        checkArgument(price > NumberUtils.INTEGER_ZERO);
 
+        Set payTypeSet = Sets.newHashSet(CouponVO.PayType.ALL.getCode(), CouponVO.PayType.PAY_PER_VIEW.getCode());
         Set couponUserStatusSet = Sets.newHashSet(CouponVO.Status.NORMAL.getCode());
         Set templateStatusSet = Sets.newHashSet(CouponVO.Status.NORMAL.getCode(),
                 CouponVO.Status.EXPIRED.getCode(), CouponVO.Status.USED.getCode());
@@ -112,7 +128,8 @@ public class CouponServiceImpl implements CouponService {
     }
 
     @Override
-    public void obtain(Long templateId) {
+    public void obtain(long templateId) {
+        checkArgument(templateId > NumberUtils.LONG_ZERO);
         // 获取用户信息
         User user = userService.getUserByWxUnionId();
 
@@ -122,12 +139,16 @@ public class CouponServiceImpl implements CouponService {
     }
 
     @Override
-    public void obtain(Long templateId, Set<Byte> sourceSet, long userId) {
+    public void obtain(long templateId, Set<Byte> sourceSet, long userId) {
+        checkArgument(templateId > NumberUtils.LONG_ZERO);
+        checkArgument(userId > NumberUtils.LONG_ZERO);
+
         // 1. 获取到礼券模版
         CouponTemplate couponTemplate = getTemplate(templateId);
 
         if (!sourceSet.contains(couponTemplate.getSource()) ||
                 !couponTemplate.getStatus().equals(CouponVO.Status.NORMAL.getCode())) {
+            logger.error(String.format("此券不能领用.[%d]", templateId));
             throw new BizException("此券不能领用");
         }
 
@@ -145,6 +166,7 @@ public class CouponServiceImpl implements CouponService {
             }
 
             if (useNum >= couponTemplate.getUseNum()) {
+                logger.error(String.format("已达到您此礼券领用上限.[%d]", templateId));
                 throw new BizException("已达到您此礼券领用上限");
             }
         }
@@ -175,7 +197,10 @@ public class CouponServiceImpl implements CouponService {
         Predicate<CouponTemplate> unionPredicate = Predicates.and(predicate);
         List<CouponTemplate> filterResult = Lists.newArrayList(Iterators.filter(couponTemplates.iterator(), unionPredicate));
 
-        if (CollectionUtils.isEmpty(filterResult)) throw new BizException("没找到的充值模版");
+        if (CollectionUtils.isEmpty(filterResult)) {
+            logger.error("没找到充值模版");
+            throw new BizException("没找到充值模版");
+        }
 
         // 3. 按赠送金额排序
         Comparator<CouponTemplate> userComparator = Ordering.from(new priceTemplateComparator());
@@ -332,7 +357,7 @@ public class CouponServiceImpl implements CouponService {
     private Map<Long, CouponTemplate> getUserTemplateMap(List<CouponTemplate> couponTemplates) {
         Map<Long, CouponTemplate> map = Maps.newConcurrentMap();
 
-        if (couponTemplates == null) return map;
+        if (CollectionUtils.isEmpty(couponTemplates)) return map;
 
         for (CouponTemplate couponTemplate : couponTemplates) {
             map.put(couponTemplate.getId(), couponTemplate);
@@ -352,6 +377,7 @@ public class CouponServiceImpl implements CouponService {
 
     /* 得到用户礼券的关联关系 */
     private List<CouponUser> getRelation(long userId) {
+        checkArgument(userId > NumberUtils.LONG_ZERO, "userId must great than 0.");
         Condition condition = new Condition(CouponUser.class);
 
         condition.createCriteria().andCondition("user_id=", userId)
@@ -365,6 +391,7 @@ public class CouponServiceImpl implements CouponService {
 
     private List<CouponVO> convert2CouponVO(List<CouponTemplate> doList) {
         List<CouponVO> couponVOs = Lists.newArrayList();
+        if (CollectionUtils.isEmpty(doList)) return couponVOs;
 
         for (CouponTemplate couponTemplate : doList) {
             couponVOs.add(convert2CouponVO(couponTemplate));
@@ -375,6 +402,7 @@ public class CouponServiceImpl implements CouponService {
 
     private CouponVO convert2CouponVO(CouponTemplate couponTemplate) {
         CouponVO couponVO = new CouponVO();
+        if(couponTemplate == null) return couponVO;
 
         BeanUtils.copyProperties(couponTemplate, couponVO);
 

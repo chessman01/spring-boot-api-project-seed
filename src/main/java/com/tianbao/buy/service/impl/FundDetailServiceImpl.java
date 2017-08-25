@@ -44,10 +44,12 @@ public class FundDetailServiceImpl implements FundDetailService {
         }
 
         // 从微信消费现金
-        fundDetails.add(convert(null, orderId, FundDetailVO.Channel.WEIXIN, FundDetailVO.Channel.END, price4wx,
-                FundDetailVO.Direction.IN, FundDetailVO.Status.PENDING, date));
+        if (price4wx != null && price4wx > NumberUtils.INTEGER_ZERO) {
+            fundDetails.add(convert(null, orderId, FundDetailVO.Channel.WEIXIN, FundDetailVO.Channel.END, price4wx,
+                    FundDetailVO.Direction.IN, FundDetailVO.Status.PENDING, date));
+        }
 
-        // 从礼券消费现金
+            // 从礼券消费现金
         if (price4Coupon != null && price4Coupon > NumberUtils.INTEGER_ZERO) {
             fundDetails.add(convert(null, orderId, FundDetailVO.Channel.COUPON, FundDetailVO.Channel.END, price4Coupon,
                     FundDetailVO.Direction.IN, FundDetailVO.Status.PENDING, date));
@@ -67,8 +69,10 @@ public class FundDetailServiceImpl implements FundDetailService {
         }
 
         // 从微信退款现金
-        fundDetails.add(convert(null, orderId, FundDetailVO.Channel.WEIXIN, FundDetailVO.Channel.END, price4wx,
-                FundDetailVO.Direction.OUT, FundDetailVO.Status.PENDING, date));
+        if (price4wx != null && price4wx > NumberUtils.INTEGER_ZERO) {
+            fundDetails.add(convert(null, orderId, FundDetailVO.Channel.WEIXIN, FundDetailVO.Channel.END, price4wx,
+                    FundDetailVO.Direction.OUT, FundDetailVO.Status.PENDING, date));
+        }
 
         // 从礼券退款现金
         if (price4Coupon != null && price4Coupon > NumberUtils.INTEGER_ZERO) {

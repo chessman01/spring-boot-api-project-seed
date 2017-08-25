@@ -154,9 +154,7 @@ public class OrderServiceImpl implements OrderService {
 
         // 4. 按钮
         Button button = new Button();
-        button.setEvent(new Button.Event("http://h5.m.taobao.com", "click"));
         button.setTitle("支付（" + realPay.getFee() + "）");
-
 
         order.setButton(button);
 

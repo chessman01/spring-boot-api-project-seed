@@ -6,6 +6,7 @@ import com.google.common.base.Splitter;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.tianbao.buy.core.BizException;
 import com.tianbao.buy.domain.*;
 import com.tianbao.buy.manager.CourseManager;
 import com.tianbao.buy.service.*;
@@ -27,6 +28,9 @@ import javax.annotation.Resource;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 @Service
 public class CourseServiceImpl implements CourseService {
@@ -66,6 +70,7 @@ public class CourseServiceImpl implements CourseService {
 
     @Override
     public Map<Long, Course> getCourse(Set<Long> ids) {
+        checkArgument(!CollectionUtils.isEmpty(ids), "ids is empty.");
         Condition condition = new Condition(Course.class);
         condition.createCriteria().andIn("id", ids);
 
@@ -76,6 +81,8 @@ public class CourseServiceImpl implements CourseService {
 
     @Override
     public ScheduleVO schedule(String date, int num) {
+        checkArgument(num > NumberUtils.INTEGER_ZERO);
+
         ScheduleVO scheduleVO = new ScheduleVO();
         DateTime in = StringUtils.isBlank(date) ? new DateTime().withMillisOfDay(0)
                 : new DateTime(date).withMillisOfDay(0);
@@ -90,9 +97,16 @@ public class CourseServiceImpl implements CourseService {
 
     @Override
     public CourseVO detail(long id) {
+        checkArgument(id > NumberUtils.LONG_ZERO);
         Course course = courseManager.findById(id);
 
-        return convert2CourseVO(course);
+        CourseVO courseVO = convert2CourseVO(course);
+
+        if (courseVO == null) {
+            logger.error(String.format("获取课程失败.id[%d]", id));
+            throw new BizException("获取课程失败");
+        }
+        return courseVO;
     }
 
     private Address getAddress() {
@@ -143,12 +157,14 @@ public class CourseServiceImpl implements CourseService {
         scheduleVO.setBanner(banners);
     }
 
+    /** 获取XX某个时间点的可订课表 **/
     private List<Course> getSubscribeCourse(DateTime current) {
+        checkNotNull(current);
         Condition condition = new Condition(Course.class);
 
         condition.orderBy("startTime");
         condition.createCriteria().andCondition("status=", CourseVO.Status.NORMAL.getCode())
-                .andCondition("start_time<", current);
+                .andLessThanOrEqualTo("startTime", current);
 
         return courseManager.findByCondition(condition);
     }
@@ -202,6 +218,7 @@ public class CourseServiceImpl implements CourseService {
     }
 
     public CourseVO convert2CourseVO(Course course) {
+        if (course == null) return null;
         CourseVO courseVO = convert2CourseVO(Lists.newArrayList(course)).get(NumberUtils.INTEGER_ZERO);
 
         return courseVO;
@@ -209,6 +226,7 @@ public class CourseServiceImpl implements CourseService {
 
     public List<CourseVO> convert2CourseVO(List<Course> courses) {
         List<CourseVO> courseVOs = Lists.newArrayList();
+        if (CollectionUtils.isEmpty(courses)) return courseVOs;
 
         for (Course course : courses) {
             CourseVO courseVO = new CourseVO();

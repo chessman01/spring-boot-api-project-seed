@@ -103,7 +103,7 @@ public class UserServiceImpl implements UserService {
         }
 
         if (user == null) {
-            logger.error("用户没发现.uic[%s]", wxUnionId);
+            logger.error(String.format("用户没发现.uic[%s]", wxUnionId));
             throw new BizException("用户没发现");
         }
 
