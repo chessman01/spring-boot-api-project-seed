@@ -3,9 +3,7 @@ package com.tianbao.buy.rpc;
 import com.tianbao.buy.core.Result;
 import com.tianbao.buy.core.ResultGenerator;
 import com.tianbao.buy.service.impl.YenCardServiceImpl;
-import com.tianbao.buy.vo.Button;
 import com.tianbao.buy.vo.YenCardVO;
-import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -13,13 +11,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 import java.util.List;
-import org.slf4j.Logger;
 
 @RestController
 @RequestMapping("/yen/card")
 public class YenCardRpc {
-    private Logger logger = LoggerFactory.getLogger(this.getClass());
-
     @Resource
     private YenCardServiceImpl yenCardServiceImpl;
 
