@@ -54,6 +54,11 @@ public class CouponUser {
     private Date endTime;
 
     /**
+     * 来源方式。1:自已领用；2：系统发放；3：推荐获奖
+     */
+    private Byte from;
+
+    /**
      * 获取主键
      *
      * @return id - 主键
@@ -195,5 +200,23 @@ public class CouponUser {
      */
     public void setEndTime(Date endTime) {
         this.endTime = endTime;
+    }
+
+    /**
+     * 获取来源方式。1:自已领用；2：系统发放；3：推荐获奖
+     *
+     * @return from - 来源方式。1:自已领用；2：系统发放；3：推荐获奖
+     */
+    public Byte getFrom() {
+        return from;
+    }
+
+    /**
+     * 设置来源方式。1:自已领用；2：系统发放；3：推荐获奖
+     *
+     * @param from 来源方式。1:自已领用；2：系统发放；3：推荐获奖
+     */
+    public void setFrom(Byte from) {
+        this.from = from;
     }
 }

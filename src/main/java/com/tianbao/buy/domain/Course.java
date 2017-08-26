@@ -120,7 +120,7 @@ public class Course {
     private Long coachId;
 
     /**
-     * 状态。0：软删除；1：正常
+     * 状态。0：软删除；1：正常；2:过期
      */
     private Byte status;
 
@@ -545,18 +545,18 @@ public class Course {
     }
 
     /**
-     * 获取状态。0：软删除；1：正常
+     * 获取状态。0：软删除；1：正常；2:过期
      *
-     * @return status - 状态。0：软删除；1：正常
+     * @return status - 状态。0：软删除；1：正常；2:过期
      */
     public Byte getStatus() {
         return status;
     }
 
     /**
-     * 设置状态。0：软删除；1：正常
+     * 设置状态。0：软删除；1：正常；2:过期
      *
-     * @param status 状态。0：软删除；1：正常
+     * @param status 状态。0：软删除；1：正常；2:过期
      */
     public void setStatus(Byte status) {
         this.status = status;

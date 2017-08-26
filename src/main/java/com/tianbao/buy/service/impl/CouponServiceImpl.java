@@ -136,7 +136,7 @@ public class CouponServiceImpl implements CouponService {
         return getCoupon(context, userId, price, payTypeSet, templateStatusSet, couponUserStatusSet, selectId, true, true);
     }
 
-    @Resource
+    @Override
     public CouponTemplate getRecommendTemplate() {
         Condition condition = new Condition(CouponTemplate.class);
 

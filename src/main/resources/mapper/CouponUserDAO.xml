@@ -13,5 +13,6 @@
     <result column="status" jdbcType="TINYINT" property="status" />
     <result column="start_time" jdbcType="TIMESTAMP" property="startTime" />
     <result column="end_time" jdbcType="TIMESTAMP" property="endTime" />
+    <result column="from" jdbcType="TINYINT" property="from" />
   </resultMap>
 </mapper>
