@@ -35,6 +35,7 @@ import java.util.*;
 import static com.google.common.base.Preconditions.checkArgument;
 
 @Service
+@SuppressWarnings("unchecked")
 public class CouponServiceImpl implements CouponService {
     private static Logger logger = LoggerFactory.getLogger(CouponServiceImpl.class);
 
@@ -150,28 +151,28 @@ public class CouponServiceImpl implements CouponService {
     }
 
     @Override
-    public void obtainRecommend(long templateId, long userId) {
+    public void obtainRecommend(long templateId, long userId, Byte from) {
         checkArgument(templateId > NumberUtils.LONG_ZERO);
         checkArgument(userId > NumberUtils.LONG_ZERO);
 
         // 领券，只有这两源的券能被领
         Set<Byte> sourceSet = Sets.newHashSet(CouponVO.Source.FRIEND.getCode());
-        obtain(templateId, sourceSet, userId);
+        obtain(templateId, sourceSet, userId, from);
     }
 
     @Override
-    public void obtain(long templateId) {
+    public void obtain(long templateId, Byte from) {
         checkArgument(templateId > NumberUtils.LONG_ZERO);
         // 获取用户信息
         User user = userService.getUserByWxUnionId();
 
         // 领券，只有这两源的券能被领
         Set<Byte> sourceSet = Sets.newHashSet(CouponVO.Source.OFFLINE.getCode(), CouponVO.Source.WEIXIN.getCode());
-        obtain(templateId, sourceSet, user.getId());
+        obtain(templateId, sourceSet, user.getId(), from);
     }
 
     @Override
-    public void obtain(long templateId, Set<Byte> sourceSet, long userId) {
+    public void obtain(long templateId, Set<Byte> sourceSet, long userId, Byte from) {
         checkArgument(templateId > NumberUtils.LONG_ZERO);
         checkArgument(userId > NumberUtils.LONG_ZERO);
 
@@ -213,6 +214,7 @@ public class CouponServiceImpl implements CouponService {
         couponUser.setUserId(userId);
         couponUser.setStartTime(start.toDate());
         couponUser.setEndTime(end.toDate());
+        couponUser.setFrom(from);
 
         couponUserManager.save(couponUser);
     }

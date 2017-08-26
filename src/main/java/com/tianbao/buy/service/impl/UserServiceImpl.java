@@ -73,8 +73,8 @@ public class UserServiceImpl implements UserService {
         if (inviter == null) return;
 
         CouponTemplate couponTemplate = couponService.getRecommendTemplate();
-        couponService.obtainRecommend(couponTemplate.getId(), inviter.getId());
-        couponService.obtainRecommend(couponTemplate.getId(), self.getId());
+        couponService.obtainRecommend(couponTemplate.getId(), inviter.getId(), (byte) 3);
+        couponService.obtainRecommend(couponTemplate.getId(), self.getId(), (byte) 4);
     }
 
     @Override

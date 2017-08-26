@@ -21,7 +21,7 @@ public class CouponRpc {
 
     @PostMapping("/obtain")
     public Result obtain(@RequestParam long couponTemplateId) {
-        couponService.obtain(couponTemplateId);
+        couponService.obtain(couponTemplateId, (byte)1);
         return ResultGenerator.genSuccessResult("领券成功.");
     }
 
