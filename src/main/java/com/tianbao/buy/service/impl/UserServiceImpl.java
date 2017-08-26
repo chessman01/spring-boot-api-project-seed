@@ -2,11 +2,10 @@ package com.tianbao.buy.service.impl;
 
 import com.tianbao.buy.core.BizException;
 import com.tianbao.buy.domain.CouponTemplate;
-import com.tianbao.buy.domain.CouponUser;
 import com.tianbao.buy.domain.User;
-import com.tianbao.buy.manager.CouponTemplateManager;
-import com.tianbao.buy.manager.CouponUserManager;
 import com.tianbao.buy.manager.UserManager;
+import com.tianbao.buy.service.CouponService;
+import com.tianbao.buy.service.OrderService;
 import com.tianbao.buy.service.UserService;
 import com.tianbao.buy.service.YenCardService;
 import com.tianbao.buy.utils.MoneyUtils;
@@ -19,11 +18,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
 import tk.mybatis.mapper.entity.Condition;
 
 import javax.annotation.Resource;
-import java.util.List;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -36,32 +33,86 @@ public class UserServiceImpl implements UserService {
     private YenCardService yenCardService;
 
     @Resource
-    private CouponTemplateManager couponTemplateManager;
+    private CouponService couponService;
 
     @Resource
-    private CouponUserManager couponUserManager;
+    private OrderService orderService;
+
+    private boolean isOldUser(User user) {
+        int boughtNum = orderService.getBoughtNum(user.getId());
+
+        if (boughtNum > NumberUtils.INTEGER_ZERO) return true;
+
+        if (user.getReferrerId() != null && user.getReferrerId() > 0) {
+            return true;
+        }
+
+        return false;
+    }
+
+    @Override
+    @Transactional
+    public void recommend(long inviterId, String code, String phone) {
+        // todo 验证手机
+
+        User model = new User();
+        User self = getUserByWxUnionId();
+        User inviter = getUserByuserId(inviterId);
+
+        if (isOldUser(self)) throw new BizException("您已是老用户");
+
+        Condition condition = new Condition(User.class);
+        condition.createCriteria().andCondition("id=", self.getId())
+                .andCondition("status=", CouponVO.Status.NORMAL.getCode());
+
+        model.setPhone(phone);
+        model.setReferrerId(inviterId);
+
+        userManager.update(model, condition);
+
+        if (inviter == null) return;
+
+        CouponTemplate couponTemplate = couponService.getRecommendTemplate();
+        couponService.obtainRecommend(couponTemplate.getId(), inviter.getId());
+    }
+
+    @Override
+    public boolean validatePhone(String code, String phone) {
+        // 验证code
+
+        User model = new User();
+        User user = getUserByWxUnionId();
+
+        model.setId(user.getId());
+        model.setPhone(phone);
+
+        userManager.update(model);
+
+        return true;
+    }
+
+    @Override
+    public boolean getPin(String phone, boolean isObtainRecommend) {
+        if (isObtainRecommend) {
+            User user = this.getUserByWxUnionId();
+
+            if (isOldUser(user)) throw new BizException("您已是老用户");
+        }
+
+        // todo 发放一个短信验证码
+        return true;
+    }
 
     @Override
     public InvitationVO invitation() {
         InvitationVO invitationVO = new InvitationVO();
         User user = getUserByWxUnionId();
 
-        Condition condition = new Condition(CouponTemplate.class);
+        CouponTemplate couponTemplate = couponService.getRecommendTemplate();
 
-        condition.createCriteria().andCondition("source=", CouponVO.Source.FRIEND.getCode())
-                .andCondition("status=", CouponVO.Status.NORMAL.getCode());
-        List<CouponTemplate> couponTemplates = couponTemplateManager.findByCondition(condition);
+        int num = couponService.getCouponNum(couponTemplate.getId(), user.getId());
 
-        if (CollectionUtils.isEmpty(couponTemplates)) throw new BizException("没找到邀请好友礼券");
-
-        Condition couponUserManagerCondition = new Condition(CouponUser.class);
-
-        couponUserManagerCondition.createCriteria().andCondition("coupon_template_id=", couponTemplates.get(NumberUtils.INTEGER_ZERO).getId())
-                .andCondition("user_id=", user.getId());
-        List<CouponUser> couponUsers = couponUserManager.findByCondition(couponUserManagerCondition);
-
-        invitationVO.setTotalPrize(MoneyUtils.format(2, couponUsers.size()
-                * couponTemplates.get(NumberUtils.INTEGER_ZERO).getPrice() / 100));
+        invitationVO.setTotalPrize(MoneyUtils.format(2, num * couponTemplate.getPrice() / 100));
         invitationVO.setInviterId(user.getId());
 
         return invitationVO;

@@ -24,6 +24,10 @@ public abstract class AbstractManager<T> implements Manager<T> {
         modelClass = (Class<T>) pt.getActualTypeArguments()[0];
     }
 
+    public int selectCount(Condition condition) {
+        return mapper.selectCountByCondition(condition);
+    }
+
     public int save(T model) {
         return mapper.insertSelective(model);
     }

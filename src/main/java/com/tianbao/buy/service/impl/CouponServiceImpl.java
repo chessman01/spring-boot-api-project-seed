@@ -50,6 +50,15 @@ public class CouponServiceImpl implements CouponService {
     private UserService userService;
 
     @Override
+    public int getCouponNum(long couponTemplateId, long userId) {
+        Condition couponUserManagerCondition = new Condition(CouponUser.class);
+
+        couponUserManagerCondition.createCriteria().andCondition("coupon_template_id=", couponTemplateId)
+                .andCondition("user_id=", userId);
+        return couponUserManager.selectCount(couponUserManagerCondition);
+    }
+
+    @Override
     public CouponUser getCouponUser(long id) {
         checkArgument(id > NumberUtils.LONG_ZERO);
         CouponUser couponUser = couponUserManager.findBy("id", id);
@@ -125,6 +134,29 @@ public class CouponServiceImpl implements CouponService {
                 CouponVO.Status.EXPIRED.getCode(), CouponVO.Status.USED.getCode());
 
         return getCoupon(context, userId, price, payTypeSet, templateStatusSet, couponUserStatusSet, selectId, true, true);
+    }
+
+    @Resource
+    public CouponTemplate getRecommendTemplate() {
+        Condition condition = new Condition(CouponTemplate.class);
+
+        condition.createCriteria().andCondition("source=", CouponVO.Source.FRIEND.getCode())
+                .andCondition("status=", CouponVO.Status.NORMAL.getCode());
+        List<CouponTemplate> couponTemplates = couponTemplateManager.findByCondition(condition);
+
+        if (CollectionUtils.isEmpty(couponTemplates)) throw new BizException("没找到邀请好友礼券");
+
+        return couponTemplates.get(NumberUtils.INTEGER_ZERO);
+    }
+
+    @Override
+    public void obtainRecommend(long templateId, long userId) {
+        checkArgument(templateId > NumberUtils.LONG_ZERO);
+        checkArgument(userId > NumberUtils.LONG_ZERO);
+
+        // 领券，只有这两源的券能被领
+        Set<Byte> sourceSet = Sets.newHashSet(CouponVO.Source.FRIEND.getCode());
+        obtain(templateId, sourceSet, userId);
     }
 
     @Override

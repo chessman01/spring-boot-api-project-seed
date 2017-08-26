@@ -4,6 +4,8 @@ import com.tianbao.buy.domain.OrderMain;
 import com.tianbao.buy.vo.OrderVO;
 
 public interface OrderService {
+    int getBoughtNum(long userId);
+
     OrderVO build(long courseId);
 
     OrderVO adjust(long courseId, Long cardId, Long couponId, int personTime);

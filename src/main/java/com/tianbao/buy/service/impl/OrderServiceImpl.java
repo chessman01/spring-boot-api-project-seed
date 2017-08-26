@@ -54,6 +54,17 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    public int getBoughtNum(long userId) {
+        Condition condition = new Condition(OrderMain.class);
+
+        condition.createCriteria().andCondition("order_id=", userId)
+                .andIn("status", Lists.newArrayList(OrderVO.Status.END.getCode()));
+
+
+        return orderManager.selectCount(condition);
+    }
+
+    @Override
     public String create(long courseId, long couponId, int personTime, long cardId) {
         Context context = new Context();
         OrderVO orderVO = render(courseId, cardId, couponId, personTime, context);

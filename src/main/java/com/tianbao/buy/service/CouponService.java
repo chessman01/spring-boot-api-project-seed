@@ -21,9 +21,15 @@ public interface CouponService {
 
     CouponTemplate getTemplate(long id);
 
+    void obtainRecommend(long templateId, long userId);
+
     void obtain(long couponTemplateId);
 
     void obtain(long couponTemplateId, Set<Byte> sourceSet, long userId);
 
     void updateCouponUserStatus(long recordId, byte newStatus, byte originStatus);
+
+    CouponTemplate getRecommendTemplate();
+
+    int getCouponNum(long couponTemplateId, long userId);
 }

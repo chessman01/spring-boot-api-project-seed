@@ -11,4 +11,10 @@ public interface UserService {
     void updatePhone(long userId, String phone);
 
     InvitationVO invitation();
+
+    boolean getPin(String phone, boolean isObtainRecommend);
+
+    boolean validatePhone(String code, String phone);
+
+    void recommend(long inviterId, String code, String phone);
 }
