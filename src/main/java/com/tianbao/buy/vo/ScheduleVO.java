@@ -38,7 +38,5 @@ public class ScheduleVO {
         private String dayOfWeekDetail;
 
         private String yearMonthDayFormat;
-
-        private boolean selected;
     }
 }

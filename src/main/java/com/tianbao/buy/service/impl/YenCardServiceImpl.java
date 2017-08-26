@@ -57,7 +57,7 @@ public class YenCardServiceImpl implements YenCardService{
     }
 
     @Override
-    public YenCardVO build(long cardId) {
+    public YenCardVO build(Long cardId) {
         return render(cardId, null, null);
     }
 
@@ -88,7 +88,7 @@ public class YenCardServiceImpl implements YenCardService{
         int templateGift = 0;
 
         // 3. 找礼券
-        if (couponUserId != null) {
+        if (couponUserId != null && couponUserId > NumberUtils.LONG_ZERO) {
             CouponUser couponUser = couponService.getCouponUser(couponUserId);
 
             if (!couponUser.getStatus().equals(CouponVO.Status.NORMAL.getCode())) {
@@ -121,7 +121,7 @@ public class YenCardServiceImpl implements YenCardService{
         orderService.sava(order);
 
         // 礼券要锁定
-        if (couponUserId != null) {
+        if (couponUserId != null && couponUserId > NumberUtils.LONG_ZERO) {
             couponService.updateCouponUserStatus(couponUserId, CouponVO.Status.PENDING.getCode(),
                     CouponVO.Status.NORMAL.getCode());
         }

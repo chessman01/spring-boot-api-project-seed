@@ -52,7 +52,7 @@ public class UserServiceImpl implements UserService {
                 .andCondition("status=", CouponVO.Status.NORMAL.getCode());
         List<CouponTemplate> couponTemplates = couponTemplateManager.findByCondition(condition);
 
-        if (CollectionUtils.isEmpty(couponTemplates)) throw new BizException("没找到微信邀请好友礼券");
+        if (CollectionUtils.isEmpty(couponTemplates)) throw new BizException("没找到邀请好友礼券");
 
         Condition couponUserManagerCondition = new Condition(CouponUser.class);
 
@@ -63,7 +63,6 @@ public class UserServiceImpl implements UserService {
         invitationVO.setTotalPrize(MoneyUtils.format(2, couponUsers.size()
                 * couponTemplates.get(NumberUtils.INTEGER_ZERO).getPrice() / 100));
         invitationVO.setInviterId(user.getId());
-        invitationVO.setUrl("url");
 
         return invitationVO;
     }

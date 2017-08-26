@@ -80,17 +80,17 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    public ScheduleVO schedule(String date, int num) {
-        checkArgument(num > NumberUtils.INTEGER_ZERO);
+    public ScheduleVO schedule(String date, int num4day) {
+        checkArgument(num4day > NumberUtils.INTEGER_ZERO);
 
         ScheduleVO scheduleVO = new ScheduleVO();
         DateTime in = StringUtils.isBlank(date) ? new DateTime().withMillisOfDay(0)
                 : new DateTime(date).withMillisOfDay(0);
 
-        setCalendar(in, scheduleVO);
+        setCalendar(in, scheduleVO, num4day);
         setBanner(scheduleVO);
         scheduleVO.setAddress(getAddress());
-        setCourse(num, scheduleVO);
+        setCourse(in, num4day, scheduleVO);
 
         return scheduleVO;
     }
@@ -123,17 +123,16 @@ public class CourseServiceImpl implements CourseService {
         return address;
     }
 
-    private void setCalendar(DateTime in, ScheduleVO scheduleVO) {
-        DateTime current = new DateTime().withMillisOfDay(0);
-        DateTime tmp;
+    private void setCalendar(DateTime in, ScheduleVO scheduleVO, int num4day) {
+        DateTime tmp, current = new DateTime().withMillisOfDay(0);
         List<ScheduleVO.Date> dates = Lists.newArrayList();
+        if (in == null)  in = new DateTime().withMillisOfDay(0);
 
-        for (int i = 0; i < 7; i++) {
+        for (int i = 0; i < num4day; i++) {
             ScheduleVO.Date date = new ScheduleVO.Date();
 
-            tmp = DateUtils.plusDays(i, current);
+            tmp = DateUtils.plusDays(i, in);
 
-            date.setSelected(DateUtils.isEqual(tmp, in));
             date.setDayOfWeek(DateUtils.getDayOfWeek(tmp));
             date.setDayOfWeekDetail(DateUtils.getDayOfWeek(tmp, current));
             date.setMonthDayFormat(DateUtils.monthDayFormat(tmp));
@@ -170,8 +169,15 @@ public class CourseServiceImpl implements CourseService {
     }
 
     /** 获取到指定天数的课程，并按日期分组 **/
-    private void setCourse(int days, ScheduleVO scheduleVO) {
-        DateTime current = new DateTime().withMillisOfDay(0);
+    private void setCourse(DateTime in, int days, ScheduleVO scheduleVO) {
+        DateTime current;
+
+        if (in != null) {
+            current = in.withMillisOfDay(0);
+        } else {
+            current = new DateTime().withMillisOfDay(0);
+        }
+
         List<Course> courses = getSubscribeCourse(current);
 
         DateTime tmp;
@@ -220,6 +226,7 @@ public class CourseServiceImpl implements CourseService {
     public CourseVO convert2CourseVO(Course course) {
         if (course == null) return null;
         CourseVO courseVO = convert2CourseVO(Lists.newArrayList(course)).get(NumberUtils.INTEGER_ZERO);
+        courseVO.getButton().setTitle("立即预约");
 
         return courseVO;
     }
@@ -242,11 +249,7 @@ public class CourseServiceImpl implements CourseService {
             courseVO.setShortTime(DateUtils.hourMinuteFormat(new DateTime(course.getStartTime())) + "-"
                     + DateUtils.hourMinuteFormat(new DateTime(course.getEndTime())));
 
-            // todo 有的要退的
             Button button = new Button();
-
-            Button.Event event = new Button.Event("h5.m.taobao.com","click");
-            button.setEvent(event);
             button.setTitle("预约");
 
             if (course.getStock() < 10) {
@@ -255,6 +258,10 @@ public class CourseServiceImpl implements CourseService {
 
             if (course.getStock() == 0 ) {
                 courseVO.setStockIcon(sellOutPic);
+                button.setDisable(false);
+            }
+
+            if (!course.getStatus().equals(CouponVO.Status.NORMAL.getCode())) {
                 button.setDisable(false);
             }
 

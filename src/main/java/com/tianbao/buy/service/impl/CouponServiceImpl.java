@@ -57,7 +57,7 @@ public class CouponServiceImpl implements CouponService {
         if (couponUser != null) return couponUser;
 
         logger.error(String.format("没找到礼券.id[%d]", id));
-        throw new BizException(String.format("没找到礼券.id[%d]", id));
+        throw new BizException("礼券没找到或已失效");
     }
 
     @Override
@@ -70,7 +70,7 @@ public class CouponServiceImpl implements CouponService {
         }
 
         logger.error(String.format("没找到模版.id[%d]", id));
-        throw new BizException(String.format("没找到模版.id[%d]", id));
+        throw new BizException("礼券没找到");
     }
 
     @Override

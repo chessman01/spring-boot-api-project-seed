@@ -38,7 +38,7 @@ public class DateUtils {
     }
 
     public static String getDayOfWeek(DateTime dt, DateTime current) {
-        Period p = new Period(current, dt, PeriodType.days());
+        Period p = new Period(current, dt, PeriodType.days()); //相关天数
 
         int days = p.getDays();
 

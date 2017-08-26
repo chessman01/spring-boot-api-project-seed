@@ -19,7 +19,7 @@ public interface YenCardService {
 
     List<YenCardVO> getCardByUser();
 
-    YenCardVO build(long cardId);
+    YenCardVO build(Long cardId);
 
     String create(long cardId, long templateId, Long couponUserId);
 

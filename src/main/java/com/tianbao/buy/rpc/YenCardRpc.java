@@ -26,23 +26,23 @@ public class YenCardRpc {
     }
 
     @PostMapping("/build")
-    public Result build(@RequestParam(defaultValue = "0") long cardId) {
+    public Result build(Long cardId) {
         YenCardVO cardVO = yenCardServiceImpl.build(cardId);
 
         return ResultGenerator.genSuccessResult(cardVO);
     }
 
     @PostMapping("/adjust")
-    public Result adjust(@RequestParam(defaultValue = "0")Long cardId, @RequestParam(defaultValue = "0")Long templateId,
-                         @RequestParam(defaultValue = "0")Long couponId) {
+    public Result adjust(@RequestParam Long cardId, @RequestParam Long templateId,
+                         Long couponId) {
         YenCardVO cardVO = yenCardServiceImpl.adjust(cardId, templateId, couponId);
 
         return ResultGenerator.genSuccessResult(cardVO);
     }
 
     @PostMapping("/create")
-    public Result create(@RequestParam(defaultValue = "0")long cardId, @RequestParam(defaultValue = "0")long templateId,
-                         @RequestParam(defaultValue = "0")Long couponId) {
+    public Result create(@RequestParam long cardId, @RequestParam long templateId,
+                         Long couponId) {
         String orderId = yenCardServiceImpl.create(cardId, templateId, couponId);
 
         return ResultGenerator.genSuccessResult(orderId);
