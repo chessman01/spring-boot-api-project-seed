@@ -63,6 +63,8 @@ public class YenCardServiceImpl implements YenCardService{
 
     @Override
     public YenCardVO adjust(long cardId, long templateId, Long couponId) {
+        checkArgument(cardId > NumberUtils.LONG_ZERO);
+        checkArgument(templateId > NumberUtils.LONG_ZERO);
         return render(cardId, templateId, couponId);
     }
 
