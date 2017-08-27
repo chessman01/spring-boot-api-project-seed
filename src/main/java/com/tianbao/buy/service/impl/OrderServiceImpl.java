@@ -180,9 +180,9 @@ public class OrderServiceImpl implements OrderService {
         int cardPay = map.get("cardPay") != null ? map.get("cardPay").getOriginFee() : NumberUtils.INTEGER_ZERO;
 
         /* 实付款 */
-        int realPayFee = (total - couponDiscount - cardDiscount - cardPay) / 100;
+        int realPayFee = total - couponDiscount - cardDiscount - cardPay;
 
-        return new OrderVO.PayDetail(REAL_PAY_FEE, MoneyUtils.unitFormat(2, realPayFee), realPayFee);
+        return new OrderVO.PayDetail(REAL_PAY_FEE, MoneyUtils.unitFormat(2, realPayFee / 100), realPayFee);
     }
 
     private Map<String, OrderVO.PayDetail> calFeeDetail(Course course, int personTime, YenCard card, CouponTemplate coupon,
@@ -192,7 +192,7 @@ public class OrderServiceImpl implements OrderService {
 
         /* 课程总价 */
         int total = course.getPrice() * personTime;
-        totalDetail = new OrderVO.PayDetail(TOTAL_FEE, MoneyUtils.unitFormat(2, total), total);
+        totalDetail = new OrderVO.PayDetail(TOTAL_FEE, MoneyUtils.unitFormat(2, total / 100), total);
         payDetails.add(totalDetail);
         map.put("total", totalDetail);
 
@@ -200,7 +200,7 @@ public class OrderServiceImpl implements OrderService {
         int couponDiscount = 0;
         if (coupon != null) {
             couponDiscount = coupon.getPrice();
-            couponDisCountDetail = new OrderVO.PayDetail(COUPON_FEE, MoneyUtils.minusUnitFormat(2, couponDiscount), couponDiscount);
+            couponDisCountDetail = new OrderVO.PayDetail(COUPON_FEE, MoneyUtils.minusUnitFormat(2, couponDiscount / 100), couponDiscount);
             payDetails.add(couponDisCountDetail);
             map.put("couponDisCount", couponDisCountDetail);
         }

@@ -113,7 +113,7 @@ public class CourseServiceImpl implements CourseService {
             throw new BizException("获取课程失败");
         }
 
-        if(!isDetail) filter(courseVO);
+        if(!isDetail) filter(courseVO, true);
         return courseVO;
     }
 
@@ -208,8 +208,8 @@ public class CourseServiceImpl implements CourseService {
         scheduleVO.setCourse4Day(course4Days);
     }
 
-    private void filter(CourseVO item) {
-        item.setAddress(null);
+    private void filter(CourseVO item, boolean hasAddress) {
+        if (!hasAddress) item.setAddress(null);
         item.setCare(null);
         item.setCrowd(null);
         item.setDescription(null);
@@ -223,7 +223,7 @@ public class CourseServiceImpl implements CourseService {
     }
 
     private void filter(List<CourseVO> courseVOs) {
-        courseVOs.forEach(item -> filter(item));
+        courseVOs.forEach(item -> filter(item, false));
     }
 
     private Map<Long, Course> toMap (List<Course> courses) {

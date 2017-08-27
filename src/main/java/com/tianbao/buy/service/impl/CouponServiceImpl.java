@@ -214,7 +214,7 @@ public class CouponServiceImpl implements CouponService {
         couponUser.setUserId(userId);
         couponUser.setStartTime(start.toDate());
         couponUser.setEndTime(end.toDate());
-        couponUser.setFrom(from);
+        couponUser.setOrigin(from);
 
         couponUserManager.save(couponUser);
     }
