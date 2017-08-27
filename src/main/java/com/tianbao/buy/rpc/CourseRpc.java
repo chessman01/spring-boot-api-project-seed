@@ -26,7 +26,7 @@ public class CourseRpc {
 
     @PostMapping("/detail")
     public Result detail(@RequestParam Long id) {
-        CourseVO courseVO = courseService.detail(id);
+        CourseVO courseVO = courseService.getCourse(id, true);
         return ResultGenerator.genSuccessResult(courseVO);
     }
 }

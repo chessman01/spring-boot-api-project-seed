@@ -10,7 +10,7 @@ public interface OrderService {
 
     OrderVO adjust(long courseId, Long cardId, Long couponId, int personTime);
 
-    String create(long courseId, long couponId, int personTime, long cardId);
+    String create(long courseId, Long couponId, int personTime, Long cardId);
 
     OrderMain convert(String orderId, Long userId, Long classId, Integer realPay, Integer totalPrice,
                   Integer yenCarPayPrice, Integer yenCarDiscount, Long yenCarId, Integer onlineDiscount,

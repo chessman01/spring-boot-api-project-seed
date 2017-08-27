@@ -11,13 +11,15 @@ import java.util.Set;
 public interface CourseService {
     ScheduleVO schedule(String date, int num);
 
-    CourseVO detail(long id);
+    Course getCourse(long id);
+
+    CourseVO getCourse(long id, boolean isDetail);
 
     Map<Long, Course> getNormalCourse();
 
     Map<Long, Course> getCourse(Set<Long> ids);
 
-    CourseVO convert2CourseVO(Course course);
+    CourseVO convert2CourseVO(Course course, boolean filter);
 
     List<CourseVO> convert2CourseVO(List<Course> courses);
 }

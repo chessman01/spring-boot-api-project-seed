@@ -45,7 +45,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public OrderVO build(long courseId) {
-        return render(courseId, null, null, 0, new Context());
+        return render(courseId, null, null, 1, new Context());
     }
 
     @Override
@@ -65,7 +65,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public String create(long courseId, long couponId, int personTime, long cardId) {
+    public String create(long courseId, Long couponId, int personTime, Long cardId) {
         Context context = new Context();
         OrderVO orderVO = render(courseId, cardId, couponId, personTime, context);
         String orderId = MakeOrderNum.makeOrderNum();
@@ -129,7 +129,8 @@ public class OrderServiceImpl implements OrderService {
             card = cardService.getDefault(user.getId());
         }
 
-        order.setCard(cardService.convert2CardVO(card));
+        // 暂不用
+//        order.setCard(cardService.convert2CardVO(card));
 
         // 3. 获取课程信息
         Course course = courseService.getNormalCourse().get(courseId);
@@ -142,7 +143,7 @@ public class OrderServiceImpl implements OrderService {
 
         // 4. 找到礼券
         List<CouponVO> couponVOs = couponService.getCoupon4PayPerView(user.getId(),
-                course.getPrice(), couponId, context);
+                course.getPrice() * personTime, couponId, context);
         order.setCoupon(couponVOs);
 
         // 5. 人次

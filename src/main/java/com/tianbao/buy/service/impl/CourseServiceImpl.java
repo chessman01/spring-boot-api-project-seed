@@ -96,16 +96,24 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    public CourseVO detail(long id) {
+    public Course getCourse(long id) {
+        checkArgument(id > NumberUtils.LONG_ZERO);
+        return courseManager.findById(id);
+    }
+
+    @Override
+    public CourseVO getCourse(long id, boolean isDetail) {
         checkArgument(id > NumberUtils.LONG_ZERO);
         Course course = courseManager.findById(id);
 
-        CourseVO courseVO = convert2CourseVO(course);
+        CourseVO courseVO = convert2CourseVO(course, false);
 
         if (courseVO == null) {
             logger.error(String.format("获取课程失败.id[%d]", id));
             throw new BizException("获取课程失败");
         }
+
+        if(!isDetail) filter(courseVO);
         return courseVO;
     }
 
@@ -192,24 +200,30 @@ public class CourseServiceImpl implements CourseService {
 
             List<CourseVO> courseVOs = convert2CourseVO(course4Day);
 
-            courseVOs.forEach(item -> {
-                item.setAddress(null);
-                item.setCare(null);
-                item.setCrowd(null);
-                item.setDescription(null);
-                item.setFaq(null);
-                item.setTrainingEffect(null);
-
-                if (item.getCoach() != null) {
-                    item.getCoach().setDesc(null);
-                    item.getCoach().setNick(null);
-                }
-            });
+            filter(courseVOs);
 
             course4Days.add(new ScheduleVO.Course4Day(DateUtils.yearMonthDayFormat(tmp), courseVOs));
         }
 
         scheduleVO.setCourse4Day(course4Days);
+    }
+
+    private void filter(CourseVO item) {
+        item.setAddress(null);
+        item.setCare(null);
+        item.setCrowd(null);
+        item.setDescription(null);
+        item.setFaq(null);
+        item.setTrainingEffect(null);
+
+        if (item.getCoach() != null) {
+            item.getCoach().setDesc(null);
+            item.getCoach().setNick(null);
+        }
+    }
+
+    private void filter(List<CourseVO> courseVOs) {
+        courseVOs.forEach(item -> filter(item));
     }
 
     private Map<Long, Course> toMap (List<Course> courses) {
@@ -223,9 +237,13 @@ public class CourseServiceImpl implements CourseService {
         return map;
     }
 
-    public CourseVO convert2CourseVO(Course course) {
+    public CourseVO convert2CourseVO(Course course, boolean isFilter) {
         if (course == null) return null;
-        CourseVO courseVO = convert2CourseVO(Lists.newArrayList(course)).get(NumberUtils.INTEGER_ZERO);
+        List<CourseVO> courseVOs = convert2CourseVO(Lists.newArrayList(course));
+
+        if(isFilter) filter(courseVOs);
+
+        CourseVO courseVO = courseVOs.get(NumberUtils.INTEGER_ZERO);
         courseVO.getButton().setTitle("立即预约");
 
         return courseVO;

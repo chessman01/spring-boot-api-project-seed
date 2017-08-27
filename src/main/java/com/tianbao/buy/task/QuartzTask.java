@@ -107,8 +107,11 @@ public class QuartzTask {
                 .andCondition("end_time<", new Date());
 
         couponUserManager.update(couponUser, couponUserCondition);
+    }
 
-
+    @Scheduled(cron = "0 1 * ? * *")
+    @Transactional
+    public void expiredCourse() throws Exception {
         Course course = new Course();
         course.setStatus(CourseVO.Status.EXPIRED.getCode());
 
