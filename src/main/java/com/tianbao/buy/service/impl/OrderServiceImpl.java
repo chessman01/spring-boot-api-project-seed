@@ -135,7 +135,7 @@ public class OrderServiceImpl implements OrderService {
         // 3. 获取课程信息
         Course course = courseService.getNormalCourse().get(courseId);
         if (course == null) throw new BizException("没找到有效课程");
-        order.setCourse(courseService.convert2CourseVO(course));
+        order.setCourse(courseService.convert2CourseVO(course, true));
 
         context.setUser(user);
         context.setCard(card);

@@ -42,6 +42,11 @@ public class CouponUser {
     private Byte status;
 
     /**
+     * 来源方式。1:自已领用；2：系统发放；3：推荐他人获奖;4：新人被推荐
+     */
+    private Byte origin;
+
+    /**
      * 开始时间
      */
     @Column(name = "start_time")
@@ -52,11 +57,6 @@ public class CouponUser {
      */
     @Column(name = "end_time")
     private Date endTime;
-
-    /**
-     * 来源方式。1:自已领用；2：系统发放；3：推荐获奖
-     */
-    private Byte from;
 
     /**
      * 获取主键
@@ -167,6 +167,24 @@ public class CouponUser {
     }
 
     /**
+     * 获取来源方式。1:自已领用；2：系统发放；3：推荐他人获奖;4：新人被推荐
+     *
+     * @return origin - 来源方式。1:自已领用；2：系统发放；3：推荐他人获奖;4：新人被推荐
+     */
+    public Byte getOrigin() {
+        return origin;
+    }
+
+    /**
+     * 设置来源方式。1:自已领用；2：系统发放；3：推荐他人获奖;4：新人被推荐
+     *
+     * @param origin 来源方式。1:自已领用；2：系统发放；3：推荐他人获奖;4：新人被推荐
+     */
+    public void setOrigin(Byte origin) {
+        this.origin = origin;
+    }
+
+    /**
      * 获取开始时间
      *
      * @return start_time - 开始时间
@@ -200,23 +218,5 @@ public class CouponUser {
      */
     public void setEndTime(Date endTime) {
         this.endTime = endTime;
-    }
-
-    /**
-     * 获取来源方式。1:自已领用；2：系统发放；3：推荐获奖
-     *
-     * @return from - 来源方式。1:自已领用；2：系统发放；3：推荐获奖
-     */
-    public Byte getFrom() {
-        return from;
-    }
-
-    /**
-     * 设置来源方式。1:自已领用；2：系统发放；3：推荐获奖
-     *
-     * @param from 来源方式。1:自已领用；2：系统发放；3：推荐获奖
-     */
-    public void setFrom(Byte from) {
-        this.from = from;
     }
 }

@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 
 /**
- * Created by CodeGenerator on 2017/08/26.
+ * Created by CodeGenerator on 2017/08/27.
  */
 @Service
 public class TagManagerImpl extends AbstractManager<Tag> implements TagManager {

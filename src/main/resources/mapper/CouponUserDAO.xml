@@ -11,8 +11,8 @@
     <result column="coupon_template_id" jdbcType="BIGINT" property="couponTemplateId" />
     <result column="user_id" jdbcType="BIGINT" property="userId" />
     <result column="status" jdbcType="TINYINT" property="status" />
+    <result column="origin" jdbcType="TINYINT" property="origin" />
     <result column="start_time" jdbcType="TIMESTAMP" property="startTime" />
     <result column="end_time" jdbcType="TIMESTAMP" property="endTime" />
-    <result column="from" jdbcType="TINYINT" property="from" />
   </resultMap>
 </mapper>
