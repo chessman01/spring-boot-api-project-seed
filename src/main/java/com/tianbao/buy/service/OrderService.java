@@ -3,7 +3,11 @@ package com.tianbao.buy.service;
 import com.tianbao.buy.domain.OrderMain;
 import com.tianbao.buy.vo.OrderVO;
 
+import java.util.List;
+
 public interface OrderService {
+    List<OrderVO> get(byte status);
+
     int getBoughtNum(long userId);
 
     OrderVO build(long courseId);

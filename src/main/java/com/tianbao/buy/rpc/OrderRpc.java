@@ -31,6 +31,12 @@ public class OrderRpc {
 //        return ResultGenerator.genSuccessResult(voList);
 //    }
 
+    @PostMapping("/list")
+    public Result list(@RequestParam(defaultValue = "1") Byte status) {
+        List<OrderVO> couponVOs = orderService.get(status);
+        return ResultGenerator.genSuccessResult(couponVOs);
+    }
+
     @PostMapping("/build")
     public Result build(@RequestParam long courseId) {
         OrderVO order = orderService.build(courseId);

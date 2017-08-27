@@ -126,6 +126,11 @@ public class OrderMain {
     private Integer giftDiscount;
 
     /**
+     * 类型。1：瘾卡；2：订单
+     */
+    private Byte type;
+
+    /**
      * 获取主键
      *
      * @return id - 主键
@@ -483,5 +488,23 @@ public class OrderMain {
      */
     public void setGiftDiscount(Integer giftDiscount) {
         this.giftDiscount = giftDiscount;
+    }
+
+    /**
+     * 获取类型。1：瘾卡；2：订单
+     *
+     * @return type - 类型。1：瘾卡；2：订单
+     */
+    public Byte getType() {
+        return type;
+    }
+
+    /**
+     * 设置类型。1：瘾卡；2：订单
+     *
+     * @param type 类型。1：瘾卡；2：订单
+     */
+    public void setType(Byte type) {
+        this.type = type;
     }
 }

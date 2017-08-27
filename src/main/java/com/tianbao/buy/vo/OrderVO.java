@@ -59,6 +59,37 @@ public class OrderVO {
         private int originFee;
     }
 
+    public enum Type {
+        // 类型。1：瘾卡；2：课程
+        CARD((byte)1, "瘾卡"),
+        COURSE((byte)2, "课程");
+
+        public byte code;
+
+        public String desc;
+
+        Type(byte code, String desc) {
+            this.code = code;
+            this.desc = desc;
+        }
+
+        public String getDesc() {
+            return desc;
+        }
+
+        public void setDesc(String desc) {
+            this.desc = desc;
+        }
+
+        public byte getCode() {
+            return code;
+        }
+
+        public void setCode(byte code) {
+            this.code = code;
+        }
+    }
+
     public enum Status {
         // 状态。0：软删除；1：待处理；2：已预约；3：已完成；4：已取消；5：冻结
         DEL((byte)0, "已删除"),

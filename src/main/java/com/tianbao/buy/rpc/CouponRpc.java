@@ -30,6 +30,4 @@ public class CouponRpc {
         List<CouponVO> couponVOs = couponService.getCoupon(status);
         return ResultGenerator.genSuccessResult(couponVOs);
     }
-
-
 }

@@ -2,6 +2,7 @@ package com.tianbao.buy.service.impl;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import com.tianbao.buy.core.BizException;
 import com.tianbao.buy.domain.*;
 import com.tianbao.buy.manager.OrderMainManager;
@@ -20,6 +21,9 @@ import javax.annotation.Resource;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 @Service
 public class OrderServiceImpl implements OrderService {
@@ -42,6 +46,69 @@ public class OrderServiceImpl implements OrderService {
 
     @Resource
     private FundDetailService fundDetailService;
+
+    @Override
+    public List<OrderVO> get(byte status) {
+        User user = userService.getUserByWxUnionId();
+
+        Condition condition = new Condition(OrderMain.class);
+        condition.orderBy("createTime");
+        condition.createCriteria().andEqualTo("status", status).andCondition("user_id=", user.getId())
+                .andCondition("type=", OrderVO.Type.COURSE.getCode());
+
+        List<OrderMain> orderMains = orderManager.findByCondition(condition);
+
+        Set<Long> courseIds = Sets.newHashSet();
+
+        for (OrderMain orderMain : orderMains) {
+            courseIds.add(orderMain.getClassId());
+        }
+
+        Map<Long, Course> courseMap = courseService.getCourse(courseIds);
+
+        List<OrderVO> orderVOs = Lists.newArrayList();
+
+        for (OrderMain orderMain : orderMains) {
+            OrderVO orderVO = convert2OrderVO(orderMain, courseMap.get(orderMain.getClassId()));
+            orderVOs.add(orderVO);
+        }
+
+        return orderVOs;
+    }
+
+    private OrderVO convert2OrderVO(OrderMain orderMain, Course course) {
+        checkNotNull(orderMain);
+        checkNotNull(course);
+
+        OrderVO order = new OrderVO();
+
+        /* 实付款 */
+        int realPayFee = orderMain.getRealPay();
+        int yenCarPayPrice = orderMain.getYenCarPayPrice();
+        int couponDiscount = orderMain.getCouponDiscount();
+//        int onlineDiscount = orderMain.getOnlineDiscount();
+        int yenCarDiscount = orderMain.getYenCarDiscount();
+
+        List<OrderVO.PayDetail> payDetails = Lists.newArrayList();
+        order.setRealPay(new OrderVO.PayDetail(REAL_PAY_FEE, MoneyUtils.unitFormat(2, realPayFee / 100), realPayFee));
+        payDetails.add(new OrderVO.PayDetail(TOTAL_FEE, MoneyUtils.unitFormat(2, course.getPrice() * orderMain.getPersonTime() / 100),
+                course.getPrice() * orderMain.getPersonTime()));
+        if (yenCarDiscount > 0) payDetails.add(new OrderVO.PayDetail(CARD_DISCOUNT, MoneyUtils.unitFormat(2, yenCarDiscount / 100), yenCarDiscount));
+//        if (onlineDiscount > 0) payDetails.add(new OrderVO.PayDetail(CARD_PAY_FEE, MoneyUtils.unitFormat(2, onlineDiscount / 100), onlineDiscount));
+        if (couponDiscount > 0) payDetails.add(new OrderVO.PayDetail(COUPON_FEE, MoneyUtils.unitFormat(2, couponDiscount / 100), couponDiscount));
+        if (yenCarPayPrice > 0) payDetails.add(new OrderVO.PayDetail(CARD_PAY_FEE, MoneyUtils.unitFormat(2, yenCarPayPrice / 100), yenCarPayPrice));
+
+        order.setPayDetail(payDetails);
+        order.setCourse(courseService.convert2CourseVO(course, true));
+
+        Button button = new Button();
+        button.setTitle("取消预约");
+
+
+        order.setButton(button);
+
+        return order;
+    }
 
     @Override
     public OrderVO build(long courseId) {
@@ -101,13 +168,13 @@ public class OrderServiceImpl implements OrderService {
         fundDetailService.initFund4PerIn(orderId, realFee, cardFee, couponFee, new Date());
 
         // 生成订单
-        OrderMain order = convert(orderId, context.getUser().getId(), cardId, realFee, context.getTemplate().getRulePrice(),
-                0, 0, cardId, 0, "0", couponFee, context.getCouponUser().getId(), 0, OrderVO.Status.PENDING.getCode());
+        OrderMain order = convert(orderId, context.getUser().getId(), cardId, realFee, totalFee,
+                0, 0, cardId, 0, "0", couponFee, couponId, 0, OrderVO.Status.PENDING.getCode());
 
         sava(order);
 
         // 礼券要锁定
-        couponService.updateCouponUserStatus(context.getCouponUser().getId(), CouponVO.Status.PENDING.getCode(),
+        couponService.updateCouponUserStatus(couponId, CouponVO.Status.PENDING.getCode(),
                 CouponVO.Status.NORMAL.getCode());
 
         return "weixin url";
