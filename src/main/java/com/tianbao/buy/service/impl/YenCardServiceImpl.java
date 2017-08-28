@@ -1,6 +1,7 @@
 package com.tianbao.buy.service.impl;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.tianbao.buy.core.BizException;
 import com.tianbao.buy.domain.*;
 import com.tianbao.buy.manager.YenCardManager;
@@ -23,6 +24,7 @@ import tk.mybatis.mapper.entity.Condition;
 import javax.annotation.Resource;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
@@ -115,8 +117,9 @@ public class YenCardServiceImpl implements YenCardService{
         fundDetailService.initFund4RechargIn(orderId, price4wx, price4Gift, price4Coupon, new Date());
 
         // 生成订单
-        OrderMain order = orderService.convert(orderId, user.getId(), card.getId(), price4wx, template.getRulePrice(),
-                0, 0, card.getId(), 0, "0", price4Coupon, couponUserId, price4Gift, OrderVO.Status.PENDING.getCode());
+        Map<String, OrderVO.PayDetail> payDetailMap = fundDetailService.toMap(payDetails);
+        OrderMain order = orderService.make(orderId, user.getId(), null, payDetailMap, realPay,
+        cardId, couponUserId, OrderVO.Status.PENDING.getCode(), OrderVO.Type.COURSE.getCode());
 
         orderService.sava(order);
 
@@ -127,6 +130,53 @@ public class YenCardServiceImpl implements YenCardService{
         }
 
         return orderId;
+    }
+
+    private Map<String, OrderVO.PayDetail> calFeeDetail(Course course, int personTime, YenCard card, CouponTemplate coupon,
+                                                        List<OrderVO.PayDetail> payDetails) {
+        Map<String, OrderVO.PayDetail> map = Maps.newHashMap();
+        OrderVO.PayDetail totalDetail, couponDisCountDetail, cardDiscountDetail, cardPayDetail;
+
+        /* 课程总价 */
+        int total = course.getPrice() * personTime;
+        totalDetail = new OrderVO.PayDetail(TOTAL_FEE, MoneyUtils.unitFormat(2, total / 100), total);
+        payDetails.add(totalDetail);
+        map.put("total", totalDetail);
+
+         /* 礼券 */
+        int couponDiscount = 0;
+        if (coupon != null) {
+            couponDiscount = coupon.getPrice();
+            couponDisCountDetail = new OrderVO.PayDetail(COUPON_FEE, MoneyUtils.minusUnitFormat(2, couponDiscount / 100), couponDiscount);
+            payDetails.add(couponDisCountDetail);
+            map.put("couponDisCount", couponDisCountDetail);
+        }
+
+        /* 瘾卡优惠 */
+        int cardDiscount = 0;
+        if (card.getCashAccount() + card.getGiftAccount() >= (total - couponDiscount) * card.getDiscountRate() / 100) {
+            cardDiscount = total - couponDiscount - (total - couponDiscount) * card.getDiscountRate() / 100;
+            cardDiscountDetail = new OrderVO.PayDetail(CARD_DISCOUNT, MoneyUtils.minusUnitFormat(2, cardDiscount), cardDiscount);
+            payDetails.add(cardDiscountDetail);
+            map.put("cardDiscount", cardDiscountDetail);
+        }
+
+        /* 瘾卡支付 */
+        int cardPay;
+
+        if (card.getCashAccount() + card.getGiftAccount() > total - couponDiscount - cardDiscount) {
+            cardPay = total - couponDiscount - cardDiscount;
+            cardPayDetail = new OrderVO.PayDetail(CARD_PAY_FEE, MoneyUtils.minusUnitFormat(2, cardPay), cardPay);
+            payDetails.add(cardPayDetail);
+            map.put("cardPay", cardPayDetail);
+        } else if (card.getCashAccount() + card.getGiftAccount() > 0) {
+            cardPay = card.getCashAccount() + card.getGiftAccount();
+            cardPayDetail = new OrderVO.PayDetail(CARD_PAY_FEE, MoneyUtils.minusUnitFormat(2, cardPay), cardPay);
+            payDetails.add(cardPayDetail);
+            map.put("cardPay", cardPayDetail);
+        }
+
+        return map;
     }
 
     @Override

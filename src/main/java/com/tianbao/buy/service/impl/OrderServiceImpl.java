@@ -137,39 +137,42 @@ public class OrderServiceImpl implements OrderService {
         OrderVO orderVO = render(courseId, cardId, couponId, personTime, context);
         String orderId = MakeOrderNum.makeOrderNum();
         List<OrderVO.PayDetail> payDetails= orderVO.getPayDetail();
+//
+//        int realFee = 0, cardDiscountFee = 0, couponFee = 0, totalFee = 0, cardFee = 0;
+//
+//
+//        for (OrderVO.PayDetail payDetail : payDetails) {
+//            if (payDetail.getTitle().equals(TOTAL_FEE)) {
+//                totalFee = payDetail.getOriginFee();
+//                continue;
+//            }
+//
+//            if (payDetail.getTitle().equals(COUPON_FEE)) {
+//                couponFee = payDetail.getOriginFee();
+//                continue;
+//            }
+//
+//            if (payDetail.getTitle().equals(CARD_DISCOUNT)) {
+//                cardDiscountFee = payDetail.getOriginFee();
+//                continue;
+//            }
+//
+//            if (payDetail.getTitle().equals(CARD_PAY_FEE)) {
+//                cardFee = payDetail.getOriginFee();
+//                continue;
+//            }
+//        }
 
-        int realFee = 0, cardDiscountFee = 0, couponFee = 0, totalFee = 0, cardFee = 0;
+        int realPay = orderVO.getRealPay().getOriginFee();
+        Map<String, OrderVO.PayDetail> payDetailMap = context.getPayDetailMap();
+
+        fundDetailService.initFund4PerIn(orderId, realPay, payDetailMap, new Date());
 
 
-        for (OrderVO.PayDetail payDetail : payDetails) {
-            if (payDetail.getTitle().equals(TOTAL_FEE)) {
-                totalFee = payDetail.getOriginFee();
-                continue;
-            }
-
-            if (payDetail.getTitle().equals(COUPON_FEE)) {
-                couponFee = payDetail.getOriginFee();
-                continue;
-            }
-
-            if (payDetail.getTitle().equals(CARD_DISCOUNT)) {
-                cardDiscountFee = payDetail.getOriginFee();
-                continue;
-            }
-
-            if (payDetail.getTitle().equals(CARD_PAY_FEE)) {
-                cardFee = payDetail.getOriginFee();
-                continue;
-            }
-        }
-
-        realFee = orderVO.getRealPay().getOriginFee();
-
-        fundDetailService.initFund4PerIn(orderId, realFee, cardFee, couponFee, new Date());
 
         // 生成订单
-        OrderMain order = convert(orderId, context.getUser().getId(), cardId, realFee, totalFee,
-                0, 0, cardId, 0, "0", couponFee, couponId, 0, OrderVO.Status.PENDING.getCode());
+        OrderMain order = make(orderId, context.getUser().getId(), courseId, payDetailMap, realPay,
+                cardId, couponId, OrderVO.Status.PENDING.getCode(), OrderVO.Type.COURSE.getCode());
 
         sava(order);
 
@@ -228,6 +231,7 @@ public class OrderServiceImpl implements OrderService {
                 context.getCoupon(), payDetails);
         order.setPayDetail(payDetails);
 
+        context.setPayDetailMap(payDetailMap);
         OrderVO.PayDetail realPay = calRealPay(payDetailMap);
         order.setRealPay(realPay);
 
@@ -299,7 +303,6 @@ public class OrderServiceImpl implements OrderService {
         return map;
     }
 
-
     public void sava (OrderMain order) {
         orderManager.save(order);
     }
@@ -320,25 +323,32 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public OrderMain convert(String orderId, Long userId, Long classId, Integer realPay, Integer totalPrice,
-                          Integer yenCarPayPrice, Integer yenCarDiscount, Long yenCarId, Integer onlineDiscount,
-                          String onlineRule, Integer couponDiscount, Long couponId, Integer giftDiscount, Byte status) {
+    public OrderMain make(String orderId, Long userId, Long classId, Map<String, OrderVO.PayDetail> payDetailMap, int realPay,
+                             Long yenCardId, Long couponId, Byte status, Byte type) {
+        int cardDiscountFee = payDetailMap.get(CARD_DISCOUNT).getOriginFee();
+        int couponFee = payDetailMap.get(COUPON_FEE).getOriginFee();
+        int totalFee = payDetailMap.get(TOTAL_FEE).getOriginFee();
+        int cardFee = payDetailMap.get(CARD_PAY_FEE).getOriginFee();
+        int onlineDiscountFee = payDetailMap.get(ONLINE_DISCOUNT).getOriginFee();
+        int giftFee = payDetailMap.get(GIFT_FEE).getOriginFee();
+
         OrderMain order = new OrderMain();
 
         order.setOrderId(orderId);
         order.setUserId(userId);
         order.setClassId(classId);
         order.setRealPay(realPay);
-        order.setTotalPrice(totalPrice);
-        order.setYenCarPayPrice(yenCarPayPrice);
-        order.setYenCarDiscount(yenCarDiscount);
-        order.setYenCarId(yenCarId);
-        order.setOnlineDiscount(onlineDiscount);
-        order.setOnlineRule(onlineRule);
-        order.setCouponDiscount(couponDiscount);
+        order.setTotalPrice(totalFee);
+        order.setYenCarPayPrice(cardFee);
+        order.setYenCarDiscount(cardDiscountFee);
+        order.setYenCarId(yenCardId);
+        order.setOnlineDiscount(onlineDiscountFee);
+        order.setOnlineRule("立减" + onlineDiscountFee + "分");
+        order.setCouponDiscount(couponFee);
         order.setCouponId(couponId);
-        order.setGiftDiscount(giftDiscount);
+        order.setGiftDiscount(giftFee);
         order.setStatus(status);
+        order.setType(type);
 
         return order;
     }
