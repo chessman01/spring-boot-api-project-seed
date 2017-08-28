@@ -30,7 +30,7 @@ public interface OrderService {
 
     public final static String CARD_PAY_FEE = "瘾卡支付";
 
-    public final static String ONLINE_DISCOUNT = "在线支付立减";
+    public final static String ONLINE_REDUCE = "在线支付立减";
 
     public final static String GIFT_FEE = "赠送";
 

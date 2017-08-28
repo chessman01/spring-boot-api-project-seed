@@ -1,7 +1,6 @@
 package com.tianbao.buy.service.impl;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.tianbao.buy.domain.FundDetail;
 import com.tianbao.buy.manager.FundDetailManager;
 import com.tianbao.buy.service.FundDetailService;
@@ -65,7 +64,7 @@ public class FundDetailServiceImpl implements FundDetailService {
                     FundDetailVO.Direction.IN, FundDetailVO.Status.PENDING, date));
         }
 
-        Integer price4OnlineGift = payDetailMap.get(OrderService.ONLINE_DISCOUNT).getOriginFee();
+        Integer price4OnlineGift = payDetailMap.get(OrderService.ONLINE_REDUCE).getOriginFee();
         // 在线赠送
         if (price4OnlineGift != null && price4OnlineGift > NumberUtils.INTEGER_ZERO) {
             fundDetails.add(convert(null, orderId, FundDetailVO.Channel.REDUCE, FundDetailVO.Channel.END, price4OnlineGift,
@@ -108,7 +107,7 @@ public class FundDetailServiceImpl implements FundDetailService {
     }
 
     @Override
-    public void initFund4RechargIn(String orderId, Integer price4wx, Map<String, OrderVO.PayDetail> payDetailMap, Date date) {
+    public void initFund4RechargIn(String orderId, Integer price4wx, Integer price4Gift, Integer price4Coupon, Date date) {
         List<FundDetail> fundDetails = Lists.newArrayList();
 
         // 瘾卡从微信进一笔现金；
@@ -116,23 +115,14 @@ public class FundDetailServiceImpl implements FundDetailService {
                 FundDetailVO.Direction.IN, FundDetailVO.Status.PENDING, date));
 
         // 瘾卡从赠送进一笔现金；
-        Integer price4Gift = payDetailMap.get(OrderService.GIFT_FEE).getOriginFee();
         if (price4Gift != null && price4Gift > NumberUtils.INTEGER_ZERO) {
             fundDetails.add(convert(null, orderId, FundDetailVO.Channel.GIFT, FundDetailVO.Channel.YENCARD, price4Gift,
                     FundDetailVO.Direction.IN, FundDetailVO.Status.PENDING, date));
         }
 
         // 瘾卡从礼券进一笔现金；
-        Integer price4Coupon = payDetailMap.get(OrderService.COUPON_FEE).getOriginFee();
         if (price4Coupon != null && price4Coupon > NumberUtils.INTEGER_ZERO) {
             fundDetails.add(convert(null, orderId, FundDetailVO.Channel.COUPON, FundDetailVO.Channel.YENCARD, price4Coupon,
-                    FundDetailVO.Direction.IN, FundDetailVO.Status.PENDING, date));
-        }
-
-        Integer price4OnlineGift = payDetailMap.get(OrderService.ONLINE_DISCOUNT).getOriginFee();
-        // 在线赠送
-        if (price4OnlineGift != null && price4OnlineGift > NumberUtils.INTEGER_ZERO) {
-            fundDetails.add(convert(null, orderId, FundDetailVO.Channel.GIFT, FundDetailVO.Channel.END, price4OnlineGift,
                     FundDetailVO.Direction.IN, FundDetailVO.Status.PENDING, date));
         }
 

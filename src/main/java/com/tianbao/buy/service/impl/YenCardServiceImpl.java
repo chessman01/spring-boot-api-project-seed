@@ -35,6 +35,9 @@ public class YenCardServiceImpl implements YenCardService{
     @Value("${biz.card.discount.rate}")
     private int cardDiscountRate;
 
+    @Value("${biz.online.reduce}")
+    public static int onlineReduce;
+
     @Resource
     private YenCardManager yenCardManager;
 
@@ -87,7 +90,7 @@ public class YenCardServiceImpl implements YenCardService{
             throw new BizException("充值模版无效");
         }
 
-        int templateGift = 0;
+        int price4Coupon = 0;
 
         // 3. 找礼券
         if (couponUserId != null && couponUserId > NumberUtils.LONG_ZERO) {
@@ -106,19 +109,28 @@ public class YenCardServiceImpl implements YenCardService{
                 throw new BizException(String.format("礼券无效", couponUserId));
             }
 
-            templateGift = couponTemplate.getPrice();
+            price4Coupon = couponTemplate.getPrice();
         }
 
         String orderId = MakeOrderNum.makeOrderNum();
-        int price4wx = template.getRulePrice() - templateGift;
+        int price4wx = template.getRulePrice() - price4Coupon;
         int price4Gift = template.getPrice();
-        int price4Coupon = templateGift;
 
         fundDetailService.initFund4RechargIn(orderId, price4wx, price4Gift, price4Coupon, new Date());
 
+        Map<String, OrderVO.PayDetail> payDetailMap = Maps.newHashMap();
+
+        OrderVO.PayDetail payDetail = new OrderVO.PayDetail(OrderService.REAL_PAY_FEE, MoneyUtils.minusUnitFormat(2, price4wx / 100), price4wx);
+        payDetailMap.put(OrderService.REAL_PAY_FEE, payDetail);
+
+        payDetail = new OrderVO.PayDetail(OrderService.GIFT_FEE, MoneyUtils.minusUnitFormat(2, price4Gift / 100), price4Gift);
+        payDetailMap.put(OrderService.GIFT_FEE, payDetail);
+
+        payDetail = new OrderVO.PayDetail(OrderService.COUPON_FEE, MoneyUtils.minusUnitFormat(2, price4Coupon / 100), price4Coupon);
+        payDetailMap.put(OrderService.COUPON_FEE, payDetail);
+
         // 生成订单
-        Map<String, OrderVO.PayDetail> payDetailMap = fundDetailService.toMap(payDetails);
-        OrderMain order = orderService.make(orderId, user.getId(), null, payDetailMap, realPay,
+        OrderMain order = orderService.make(orderId, user.getId(), null, payDetailMap, price4wx,
         cardId, couponUserId, OrderVO.Status.PENDING.getCode(), OrderVO.Type.COURSE.getCode());
 
         orderService.sava(order);
@@ -132,52 +144,7 @@ public class YenCardServiceImpl implements YenCardService{
         return orderId;
     }
 
-    private Map<String, OrderVO.PayDetail> calFeeDetail(Course course, int personTime, YenCard card, CouponTemplate coupon,
-                                                        List<OrderVO.PayDetail> payDetails) {
-        Map<String, OrderVO.PayDetail> map = Maps.newHashMap();
-        OrderVO.PayDetail totalDetail, couponDisCountDetail, cardDiscountDetail, cardPayDetail;
 
-        /* 课程总价 */
-        int total = course.getPrice() * personTime;
-        totalDetail = new OrderVO.PayDetail(TOTAL_FEE, MoneyUtils.unitFormat(2, total / 100), total);
-        payDetails.add(totalDetail);
-        map.put("total", totalDetail);
-
-         /* 礼券 */
-        int couponDiscount = 0;
-        if (coupon != null) {
-            couponDiscount = coupon.getPrice();
-            couponDisCountDetail = new OrderVO.PayDetail(COUPON_FEE, MoneyUtils.minusUnitFormat(2, couponDiscount / 100), couponDiscount);
-            payDetails.add(couponDisCountDetail);
-            map.put("couponDisCount", couponDisCountDetail);
-        }
-
-        /* 瘾卡优惠 */
-        int cardDiscount = 0;
-        if (card.getCashAccount() + card.getGiftAccount() >= (total - couponDiscount) * card.getDiscountRate() / 100) {
-            cardDiscount = total - couponDiscount - (total - couponDiscount) * card.getDiscountRate() / 100;
-            cardDiscountDetail = new OrderVO.PayDetail(CARD_DISCOUNT, MoneyUtils.minusUnitFormat(2, cardDiscount), cardDiscount);
-            payDetails.add(cardDiscountDetail);
-            map.put("cardDiscount", cardDiscountDetail);
-        }
-
-        /* 瘾卡支付 */
-        int cardPay;
-
-        if (card.getCashAccount() + card.getGiftAccount() > total - couponDiscount - cardDiscount) {
-            cardPay = total - couponDiscount - cardDiscount;
-            cardPayDetail = new OrderVO.PayDetail(CARD_PAY_FEE, MoneyUtils.minusUnitFormat(2, cardPay), cardPay);
-            payDetails.add(cardPayDetail);
-            map.put("cardPay", cardPayDetail);
-        } else if (card.getCashAccount() + card.getGiftAccount() > 0) {
-            cardPay = card.getCashAccount() + card.getGiftAccount();
-            cardPayDetail = new OrderVO.PayDetail(CARD_PAY_FEE, MoneyUtils.minusUnitFormat(2, cardPay), cardPay);
-            payDetails.add(cardPayDetail);
-            map.put("cardPay", cardPayDetail);
-        }
-
-        return map;
-    }
 
     @Override
     public void updatePrice(int newCash, int oldCash, int newGift, int oldGift, long id) {
