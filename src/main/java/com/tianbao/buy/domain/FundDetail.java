@@ -36,19 +36,17 @@ public class FundDetail {
     private Integer price;
 
     /**
-     * 支付通道。0：瘾卡；1：微信；2：礼券；3：赠送；8：结束
+     * 支付通道。0：瘾卡；1：微信；2：礼券；3：赠送；4：立减；8：结束
      */
-    @Column(name = "from_channel")
-    private Byte fromChannel;
+    private Byte from;
 
     /**
-     * 支付通道。0：瘾卡；1：微信；2：礼券；3：赠送；8：结束
+     * 支付通道。0：瘾卡；1：微信；2：礼券；3：赠送；4：立减；8：结束
      */
-    @Column(name = "to_channel")
-    private Byte toChannel;
+    private Byte to;
 
     /**
-     * 流动方向。0：支出；1：进账；
+     * 流动方向。1：瘾卡充值退回；2：瘾卡充值进账；3：按次消费退回；4：按次消费进账；
      */
     private Byte direction;
 
@@ -148,54 +146,54 @@ public class FundDetail {
     }
 
     /**
-     * 获取支付通道。0：瘾卡；1：微信；2：礼券；3：赠送；8：结束
+     * 获取支付通道。0：瘾卡；1：微信；2：礼券；3：赠送；4：立减；8：结束
      *
-     * @return from_channel - 支付通道。0：瘾卡；1：微信；2：礼券；3：赠送；8：结束
+     * @return from - 支付通道。0：瘾卡；1：微信；2：礼券；3：赠送；4：立减；8：结束
      */
-    public Byte getFromChannel() {
-        return fromChannel;
+    public Byte getFrom() {
+        return from;
     }
 
     /**
-     * 设置支付通道。0：瘾卡；1：微信；2：礼券；3：赠送；8：结束
+     * 设置支付通道。0：瘾卡；1：微信；2：礼券；3：赠送；4：立减；8：结束
      *
-     * @param fromChannel 支付通道。0：瘾卡；1：微信；2：礼券；3：赠送；8：结束
+     * @param from 支付通道。0：瘾卡；1：微信；2：礼券；3：赠送；4：立减；8：结束
      */
-    public void setFromChannel(Byte fromChannel) {
-        this.fromChannel = fromChannel;
+    public void setFrom(Byte from) {
+        this.from = from;
     }
 
     /**
-     * 获取支付通道。0：瘾卡；1：微信；2：礼券；3：赠送；8：结束
+     * 获取支付通道。0：瘾卡；1：微信；2：礼券；3：赠送；4：立减；8：结束
      *
-     * @return to_channel - 支付通道。0：瘾卡；1：微信；2：礼券；3：赠送；8：结束
+     * @return to - 支付通道。0：瘾卡；1：微信；2：礼券；3：赠送；4：立减；8：结束
      */
-    public Byte getToChannel() {
-        return toChannel;
+    public Byte getTo() {
+        return to;
     }
 
     /**
-     * 设置支付通道。0：瘾卡；1：微信；2：礼券；3：赠送；8：结束
+     * 设置支付通道。0：瘾卡；1：微信；2：礼券；3：赠送；4：立减；8：结束
      *
-     * @param toChannel 支付通道。0：瘾卡；1：微信；2：礼券；3：赠送；8：结束
+     * @param to 支付通道。0：瘾卡；1：微信；2：礼券；3：赠送；4：立减；8：结束
      */
-    public void setToChannel(Byte toChannel) {
-        this.toChannel = toChannel;
+    public void setTo(Byte to) {
+        this.to = to;
     }
 
     /**
-     * 获取流动方向。0：支出；1：进账；
+     * 获取流动方向。1：瘾卡充值退回；2：瘾卡充值进账；3：按次消费退回；4：按次消费进账；
      *
-     * @return direction - 流动方向。0：支出；1：进账；
+     * @return direction - 流动方向。1：瘾卡充值退回；2：瘾卡充值进账；3：按次消费退回；4：按次消费进账；
      */
     public Byte getDirection() {
         return direction;
     }
 
     /**
-     * 设置流动方向。0：支出；1：进账；
+     * 设置流动方向。1：瘾卡充值退回；2：瘾卡充值进账；3：按次消费退回；4：按次消费进账；
      *
-     * @param direction 流动方向。0：支出；1：进账；
+     * @param direction 流动方向。1：瘾卡充值退回；2：瘾卡充值进账；3：按次消费退回；4：按次消费进账；
      */
     public void setDirection(Byte direction) {
         this.direction = direction;

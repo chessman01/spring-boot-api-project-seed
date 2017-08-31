@@ -1,6 +1,8 @@
 package com.tianbao.buy.service;
 
+import com.tianbao.buy.domain.CouponTemplate;
 import com.tianbao.buy.domain.OrderMain;
+import com.tianbao.buy.domain.YenCard;
 import com.tianbao.buy.vo.OrderVO;
 
 import java.util.List;
@@ -21,6 +23,11 @@ public interface OrderService {
                    Long yenCardId, Long couponId, Byte status, Byte type);
 
     void sava (OrderMain order);
+
+    OrderVO.PayDetail calRealPay(Map<String, OrderVO.PayDetail> payDetailMap);
+
+    Map<String, OrderVO.PayDetail> calFeeDetail(int unitPrice, int num, YenCard card, CouponTemplate coupon, CouponTemplate rechargeTemplate,
+                                                       List<OrderVO.PayDetail> payDetails, boolean isPer);
 
     public final static String TOTAL_FEE = "课程总价";
 

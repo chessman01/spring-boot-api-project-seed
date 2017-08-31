@@ -42,9 +42,11 @@ public class FundDetailVO extends FundDetail{
     }
 
     public enum Direction {
-        // 流动方向。0：支出；1：进账；
-        OUT((byte)0, "支出"),
-        IN((byte)1, "进账");
+        // 流动方向。1：瘾卡充值退回；2：瘾卡充值进账；3：按次消费退回；4：按次消费进账；
+        REFUND_CARD((byte)1, "瘾卡充值退回"),
+        INCOME_CARD((byte)2, "瘾卡充值进账"),
+        REFUND_PER((byte)3, "按次消费退回"),
+        INCOME_PER((byte)4, "按次消费进账");
 
         public byte code;
 

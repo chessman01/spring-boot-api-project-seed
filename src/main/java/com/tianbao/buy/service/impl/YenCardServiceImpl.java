@@ -35,9 +35,6 @@ public class YenCardServiceImpl implements YenCardService{
     @Value("${biz.card.discount.rate}")
     private int cardDiscountRate;
 
-    @Value("${biz.online.reduce}")
-    public static int onlineReduce;
-
     @Resource
     private YenCardManager yenCardManager;
 
@@ -79,63 +76,56 @@ public class YenCardServiceImpl implements YenCardService{
         // 1. 找到用户的瘾卡
         User user = userService.getUserByWxUnionId();
 
-        YenCard card = getSpecify(user.getId(), cardId);
+        getSpecify(user.getId(), cardId);
 
         // 2. 找充值模版
-        CouponTemplate template = couponService.getTemplate(templateId);
+        CouponTemplate rechargeTemplate = couponService.getTemplate(templateId);
 
-        if (!template.getStatus().equals(CouponVO.Status.RECHARGE.getCode()) ||
-                !template.getPayType().equals(CouponVO.PayType.RECHARGE.getCode())) {
+        if (!rechargeTemplate.getStatus().equals(CouponVO.Status.RECHARGE.getCode()) ||
+                !rechargeTemplate.getPayType().equals(CouponVO.PayType.RECHARGE.getCode())) {
             logger.error(String.format("充值模版无效。id=%d", templateId));
             throw new BizException("充值模版无效");
         }
 
         int price4Coupon = 0;
+        CouponTemplate couponTemplate = null;
 
         // 3. 找礼券
         if (couponUserId != null && couponUserId > NumberUtils.LONG_ZERO) {
             CouponUser couponUser = couponService.getCouponUser(couponUserId);
 
             if (!couponUser.getStatus().equals(CouponVO.Status.NORMAL.getCode())) {
-                logger.error(String.format("礼券无效。id=%d", couponUserId));
+                logger.error(String.format("礼券状态无效。id=%d", couponUserId));
                 throw new BizException(String.format("礼券无效", couponUserId));
             }
 
             // 4. 礼券用的模版
-            CouponTemplate couponTemplate = couponService.getTemplate(couponUser.getCouponTemplateId());
+            couponTemplate = couponService.getTemplate(couponUser.getCouponTemplateId());
 
-            if (couponTemplate.getRulePrice() > template.getRulePrice()) {
-                logger.error(String.format("礼券无效。id=%d", couponUserId));
+            if (couponTemplate == null || couponTemplate.getRulePrice() > rechargeTemplate.getRulePrice()) {
+                logger.error(String.format("礼券额度不匹配无效。id=%d", couponUserId));
                 throw new BizException(String.format("礼券无效", couponUserId));
             }
-
-            price4Coupon = couponTemplate.getPrice();
         }
 
         String orderId = MakeOrderNum.makeOrderNum();
-        int price4wx = template.getRulePrice() - price4Coupon;
-        int price4Gift = template.getPrice();
 
-        fundDetailService.initFund4RechargIn(orderId, price4wx, price4Gift, price4Coupon, new Date());
+        List<OrderVO.PayDetail> payDetails = Lists.newArrayList();
+        Map<String, OrderVO.PayDetail> payDetailMap = orderService.calFeeDetail(rechargeTemplate.getRulePrice(), NumberUtils.INTEGER_ONE, null,
+                couponTemplate, rechargeTemplate, payDetails, false);
 
-        Map<String, OrderVO.PayDetail> payDetailMap = Maps.newHashMap();
 
-        OrderVO.PayDetail payDetail = new OrderVO.PayDetail(OrderService.REAL_PAY_FEE, MoneyUtils.minusUnitFormat(2, price4wx / 100), price4wx);
-        payDetailMap.put(OrderService.REAL_PAY_FEE, payDetail);
+        int price4wx = orderService.calRealPay(payDetailMap).getOriginFee();
 
-        payDetail = new OrderVO.PayDetail(OrderService.GIFT_FEE, MoneyUtils.minusUnitFormat(2, price4Gift / 100), price4Gift);
-        payDetailMap.put(OrderService.GIFT_FEE, payDetail);
-
-        payDetail = new OrderVO.PayDetail(OrderService.COUPON_FEE, MoneyUtils.minusUnitFormat(2, price4Coupon / 100), price4Coupon);
-        payDetailMap.put(OrderService.COUPON_FEE, payDetail);
+        fundDetailService.incomeByRecharg(orderId, payDetailMap, price4wx);
 
         // 生成订单
         OrderMain order = orderService.make(orderId, user.getId(), null, payDetailMap, price4wx,
-        cardId, couponUserId, OrderVO.Status.PENDING.getCode(), OrderVO.Type.COURSE.getCode());
+        cardId, couponUserId, OrderVO.Status.PENDING.getCode(), OrderVO.Type.CARD.getCode());
 
         orderService.sava(order);
 
-        // 礼券要锁定
+        // 锁定礼券
         if (couponUserId != null && couponUserId > NumberUtils.LONG_ZERO) {
             couponService.updateCouponUserStatus(couponUserId, CouponVO.Status.PENDING.getCode(),
                     CouponVO.Status.NORMAL.getCode());
@@ -143,8 +133,6 @@ public class YenCardServiceImpl implements YenCardService{
 
         return orderId;
     }
-
-
 
     @Override
     public void updatePrice(int newCash, int oldCash, int newGift, int oldGift, long id) {

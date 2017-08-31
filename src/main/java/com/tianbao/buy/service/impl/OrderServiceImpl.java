@@ -31,8 +31,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public class OrderServiceImpl implements OrderService {
     private static Logger logger = LoggerFactory.getLogger(OrderServiceImpl.class);
 
-    @Value("${biz.online.reduce}")
-    public static int onlineReduce;
+    @Value("${biz.online.reduce.fee}")
+    public static Integer onlineReduceFee;
 
     @Resource
     private OrderMainManager orderManager;
@@ -171,9 +171,7 @@ public class OrderServiceImpl implements OrderService {
         int realPay = orderVO.getRealPay().getOriginFee();
         Map<String, OrderVO.PayDetail> payDetailMap = context.getPayDetailMap();
 
-        fundDetailService.initFund4PerIn(orderId, realPay, payDetailMap, new Date());
-
-
+        fundDetailService.incomeByPer(orderId, payDetailMap, realPay);
 
         // 生成订单
         OrderMain order = make(orderId, context.getUser().getId(), courseId, payDetailMap, realPay,
@@ -233,7 +231,7 @@ public class OrderServiceImpl implements OrderService {
         // 6. 支付信息
         List<OrderVO.PayDetail> payDetails = Lists.newArrayList();
         Map<String, OrderVO.PayDetail> payDetailMap = calFeeDetail(course.getPrice(), personTime, card,
-                context.getCoupon(), payDetails, true);
+                context.getCoupon(), null, payDetails, true);
         order.setPayDetail(payDetails);
 
         context.setPayDetailMap(payDetailMap);
@@ -249,11 +247,12 @@ public class OrderServiceImpl implements OrderService {
         return order;
     }
 
-    private OrderVO.PayDetail calRealPay(Map<String, OrderVO.PayDetail> map) {
-        int total = map.get("total").getOriginFee();
-        int couponDiscount = map.get("couponDisCount") != null ? map.get("couponDisCount").getOriginFee() : NumberUtils.INTEGER_ZERO;
-        int cardDiscount = map.get("cardDiscount") != null ? map.get("cardDiscount").getOriginFee() : NumberUtils.INTEGER_ZERO;
-        int cardPay = map.get("cardPay") != null ? map.get("cardPay").getOriginFee() : NumberUtils.INTEGER_ZERO;
+    @Override
+    public OrderVO.PayDetail calRealPay(Map<String, OrderVO.PayDetail> payDetailMap) {
+        int total = fundDetailService.getFee(payDetailMap.get(TOTAL_FEE));
+        int couponDiscount = fundDetailService.getFee(payDetailMap.get(COUPON_FEE));
+        int cardDiscount = fundDetailService.getFee(payDetailMap.get(CARD_DISCOUNT));
+        int cardPay = fundDetailService.getFee(payDetailMap.get(CARD_PAY_FEE));
 
         /* 实付款 */
         int realPayFee = total - couponDiscount - cardDiscount - cardPay;
@@ -261,7 +260,8 @@ public class OrderServiceImpl implements OrderService {
         return new OrderVO.PayDetail(REAL_PAY_FEE, MoneyUtils.unitFormat(2, realPayFee / 100), realPayFee);
     }
 
-    private Map<String, OrderVO.PayDetail> calFeeDetail(int unitPrice, int num, YenCard card, CouponTemplate coupon,
+    @Override
+    public Map<String, OrderVO.PayDetail> calFeeDetail(int unitPrice, int num, YenCard card, CouponTemplate coupon, CouponTemplate rechargeTemplate,
                                                         List<OrderVO.PayDetail> payDetails, boolean isPer) {
         checkArgument(unitPrice > NumberUtils.INTEGER_ZERO);
         checkArgument(num > NumberUtils.INTEGER_ZERO);
@@ -277,7 +277,7 @@ public class OrderServiceImpl implements OrderService {
         int balance = total;
 
         /* 在线立减 */
-        int reduce = onlineReduce;
+        int reduce = onlineReduceFee;
         if (reduce > NumberUtils.INTEGER_ZERO) {
             if (reduce > balance) reduce = balance;
 
@@ -304,9 +304,8 @@ public class OrderServiceImpl implements OrderService {
         }
 
         /* 瘾卡优惠 */
-        int cardDiscount = 0;
         if (isPer && card != null && (card.getCashAccount() + card.getGiftAccount() >= balance * card.getDiscountRate() / 100)) {
-            cardDiscount = balance - balance * card.getDiscountRate() / 100;
+            int cardDiscount = balance - balance * card.getDiscountRate() / 100;
             payDetail = new OrderVO.PayDetail(CARD_DISCOUNT, MoneyUtils.minusUnitFormat(2, cardDiscount), cardDiscount);
             payDetails.add(payDetail);
             map.put(CARD_DISCOUNT, payDetail);
@@ -316,9 +315,8 @@ public class OrderServiceImpl implements OrderService {
         }
 
         /* 瘾卡支付 */
-        int cardPay;
-
         if (isPer && card != null) {
+            int cardPay;
             if (card.getCashAccount() + card.getGiftAccount() > balance) {
                 cardPay = balance;
                 payDetail = new OrderVO.PayDetail(CARD_PAY_FEE, MoneyUtils.minusUnitFormat(2, cardPay), cardPay);
@@ -332,7 +330,16 @@ public class OrderServiceImpl implements OrderService {
             }
         }
 
+         /* 充值赠送 */
+        if (!isPer && rechargeTemplate != null) {
+            int gift = rechargeTemplate.getPrice();
+            payDetail = new OrderVO.PayDetail(GIFT_FEE, MoneyUtils.minusUnitFormat(2, gift), gift);
+            payDetails.add(payDetail);
+            map.put(GIFT_FEE, payDetail);
 
+            balance = balance - couponDiscount;
+            if (balance == NumberUtils.INTEGER_ZERO) return map;
+        }
 
         return map;
     }
