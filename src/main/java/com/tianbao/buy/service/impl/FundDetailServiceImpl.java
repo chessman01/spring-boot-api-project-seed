@@ -25,30 +25,32 @@ public class FundDetailServiceImpl implements FundDetailService {
     @Resource
     private FundDetailManager fundDetailManager;
 
+    public List<FundDetail> get(String orderId, FundDetailVO.Status originStatus){
+        Condition condition = new Condition(FundDetail.class);
+        condition.createCriteria().andEqualTo("status", originStatus.getCode()).andEqualTo("orderId", orderId);
+
+        return fundDetailManager.findByCondition(condition);
+    }
+
     @Override
-    public void updateStatus(String orderId, FundDetailVO.Status status) {
+    public void updateStatus(String orderId, FundDetailVO.Status originStatus, FundDetailVO.Status status) {
         FundDetail fundDetail = new FundDetail();
         fundDetail.setStatus(status.getCode());
 
         Condition condition = new Condition(FundDetail.class);
-        condition.createCriteria().andCondition("order_id=", orderId);
+        condition.createCriteria().andEqualTo("status", originStatus.getCode()).andEqualTo("orderId", orderId);
 
         fundDetailManager.update(fundDetail, condition);
     }
 
     @Override
-    public List<FundDetail> refundByPer(String orderId, Map<String, OrderVO.PayDetail> payDetailMap, Integer fee4wx) {
-        return init(orderId, fee4wx, payDetailMap, FundDetailVO.Direction.REFUND_PER);
+    public void refundByPer(String orderId) {
+        updateStatus(orderId, FundDetailVO.Status.FINISH, FundDetailVO.Status.BLOCKED);
     }
 
     @Override
     public List<FundDetail> incomeByPer(String orderId, Map<String, OrderVO.PayDetail> payDetailMap, Integer fee4wx) {
         return init(orderId, fee4wx, payDetailMap, FundDetailVO.Direction.INCOME_PER);
-    }
-
-    @Override
-    public List<FundDetail> refundByRecharg(String orderId, Map<String, OrderVO.PayDetail> payDetailMap, Integer fee4wx) {
-        return init(orderId, fee4wx, payDetailMap, FundDetailVO.Direction.REFUND_CARD);
     }
 
     @Override

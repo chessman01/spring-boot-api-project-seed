@@ -9,6 +9,10 @@ import java.util.List;
 import java.util.Map;
 
 public interface OrderService {
+    void updateStatus(OrderMain order, OrderVO.Status originStatus, String orderId);
+
+    OrderMain getOrder(String orderId, OrderVO.Status originStatus);
+
     List<OrderVO> get(byte status);
 
     int getBoughtNum(long userId);
@@ -35,7 +39,11 @@ public interface OrderService {
 
     public final static String CARD_DISCOUNT = "瘾卡优惠";
 
-    public final static String CARD_PAY_FEE = "瘾卡支付";
+    public final static String CARD_CASH_PAY_FEE = "瘾卡现金账号支付";
+
+    public final static String CARD_GIFT_PAY_FEE = "瘾卡赠送账号支付";
+
+    public final static String CARD_PAY_FEE = "瘾卡赠送账号支付";
 
     public final static String ONLINE_REDUCE = "在线支付立减";
 

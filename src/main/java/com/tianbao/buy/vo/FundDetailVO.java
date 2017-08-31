@@ -80,7 +80,8 @@ public class FundDetailVO extends FundDetail{
         DEL((byte)0, "已删除"),
         PENDING((byte)1, "待处理"),
         FINISH((byte)2, "已处理"),
-        BLOCKED((byte)3, "冻结");
+        BLOCKED((byte)3, "冻结"),
+        CANCELED((byte)3, "已取消");
 
         public byte code;
 

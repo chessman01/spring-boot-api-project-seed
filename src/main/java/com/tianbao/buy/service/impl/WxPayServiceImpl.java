@@ -5,9 +5,7 @@ import com.tianbao.buy.domain.FundDetail;
 import com.tianbao.buy.domain.OrderMain;
 import com.tianbao.buy.manager.FundDetailManager;
 import com.tianbao.buy.manager.OrderMainManager;
-import com.tianbao.buy.service.CouponService;
-import com.tianbao.buy.service.WxPayService;
-import com.tianbao.buy.service.YenCardService;
+import com.tianbao.buy.service.*;
 import com.tianbao.buy.vo.CouponVO;
 import com.tianbao.buy.vo.FundDetailVO;
 import com.tianbao.buy.vo.OrderVO;
@@ -28,19 +26,34 @@ public class WxPayServiceImpl implements WxPayService {
     private CouponService couponService;
 
     @Resource
-    YenCardService yenCardService;
+    private YenCardService yenCardService;
 
     @Resource
-    OrderMainManager orderMainManager;
+    private OrderMainManager orderMainManager;
 
     @Resource
-    FundDetailManager fundDetailManager;
+    private FundDetailService fundDetailService;
+
+    @Resource
+    private OrderService orderService;
 
     @Override
     @Transactional
-    public void paySuccess(String orderId, FundDetailVO.Direction direction) {
+    public void cancel(String orderId) {
+        OrderMain orderMain = this.updateOrder(orderId, OrderVO.Status.CANCLED);
+        this.updateFund(orderId, FundDetailVO.Status.FINISH, FundDetailVO.Status.CANCELED);
+
+        if (orderMain.getCouponId() != null && orderMain.getCouponId() > NumberUtils.LONG_ZERO) {
+            couponService.updateCouponUserStatus(orderMain.getCouponId(), CouponVO.Status.PENDING.getCode(),
+                    CouponVO.Status.USED.getCode());
+        }
+    }
+
+    @Override
+    @Transactional
+    public void paySuccess(String orderId) {
         OrderMain orderMain = this.updateOrder(orderId, OrderVO.Status.PENDING_PAY);
-        this.updateFund(orderId);
+        this.updateFund(orderId, FundDetailVO.Status.PENDING, FundDetailVO.Status.FINISH);
 
         if (orderMain.getCouponId() != null && orderMain.getCouponId() > NumberUtils.LONG_ZERO) {
             couponService.updateCouponUserStatus(orderMain.getCouponId(), CouponVO.Status.USED.getCode(),
@@ -50,14 +63,7 @@ public class WxPayServiceImpl implements WxPayService {
 
     private OrderMain updateOrder(String orderId, OrderVO.Status originStatus) {
         // 先找原始订单
-        Condition condition = new Condition(OrderMain.class);
-        condition.createCriteria().andEqualTo("status", originStatus.getCode()).andCondition("order_id=", orderId);
-
-        List<OrderMain> orderMains = orderMainManager.findByCondition(condition);
-
-        if (orderMains == null || orderMains.size() != NumberUtils.INTEGER_ONE) throw new BizException(String.format("没找到orderId[%s]的订单", orderId));
-        OrderMain origin = orderMains.get(NumberUtils.INTEGER_ZERO);
-
+        OrderMain origin = orderService.getOrder(orderId, originStatus);
         OrderMain order = new OrderMain();
 
         if (origin.getType().equals(OrderVO.Type.CARD.getCode())) {
@@ -72,26 +78,17 @@ public class WxPayServiceImpl implements WxPayService {
             }
         }
 
-        order.setPayTime(new Date());
-
-        orderMainManager.update(order, condition);
+        orderService.updateStatus(order, originStatus, orderId);
         return origin;
     }
 
-    private List<FundDetail> updateFund(String orderId) {
-        // 先找到订单
-        Condition condition = new Condition(FundDetail.class);
-        condition.createCriteria().andEqualTo("status", FundDetailVO.Status.PENDING.getCode()).andEqualTo("orderId", orderId);//.andCondition("order_id=", orderId);
-
-        List<FundDetail> fundDetails = fundDetailManager.findByCondition(condition);
+    private List<FundDetail> updateFund(String orderId, FundDetailVO.Status originStatus, FundDetailVO.Status status) {
+        List<FundDetail> fundDetails = fundDetailService.get(orderId, originStatus);
 
         if (CollectionUtils.isEmpty(fundDetails)) throw new BizException(String.format("没找到orderId[%s]的资金流水", orderId));
 
-        FundDetail fundDetail = new FundDetail();
-        fundDetail.setStatus(FundDetailVO.Status.FINISH.getCode());
-        fundDetailManager.update(fundDetail, condition);
+        fundDetailService.updateStatus(orderId, originStatus, status);
 
         return fundDetails;
     }
-
 }
