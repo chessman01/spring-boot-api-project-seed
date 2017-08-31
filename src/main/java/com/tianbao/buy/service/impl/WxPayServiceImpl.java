@@ -3,7 +3,6 @@ package com.tianbao.buy.service.impl;
 import com.tianbao.buy.core.BizException;
 import com.tianbao.buy.domain.FundDetail;
 import com.tianbao.buy.domain.OrderMain;
-import com.tianbao.buy.domain.YenCard;
 import com.tianbao.buy.manager.FundDetailManager;
 import com.tianbao.buy.manager.OrderMainManager;
 import com.tianbao.buy.service.CouponService;
@@ -37,45 +36,11 @@ public class WxPayServiceImpl implements WxPayService {
     @Resource
     FundDetailManager fundDetailManager;
 
-    private int getCash(List<FundDetail> details) {
-        int cash = 0;
-        for (FundDetail detail : details) {
-            if (detail.getOrigin().equals(FundDetailVO.Channel.WEIXIN.getCode())) {
-                cash = detail.getPrice();
-            }
-        }
-
-        return cash;
-    }
-
-    private int getGift(List<FundDetail> details) {
-        int gift = 0;
-        for (FundDetail detail : details) {
-            if (!detail.getOrigin().equals(FundDetailVO.Channel.WEIXIN.getCode())) {
-                gift = gift + detail.getPrice();
-            }
-        }
-
-        return gift;
-    }
-
     @Override
     @Transactional
     public void paySuccess(String orderId, FundDetailVO.Direction direction) {
-        List<FundDetail> fundDetails;
         OrderMain orderMain = this.updateOrder(orderId, OrderVO.Status.PENDING_PAY);
-
-        if (direction.equals(FundDetailVO.Direction.INCOME_CARD)) {
-            fundDetails = this.updateFund(orderId);
-
-            YenCard card = yenCardService.getSpecify(orderMain.getUserId(), orderMain.getYenCarId());
-            int oldCash = card.getCashAccount();
-            int oldGift = card.getGiftAccount();
-            int newCash = getCash(fundDetails);
-            int newGift = getGift(fundDetails);
-
-            yenCardService.updatePrice(newCash, oldCash, newGift, oldGift, card.getId());
-        }
+        this.updateFund(orderId);
 
         if (orderMain.getCouponId() != null && orderMain.getCouponId() > NumberUtils.LONG_ZERO) {
             couponService.updateCouponUserStatus(orderMain.getCouponId(), CouponVO.Status.USED.getCode(),

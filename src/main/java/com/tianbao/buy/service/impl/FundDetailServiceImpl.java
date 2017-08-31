@@ -37,30 +37,31 @@ public class FundDetailServiceImpl implements FundDetailService {
     }
 
     @Override
-    public void refundByPer(String orderId, Map<String, OrderVO.PayDetail> payDetailMap, Integer fee4wx) {
-        init(orderId, fee4wx, payDetailMap, FundDetailVO.Direction.REFUND_PER);
+    public List<FundDetail> refundByPer(String orderId, Map<String, OrderVO.PayDetail> payDetailMap, Integer fee4wx) {
+        return init(orderId, fee4wx, payDetailMap, FundDetailVO.Direction.REFUND_PER);
     }
 
     @Override
-    public void incomeByPer(String orderId, Map<String, OrderVO.PayDetail> payDetailMap, Integer fee4wx) {
-        init(orderId, fee4wx, payDetailMap, FundDetailVO.Direction.INCOME_PER);
+    public List<FundDetail> incomeByPer(String orderId, Map<String, OrderVO.PayDetail> payDetailMap, Integer fee4wx) {
+        return init(orderId, fee4wx, payDetailMap, FundDetailVO.Direction.INCOME_PER);
     }
 
     @Override
-    public void refundByRecharg(String orderId, Map<String, OrderVO.PayDetail> payDetailMap, Integer fee4wx) {
-        init(orderId, fee4wx, payDetailMap, FundDetailVO.Direction.REFUND_CARD);
+    public List<FundDetail> refundByRecharg(String orderId, Map<String, OrderVO.PayDetail> payDetailMap, Integer fee4wx) {
+        return init(orderId, fee4wx, payDetailMap, FundDetailVO.Direction.REFUND_CARD);
     }
 
     @Override
-    public void incomeByRecharg(String orderId, Map<String, OrderVO.PayDetail> payDetailMap, Integer fee4wx) {
-        init(orderId, fee4wx, payDetailMap, FundDetailVO.Direction.INCOME_CARD);
+    public List<FundDetail> incomeByRecharg(String orderId, Map<String, OrderVO.PayDetail> payDetailMap, Integer fee4wx) {
+        return init(orderId, fee4wx, payDetailMap, FundDetailVO.Direction.INCOME_CARD);
     }
 
     @Override
     public int getFee(OrderVO.PayDetail payDetail) {
         return payDetail != null ? payDetail.getOriginFee() : NumberUtils.INTEGER_ZERO;
     }
-    private void init(String orderId, Integer fee4wx, Map<String, OrderVO.PayDetail> payDetailMap, FundDetailVO.Direction direction) {
+
+    private List<FundDetail> init(String orderId, Integer fee4wx, Map<String, OrderVO.PayDetail> payDetailMap, FundDetailVO.Direction direction) {
         Integer fee4Card = getFee(payDetailMap.get(OrderService.CARD_PAY_FEE));
         Integer fee4Gift = getFee(payDetailMap.get(OrderService.GIFT_FEE));
         Integer fee4Coupon = getFee(payDetailMap.get(OrderService.COUPON_FEE));
@@ -128,6 +129,8 @@ public class FundDetailServiceImpl implements FundDetailService {
         }
 
         fundDetailManager.save(fundDetails);
+
+        return fundDetails;
     }
 
 

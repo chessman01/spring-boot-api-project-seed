@@ -1,17 +1,13 @@
 package com.tianbao.buy.service.impl;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.tianbao.buy.core.BizException;
 import com.tianbao.buy.domain.*;
 import com.tianbao.buy.manager.YenCardManager;
 import com.tianbao.buy.service.*;
 import com.tianbao.buy.utils.MakeOrderNum;
 import com.tianbao.buy.utils.MoneyUtils;
-import com.tianbao.buy.vo.Button;
-import com.tianbao.buy.vo.CouponVO;
-import com.tianbao.buy.vo.OrderVO;
-import com.tianbao.buy.vo.YenCardVO;
+import com.tianbao.buy.vo.*;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,7 +18,6 @@ import org.springframework.util.CollectionUtils;
 import tk.mybatis.mapper.entity.Condition;
 
 import javax.annotation.Resource;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -75,7 +70,7 @@ public class YenCardServiceImpl implements YenCardService{
     public String create(long cardId, long templateId, Long couponUserId) {
         // 1. 找到用户的瘾卡
         User user = userService.getUserByWxUnionId();
-        getSpecify(user.getId(), cardId);
+        YenCard card = getSpecify(user.getId(), cardId);
 
         // 2. 找充值模版
         CouponTemplate rechargeTemplate = couponService.getTemplate(templateId);
@@ -115,7 +110,7 @@ public class YenCardServiceImpl implements YenCardService{
 
         int price4wx = orderService.calRealPay(payDetailMap).getOriginFee();
 
-        fundDetailService.incomeByRecharg(orderId, payDetailMap, price4wx);
+        List<FundDetail> fundDetails = fundDetailService.incomeByRecharg(orderId, payDetailMap, price4wx);
 
         // 生成订单
         OrderMain order = orderService.make(orderId, null, user.getId(), null, payDetailMap, price4wx,
@@ -129,7 +124,36 @@ public class YenCardServiceImpl implements YenCardService{
                     CouponVO.Status.NORMAL.getCode());
         }
 
+        int oldCash = card.getCashAccount();
+        int oldGift = card.getGiftAccount();
+        int newCash = oldCash + getCash(fundDetails);
+        int newGift = oldGift + getGift(fundDetails);
+
+        updatePrice(newCash, oldCash, newGift, oldGift, card.getId());
+
         return orderId;
+    }
+
+    private int getCash(List<FundDetail> details) {
+        int cash = 0;
+        for (FundDetail detail : details) {
+            if (detail.getOrigin().equals(FundDetailVO.Channel.WEIXIN.getCode())) {
+                cash = detail.getPrice();
+            }
+        }
+
+        return cash;
+    }
+
+    private int getGift(List<FundDetail> details) {
+        int gift = 0;
+        for (FundDetail detail : details) {
+            if (!detail.getOrigin().equals(FundDetailVO.Channel.WEIXIN.getCode())) {
+                gift = gift + detail.getPrice();
+            }
+        }
+
+        return gift;
     }
 
     @Override
@@ -141,8 +165,8 @@ public class YenCardServiceImpl implements YenCardService{
                 .andCondition("cash_account=", oldCash).andCondition("gift_account=", oldGift);
 
         YenCard card = new YenCard();
-        card.setGiftAccount(oldGift + newGift);
-        card.setCashAccount(oldCash + newCash);
+        card.setGiftAccount(newGift);
+        card.setCashAccount(newCash);
 
         yenCardManager.update(card, condition);
     }

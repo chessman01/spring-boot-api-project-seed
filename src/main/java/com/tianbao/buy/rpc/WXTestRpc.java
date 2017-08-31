@@ -23,4 +23,11 @@ public class WXTestRpc {
 
         return ResultGenerator.genSuccessResult();
     }
+
+    @PostMapping("/arrival/pre")
+    public Result arrivalPre(@RequestParam String orderId) {
+        wxPayService.paySuccess(orderId, FundDetailVO.Direction.INCOME_PER);
+
+        return ResultGenerator.genSuccessResult();
+    }
 }

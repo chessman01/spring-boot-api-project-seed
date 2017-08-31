@@ -147,7 +147,7 @@ public class OrderServiceImpl implements OrderService {
         int realPay = orderVO.getRealPay().getOriginFee();
         Map<String, OrderVO.PayDetail> payDetailMap = context.getPayDetailMap();
 
-        fundDetailService.incomeByPer(orderId, payDetailMap, realPay);
+        List<FundDetail> fundDetails = fundDetailService.incomeByPer(orderId, payDetailMap, realPay);
 
         if (context.getCouponUser() != null) {
             couponId = context.getCouponUser().getId();
@@ -164,6 +164,47 @@ public class OrderServiceImpl implements OrderService {
             couponService.updateCouponUserStatus(couponId, CouponVO.Status.PENDING.getCode(),
                     CouponVO.Status.NORMAL.getCode());
         }
+
+        int oldCash = context.getCard().getCashAccount();
+        int oldGift = context.getCard().getGiftAccount();
+        int cardPay = getCardPay(fundDetails);
+        int newCash = 0, newGift = 0, balance = cardPay;
+
+        if (cardPay > NumberUtils.INTEGER_ZERO) {
+            if (oldGift + oldGift > cardPay) {
+                throw new BizException("卡余额不够");
+            }
+
+            if (oldGift > NumberUtils.INTEGER_ZERO) {
+                if (cardPay <= oldGift) {
+                    newGift = oldGift - cardPay;
+                    balance = balance - cardPay;
+                } else {
+                    newGift = NumberUtils.INTEGER_ZERO;
+                    balance = balance - oldGift;
+                }
+            }
+
+            if (oldCash > NumberUtils.INTEGER_ZERO) {
+                if (balance > NumberUtils.INTEGER_ZERO) {
+                    newCash = oldCash - balance;
+                }
+
+            }
+        }
+
+        cardService.updatePrice(newCash, oldCash, newGift, oldGift, context.getCard().getId());
+    }
+
+    private int getCardPay(List<FundDetail> details) {
+        int cardPay = 0;
+        for (FundDetail detail : details) {
+            if (detail.getOrigin().equals(FundDetailVO.Channel.YENCARD.getCode())) {
+                cardPay = cardPay + detail.getPrice();
+            }
+        }
+
+        return cardPay;
     }
 
     private OrderVO render(long courseId, Long cardId, Long couponId, int personTime, Context context) {
