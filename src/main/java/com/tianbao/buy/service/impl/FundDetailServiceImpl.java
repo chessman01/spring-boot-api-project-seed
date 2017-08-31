@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import tk.mybatis.mapper.entity.Condition;
 
 import javax.annotation.Resource;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -77,56 +78,57 @@ public class FundDetailServiceImpl implements FundDetailService {
         Integer onlineReduceFee = getFee(payDetailMap.get(OrderService.ONLINE_REDUCE));
 
         List<FundDetail> fundDetails = Lists.newArrayList();
+        Date date = new Date();
 
         // 微信
         if (fee4wx != null && fee4wx > NumberUtils.INTEGER_ZERO) {
-            fundDetails.add(make(orderId, FundDetailVO.Channel.WEIXIN, fee4wx, direction));
+            fundDetails.add(make(orderId, FundDetailVO.Channel.WEIXIN, fee4wx, direction, date));
         }
 
         // 赠送
         if (fee4Gift != null && fee4Gift > NumberUtils.INTEGER_ZERO) {
-            fundDetails.add(make(orderId, FundDetailVO.Channel.GIFT, fee4Gift, direction));
+            fundDetails.add(make(orderId, FundDetailVO.Channel.GIFT, fee4Gift, direction, date));
         }
 
         // 立减
         if (onlineReduceFee != null && onlineReduceFee > NumberUtils.INTEGER_ZERO) {
-            fundDetails.add(make(orderId, FundDetailVO.Channel.REDUCE, onlineReduceFee, direction));
+            fundDetails.add(make(orderId, FundDetailVO.Channel.REDUCE, onlineReduceFee, direction, date));
         }
 
         // 礼券
         if (fee4Coupon != null && fee4Coupon > NumberUtils.INTEGER_ZERO) {
-            fundDetails.add(make(orderId, FundDetailVO.Channel.COUPON, fee4Coupon, direction));
+            fundDetails.add(make(orderId, FundDetailVO.Channel.COUPON, fee4Coupon, direction, date));
         }
 
         // 瘾卡
         if (fee4Card != null && fee4Card > NumberUtils.INTEGER_ZERO) {
-            fundDetails.add(make(orderId, FundDetailVO.Channel.YENCARD, fee4Card, direction));
+            fundDetails.add(make(orderId, FundDetailVO.Channel.YENCARD, fee4Card, direction, date));
         }
 
-        FundDetailVO.Channel from = null, to = null;
+        FundDetailVO.Channel origin = null, target = null;
 
         switch(direction) {
             case INCOME_CARD:
-                to = FundDetailVO.Channel.YENCARD;
+                target = FundDetailVO.Channel.YENCARD;
                 break;
             case REFUND_CARD:
-                from = FundDetailVO.Channel.YENCARD;
+                origin = FundDetailVO.Channel.YENCARD;
                 break;
             case INCOME_PER:
-                to = FundDetailVO.Channel.END;
+                target = FundDetailVO.Channel.END;
                 break;
             case REFUND_PER:
-                from = FundDetailVO.Channel.END;
+                origin = FundDetailVO.Channel.END;
                 break;
         }
 
         for (FundDetail fundDetail : fundDetails) {
-            if (from != null) {
-                fundDetail.setFrom(from.getCode());
+            if (origin != null) {
+                fundDetail.setOrigin(origin.getCode());
             }
 
-            if (to != null) {
-                fundDetail.setTo(from.getCode());
+            if (target != null) {
+                fundDetail.setTarget(target.getCode());
             }
         }
 
@@ -134,14 +136,17 @@ public class FundDetailServiceImpl implements FundDetailService {
     }
 
 
-    private FundDetail make(String orderId, FundDetailVO.Channel channel, Integer price, FundDetailVO.Direction direction) {
+    private FundDetail make(String orderId, FundDetailVO.Channel channel, Integer price, FundDetailVO.Direction direction, Date date) {
         FundDetail fundDetail = new FundDetail();
 
+        fundDetail.setCreateTime(date);
+        fundDetail.setModifyTime(date);
         fundDetail.setOrderId(orderId);
         fundDetail.setPrice(price);
-        fundDetail.setFrom(channel.getCode());
-        fundDetail.setTo(channel.getCode());
+        fundDetail.setOrigin(channel.getCode());
+        fundDetail.setTarget(channel.getCode());
         fundDetail.setDirection(direction.getCode());
+        fundDetail.setStatus(FundDetailVO.Status.PENDING.getCode());
 
         return fundDetail;
     }

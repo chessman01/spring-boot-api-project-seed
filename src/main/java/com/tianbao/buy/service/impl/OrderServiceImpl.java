@@ -32,7 +32,7 @@ public class OrderServiceImpl implements OrderService {
     private static Logger logger = LoggerFactory.getLogger(OrderServiceImpl.class);
 
     @Value("${biz.online.reduce.fee}")
-    public static Integer onlineReduceFee;
+    public int onlineReduceFee;
 
     @Resource
     private OrderMainManager orderManager;
@@ -253,9 +253,10 @@ public class OrderServiceImpl implements OrderService {
         int couponDiscount = fundDetailService.getFee(payDetailMap.get(COUPON_FEE));
         int cardDiscount = fundDetailService.getFee(payDetailMap.get(CARD_DISCOUNT));
         int cardPay = fundDetailService.getFee(payDetailMap.get(CARD_PAY_FEE));
+        int onlineReduce = fundDetailService.getFee(payDetailMap.get(ONLINE_REDUCE));
 
         /* 实付款 */
-        int realPayFee = total - couponDiscount - cardDiscount - cardPay;
+        int realPayFee = total - couponDiscount - cardDiscount - cardPay - onlineReduce;
 
         return new OrderVO.PayDetail(REAL_PAY_FEE, MoneyUtils.unitFormat(2, realPayFee / 100), realPayFee);
     }

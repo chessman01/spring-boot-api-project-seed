@@ -38,12 +38,12 @@ public class FundDetail {
     /**
      * 支付通道。0：瘾卡；1：微信；2：礼券；3：赠送；4：立减；8：结束
      */
-    private Byte from;
+    private Byte origin;
 
     /**
      * 支付通道。0：瘾卡；1：微信；2：礼券；3：赠送；4：立减；8：结束
      */
-    private Byte to;
+    private Byte target;
 
     /**
      * 流动方向。1：瘾卡充值退回；2：瘾卡充值进账；3：按次消费退回；4：按次消费进账；
@@ -148,37 +148,37 @@ public class FundDetail {
     /**
      * 获取支付通道。0：瘾卡；1：微信；2：礼券；3：赠送；4：立减；8：结束
      *
-     * @return from - 支付通道。0：瘾卡；1：微信；2：礼券；3：赠送；4：立减；8：结束
+     * @return origin - 支付通道。0：瘾卡；1：微信；2：礼券；3：赠送；4：立减；8：结束
      */
-    public Byte getFrom() {
-        return from;
+    public Byte getOrigin() {
+        return origin;
     }
 
     /**
      * 设置支付通道。0：瘾卡；1：微信；2：礼券；3：赠送；4：立减；8：结束
      *
-     * @param from 支付通道。0：瘾卡；1：微信；2：礼券；3：赠送；4：立减；8：结束
+     * @param origin 支付通道。0：瘾卡；1：微信；2：礼券；3：赠送；4：立减；8：结束
      */
-    public void setFrom(Byte from) {
-        this.from = from;
+    public void setOrigin(Byte origin) {
+        this.origin = origin;
     }
 
     /**
      * 获取支付通道。0：瘾卡；1：微信；2：礼券；3：赠送；4：立减；8：结束
      *
-     * @return to - 支付通道。0：瘾卡；1：微信；2：礼券；3：赠送；4：立减；8：结束
+     * @return target - 支付通道。0：瘾卡；1：微信；2：礼券；3：赠送；4：立减；8：结束
      */
-    public Byte getTo() {
-        return to;
+    public Byte getTarget() {
+        return target;
     }
 
     /**
      * 设置支付通道。0：瘾卡；1：微信；2：礼券；3：赠送；4：立减；8：结束
      *
-     * @param to 支付通道。0：瘾卡；1：微信；2：礼券；3：赠送；4：立减；8：结束
+     * @param target 支付通道。0：瘾卡；1：微信；2：礼券；3：赠送；4：立减；8：结束
      */
-    public void setTo(Byte to) {
-        this.to = to;
+    public void setTarget(Byte target) {
+        this.target = target;
     }
 
     /**
