@@ -109,7 +109,7 @@ public class QuartzTask {
         couponUserManager.update(couponUser, couponUserCondition);
     }
 
-    @Scheduled(cron = "0 1 * ? * *")
+    @Scheduled(cron = "0 0 0 1/1 * ?")
     @Transactional
     public void expiredCourse() throws Exception {
         Course course = new Course();

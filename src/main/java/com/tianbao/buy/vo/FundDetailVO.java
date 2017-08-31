@@ -13,6 +13,7 @@ public class FundDetailVO extends FundDetail{
         COUPON((byte)2, "礼券"),
         GIFT((byte)3, "赠送"),
         REDUCE((byte)4, "立减"),
+        CARD_DISCOUNT((byte)5, "卡折扣"),
         END((byte)8, "结束");
 
         public byte code;

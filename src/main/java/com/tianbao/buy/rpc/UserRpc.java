@@ -19,7 +19,7 @@ public class UserRpc {
 
     /** 获取手机验证码，如果是确认朋友推荐，如果自已已购买过，则不能再由朋友推荐 **/
     @PostMapping("/pin")
-    public Result getPin(@RequestParam String phone, @RequestParam boolean isObtainRecommend) {
+    public Result getPin(@RequestParam String phone, boolean isObtainRecommend) {
         boolean result = userService.getPin(phone, isObtainRecommend);
         return ResultGenerator.genSuccessResult(result, "验证码发放成功.");
     }

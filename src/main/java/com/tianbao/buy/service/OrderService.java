@@ -17,9 +17,9 @@ public interface OrderService {
 
     OrderVO adjust(long courseId, Long cardId, Long couponId, int personTime);
 
-    String create(long courseId, Long couponId, int personTime, Long cardId);
+    void create(long courseId, Long couponId, Byte personTime, Long cardId);
 
-    OrderMain make(String orderId, Long userId, Long classId, Map<String, OrderVO.PayDetail> payDetailMap, int realPay,
+    OrderMain make(String orderId, Byte personTime, Long userId, Long classId, Map<String, OrderVO.PayDetail> payDetailMap, int realPay,
                    Long yenCardId, Long couponId, Byte status, Byte type);
 
     void sava (OrderMain order);

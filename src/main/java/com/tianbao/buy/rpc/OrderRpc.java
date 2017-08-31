@@ -24,13 +24,6 @@ public class OrderRpc {
     @Resource
     private OrderService orderService;
 
-//    @PostMapping("/list")
-//    public Result list() {
-//        List<YenCardVO> voList = yenCardServiceImpl.getCardByUser();
-//
-//        return ResultGenerator.genSuccessResult(voList);
-//    }
-
     @PostMapping("/list")
     public Result list(@RequestParam(defaultValue = "1") Byte status) {
         List<OrderVO> couponVOs = orderService.get(status);
@@ -53,9 +46,9 @@ public class OrderRpc {
     }
 
     @PostMapping("/create")
-    public Result create(@RequestParam long courseId, Long couponId, @RequestParam int personTime, Long cardId) {
-        String url = orderService.create(courseId, couponId, personTime, cardId);
+    public Result create(@RequestParam long courseId, Long couponId, @RequestParam Byte personTime, Long cardId) {
+        orderService.create(courseId, couponId, personTime, cardId);
 
-        return ResultGenerator.genSuccessResult(url);
+        return ResultGenerator.genSuccessResult();
     }
 }

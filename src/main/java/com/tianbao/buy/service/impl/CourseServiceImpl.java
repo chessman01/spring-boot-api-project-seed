@@ -70,7 +70,10 @@ public class CourseServiceImpl implements CourseService {
 
     @Override
     public Map<Long, Course> getCourse(Set<Long> ids) {
-        checkArgument(!CollectionUtils.isEmpty(ids), "ids is empty.");
+        if (CollectionUtils.isEmpty(ids)) {
+            return Maps.newHashMap();
+        }
+
         Condition condition = new Condition(Course.class);
         condition.createCriteria().andIn("id", ids);
 
@@ -244,7 +247,18 @@ public class CourseServiceImpl implements CourseService {
         if(isFilter) filter(courseVOs);
 
         CourseVO courseVO = courseVOs.get(NumberUtils.INTEGER_ZERO);
-        courseVO.getButton().setTitle("立即预约");
+
+        if (courseVO.getButton().getTitle().equals("预约")) {
+            courseVO.getButton().setTitle("立即预约");
+        }
+
+        if (courseVO.getButton().getTitle().equals("满员")) {
+            courseVO.getButton().setTitle("已满员");
+        }
+
+        if (courseVO.getButton().getTitle().equals("结束")) {
+            courseVO.getButton().setTitle("已结束");
+        }
 
         return courseVO;
     }
@@ -268,8 +282,8 @@ public class CourseServiceImpl implements CourseService {
                     + DateUtils.hourMinuteFormat(new DateTime(course.getEndTime())));
 
             Button button = new Button();
-            button.setTitle("预约");
 
+            button.setTitle("预约");
             if (course.getStock() < 10) {
                 courseVO.setStockIcon(lowStockPic);
             }
@@ -277,10 +291,16 @@ public class CourseServiceImpl implements CourseService {
             if (course.getStock() == 0 ) {
                 courseVO.setStockIcon(sellOutPic);
                 button.setDisable(false);
+                button.setTitle("满员");
             }
 
             if (!course.getStatus().equals(CouponVO.Status.NORMAL.getCode())) {
                 button.setDisable(false);
+            }
+
+            if (new DateTime(course.getStartTime()).isBeforeNow()) {
+                button.setDisable(false);
+                button.setTitle("结束");
             }
 
             courseVO.setButton(button);

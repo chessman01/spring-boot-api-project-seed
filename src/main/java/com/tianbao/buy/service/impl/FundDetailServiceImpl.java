@@ -1,7 +1,6 @@
 package com.tianbao.buy.service.impl;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.tianbao.buy.domain.FundDetail;
 import com.tianbao.buy.manager.FundDetailManager;
 import com.tianbao.buy.service.FundDetailService;
@@ -25,16 +24,6 @@ public class FundDetailServiceImpl implements FundDetailService {
 
     @Resource
     private FundDetailManager fundDetailManager;
-
-//    @Override
-//    public Map<String, OrderVO.PayDetail> toMap(List<OrderVO.PayDetail> payDetails) {
-//        Map<String, OrderVO.PayDetail> payDetailMap = Maps.newHashMap();
-//
-//        for (OrderVO.PayDetail payDetail : payDetails) {
-//            payDetailMap.put(payDetail.getTitle(), payDetail);
-//        }
-//        return payDetailMap;
-//    }
 
     @Override
     public void updateStatus(String orderId, FundDetailVO.Status status) {
@@ -76,6 +65,7 @@ public class FundDetailServiceImpl implements FundDetailService {
         Integer fee4Gift = getFee(payDetailMap.get(OrderService.GIFT_FEE));
         Integer fee4Coupon = getFee(payDetailMap.get(OrderService.COUPON_FEE));
         Integer onlineReduceFee = getFee(payDetailMap.get(OrderService.ONLINE_REDUCE));
+        Integer cardDiscount = getFee(payDetailMap.get(OrderService.CARD_DISCOUNT));
 
         List<FundDetail> fundDetails = Lists.newArrayList();
         Date date = new Date();
@@ -103,6 +93,11 @@ public class FundDetailServiceImpl implements FundDetailService {
         // 瘾卡
         if (fee4Card != null && fee4Card > NumberUtils.INTEGER_ZERO) {
             fundDetails.add(make(orderId, FundDetailVO.Channel.YENCARD, fee4Card, direction, date));
+        }
+
+        // 瘾卡折扣
+        if (cardDiscount != null && cardDiscount > NumberUtils.INTEGER_ZERO) {
+            fundDetails.add(make(orderId, FundDetailVO.Channel.CARD_DISCOUNT, cardDiscount, direction, date));
         }
 
         FundDetailVO.Channel origin = null, target = null;

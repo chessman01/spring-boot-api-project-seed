@@ -118,7 +118,7 @@ public class YenCardServiceImpl implements YenCardService{
         fundDetailService.incomeByRecharg(orderId, payDetailMap, price4wx);
 
         // 生成订单
-        OrderMain order = orderService.make(orderId, user.getId(), null, payDetailMap, price4wx,
+        OrderMain order = orderService.make(orderId, null, user.getId(), null, payDetailMap, price4wx,
         cardId, couponUserId, OrderVO.Status.PENDING_PAY.getCode(), OrderVO.Type.CARD.getCode());
 
         orderService.sava(order);

@@ -19,6 +19,7 @@ import org.springframework.util.CollectionUtils;
 import tk.mybatis.mapper.entity.Condition;
 
 import javax.annotation.Resource;
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -105,6 +106,8 @@ public class WxPayServiceImpl implements WxPayService {
                 order.setStatus(OrderVO.Status.CANCLED.getCode());
             }
         }
+
+        order.setPayTime(new Date());
 
         orderMainManager.update(order, condition);
         return origin;

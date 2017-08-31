@@ -130,7 +130,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public User getUserByuserId(long userId) {
         User user = userManager.findById(userId);
-        if (!user.getStatus().equals(UserVO.Status.NORMAL.getCode())) throw new BizException("用户状态异常，请联系系统方");
+        if (user == null || !user.getStatus().equals(UserVO.Status.NORMAL.getCode())) throw new BizException("用户状态异常，请联系系统方");
         return user;
     }
 
