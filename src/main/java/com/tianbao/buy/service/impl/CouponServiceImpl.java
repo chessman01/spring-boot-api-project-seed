@@ -416,7 +416,8 @@ public class CouponServiceImpl implements CouponService {
 
         condition.createCriteria().andCondition("user_id=", userId)
                 .andIn("status", Lists.newArrayList(CouponVO.Status.NORMAL.getCode(),
-                        CouponVO.Status.EXPIRED.getCode(), CouponVO.Status.USED.getCode()));
+                        CouponVO.Status.EXPIRED.getCode(), CouponVO.Status.USED.getCode(),
+                        CouponVO.Status.PENDING.getCode()));
 
         List<CouponUser> couponUsers = couponUserManager.findByCondition(condition);
 
