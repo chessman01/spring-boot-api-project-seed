@@ -51,7 +51,7 @@ public class QuartzTask {
         Condition condition = new Condition(OrderMain.class);
         DateTime dt = new DateTime().minusHours(1);
 
-        condition.createCriteria().andCondition("status=", OrderVO.Status.PENDING.getCode())
+        condition.createCriteria().andCondition("status=", OrderVO.Status.PENDING_PAY.getCode())
                 .andCondition("modify_time<", dt.toDate());
 
         List<OrderMain> orders = orderMainManager.findByCondition(condition);

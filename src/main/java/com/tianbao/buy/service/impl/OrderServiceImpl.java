@@ -175,7 +175,7 @@ public class OrderServiceImpl implements OrderService {
 
         // 生成订单
         OrderMain order = make(orderId, context.getUser().getId(), courseId, payDetailMap, realPay,
-                cardId, couponId, OrderVO.Status.PENDING.getCode(), OrderVO.Type.COURSE.getCode());
+                cardId, couponId, OrderVO.Status.PENDING_PAY.getCode(), OrderVO.Type.COURSE.getCode());
 
         sava(order);
 

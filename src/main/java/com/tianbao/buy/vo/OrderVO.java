@@ -91,13 +91,14 @@ public class OrderVO {
     }
 
     public enum Status {
-        // 状态。0：软删除；1：待处理；2：已预约；3：已完成；4：已取消；5：冻结
+        // 状态。0：软删除；1：待支付；2：已预约；3：已完成；4：待取消；5：已取消；6：冻结
         DEL((byte)0, "已删除"),
-        PENDING((byte)1, "待处理"),
+        PENDING_PAY((byte)1, "待支付"),
         ORDER((byte)2, "已预约"),
         END((byte)3, "已完成"),
-        CANCLE((byte)4, "已取消"),
-        BLOCKED((byte)5, "冻结");
+        PENDING_CANCLE((byte)4, "待取消"),
+        CANCLED((byte)5, "已取消"),
+        BLOCKED((byte)6, "冻结");
 
         public byte code;
 

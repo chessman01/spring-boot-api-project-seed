@@ -75,7 +75,6 @@ public class YenCardServiceImpl implements YenCardService{
     public String create(long cardId, long templateId, Long couponUserId) {
         // 1. 找到用户的瘾卡
         User user = userService.getUserByWxUnionId();
-
         getSpecify(user.getId(), cardId);
 
         // 2. 找充值模版
@@ -87,7 +86,6 @@ public class YenCardServiceImpl implements YenCardService{
             throw new BizException("充值模版无效");
         }
 
-        int price4Coupon = 0;
         CouponTemplate couponTemplate = null;
 
         // 3. 找礼券
@@ -121,7 +119,7 @@ public class YenCardServiceImpl implements YenCardService{
 
         // 生成订单
         OrderMain order = orderService.make(orderId, user.getId(), null, payDetailMap, price4wx,
-        cardId, couponUserId, OrderVO.Status.PENDING.getCode(), OrderVO.Type.CARD.getCode());
+        cardId, couponUserId, OrderVO.Status.PENDING_PAY.getCode(), OrderVO.Type.CARD.getCode());
 
         orderService.sava(order);
 
