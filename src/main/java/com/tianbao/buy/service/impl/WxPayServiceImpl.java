@@ -61,23 +61,31 @@ public class WxPayServiceImpl implements WxPayService {
         }
 
         List<FundDetail> fundDetails = this.updateFund(orderId, FundDetailVO.Status.PENDING, FundDetailVO.Status.FINISH);
-        this.adjustCardAccount(fundDetails, orderMain);
+        FundDetailVO.Direction direction = FundDetailVO.Direction.INCOME_PER;
+
+        if (orderMain.getType().equals(OrderVO.Type.CARD.getCode())) {
+            direction = FundDetailVO.Direction.INCOME_CARD;
+        }
+
+        this.adjustCardAccount(fundDetails, orderMain, direction);
     }
 
-    private void  adjustCardAccount (List<FundDetail> fundDetails, OrderMain orderMain) {
-        if (orderMain.getType().equals(OrderVO.Type.CARD.getCode())) {
-            YenCard card = cardService.getSpecify(orderMain.getUserId(), orderMain.getYenCardId());
+    private void  adjustCardAccount (List<FundDetail> fundDetails, OrderMain orderMain, FundDetailVO.Direction direction) {
+        YenCard card = cardService.getSpecify(orderMain.getUserId(), orderMain.getYenCardId());
+        int oldCash = card.getCashAccount();
+        int oldGift = card.getGiftAccount();
 
-            int oldCash = card.getCashAccount();
-            int oldGift = card.getGiftAccount();
+        if (orderMain.getType().equals(OrderVO.Type.CARD.getCode()) && direction.equals(FundDetailVO.Direction.INCOME_CARD)) {
             int newCash = oldCash + fundDetailService.getCardFee(fundDetails, true, true);
             int newGift = oldGift + fundDetailService.getCardFee(fundDetails, false, true);
 
             cardService.updatePrice(newCash, oldCash, newGift, oldGift, card.getId());
         }
 
-        if (orderMain.getType().equals(OrderVO.Type.COURSE.getCode())) {
-
+        if (orderMain.getType().equals(OrderVO.Type.COURSE.getCode()) && direction.equals(FundDetailVO.Direction.INCOME_PER)) {
+            int newCash = oldCash - fundDetailService.getCardFee(fundDetails, true, false);
+            int newGift = oldGift - fundDetailService.getCardFee(fundDetails, false, false);
+            cardService.updatePrice(newCash, oldCash, newGift, oldGift, card.getId());
         }
     }
 

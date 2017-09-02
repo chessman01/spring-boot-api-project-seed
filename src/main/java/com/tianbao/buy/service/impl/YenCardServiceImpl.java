@@ -112,7 +112,7 @@ public class YenCardServiceImpl implements YenCardService{
 
         int realPay = orderService.calRealPay(payDetailMap).getOriginFee();
 
-        fundDetailService.incomeByRecharg(orderId, payDetailMap, realPay);
+        fundDetailService.incomeByRecharge(orderId, payDetailMap, realPay);
 
         // 生成订单
         OrderMain order = orderService.make(orderId, null, user.getId(), null, cardId, couponUserId,
@@ -131,6 +131,9 @@ public class YenCardServiceImpl implements YenCardService{
 
     @Override
     public void updatePrice(int newCash, int oldCash, int newGift, int oldGift, long id) {
+        checkArgument(newCash > NumberUtils.INTEGER_ZERO);
+        checkArgument(newGift > NumberUtils.INTEGER_ZERO);
+
         Condition condition = new Condition(YenCard.class);
 
         condition.createCriteria().andCondition("id=", id)
@@ -268,5 +271,64 @@ public class YenCardServiceImpl implements YenCardService{
         }
 
         return cardVOs;
+    }
+
+    @Override
+    public OrderVO.PayDetail getRealPay(List<FundDetail> fundDetails) {
+        OrderVO.PayDetail payDetail = new OrderVO.PayDetail(OrderService.REAL_PAY_FEE, MoneyUtils.unitFormat(2, 0), 0);
+        if (CollectionUtils.isEmpty(fundDetails)) return payDetail;
+
+        for (FundDetail fundDetail : fundDetails) {
+            if (fundDetail.getOrigin().equals(FundDetailVO.Channel.WEIXIN.getCode())) {
+                payDetail = new OrderVO.PayDetail(OrderService.REAL_PAY_FEE, MoneyUtils.unitFormat(2, fundDetail.getPrice() / 100), fundDetail.getPrice());
+                break;
+            }
+        }
+
+        return payDetail;
+    }
+
+    @Override
+    public List<OrderVO.PayDetail> getPayDetail(List<FundDetail> fundDetails) {
+        List<OrderVO.PayDetail> payDetails = Lists.newArrayList();
+        if (CollectionUtils.isEmpty(fundDetails)) return payDetails;
+        int total = 0, cardPay = 0;
+
+        for (FundDetail fundDetail : fundDetails) {
+            total = total + fundDetail.getPrice();
+
+            if (fundDetail.getOrigin().equals(FundDetailVO.Channel.CARD_CASH.getCode()) ||
+                    fundDetail.getOrigin().equals(FundDetailVO.Channel.CARD_GIFT.getCode())) {
+                cardPay = cardPay + fundDetail.getPrice();
+            }
+        }
+
+        OrderVO.PayDetail payDetail = new OrderVO.PayDetail(OrderService.CARD_PAY_FEE, MoneyUtils.unitFormat(2, total / 100), total);
+        payDetails.add(payDetail);
+
+        payDetail = new OrderVO.PayDetail(OrderService.TOTAL_FEE, MoneyUtils.minusUnitFormat(2, cardPay / 100), cardPay);
+        payDetails.add(payDetail);
+
+        for (FundDetail fundDetail : fundDetails) {
+            if (fundDetail.getOrigin().equals(FundDetailVO.Channel.CARD_DISCOUNT.getCode())) {
+                payDetail = new OrderVO.PayDetail(OrderService.CARD_DISCOUNT, MoneyUtils.minusUnitFormat(2, fundDetail.getPrice() / 100), fundDetail.getPrice());
+                payDetails.add(payDetail);
+                continue;
+            }
+
+            if (fundDetail.getOrigin().equals(FundDetailVO.Channel.REDUCE.getCode())) {
+                payDetail = new OrderVO.PayDetail(OrderService.ONLINE_REDUCE, MoneyUtils.minusUnitFormat(2, fundDetail.getPrice() / 100), fundDetail.getPrice());
+                payDetails.add(payDetail);
+                continue;
+            }
+
+            if (fundDetail.getOrigin().equals(FundDetailVO.Channel.COUPON.getCode())) {
+                payDetail = new OrderVO.PayDetail(OrderService.COUPON_FEE, MoneyUtils.minusUnitFormat(2, fundDetail.getPrice() / 100), fundDetail.getPrice());
+                payDetails.add(payDetail);
+                continue;
+            }
+        }
+
+        return payDetails;
     }
 }

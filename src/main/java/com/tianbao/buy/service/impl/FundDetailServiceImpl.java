@@ -12,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import tk.mybatis.mapper.entity.Condition;
+import tk.mybatis.mapper.entity.Example;
 
 import javax.annotation.Resource;
 import java.util.Date;
@@ -25,9 +26,12 @@ public class FundDetailServiceImpl implements FundDetailService {
     @Resource
     private FundDetailManager fundDetailManager;
 
+    @Override
     public List<FundDetail> get(String orderId, FundDetailVO.Status originStatus){
         Condition condition = new Condition(FundDetail.class);
-        condition.createCriteria().andEqualTo("status", originStatus.getCode()).andEqualTo("orderId", orderId);
+        Example.Criteria criteria = condition.createCriteria().andEqualTo("orderId", orderId);
+
+        if (originStatus != null) criteria.andEqualTo("status", originStatus.getCode());
 
         return fundDetailManager.findByCondition(condition);
     }
@@ -55,7 +59,7 @@ public class FundDetailServiceImpl implements FundDetailService {
     }
 
     @Override
-    public List<FundDetail> incomeByRecharg(String orderId, Map<String, OrderVO.PayDetail> payDetailMap, Integer fee4wx) {
+    public List<FundDetail> incomeByRecharge(String orderId, Map<String, OrderVO.PayDetail> payDetailMap, Integer fee4wx) {
         return init(orderId, fee4wx, payDetailMap, FundDetailVO.Direction.INCOME_CARD);
     }
 

@@ -70,11 +70,11 @@ public class OrderServiceImpl implements OrderService {
         condition.createCriteria().andEqualTo("status", status).andCondition("user_id=", user.getId())
                 .andCondition("type=", OrderVO.Type.COURSE.getCode());
 
-        List<OrderMain> orderMains = orderManager.findByCondition(condition);
+        List<OrderMain> orders = orderManager.findByCondition(condition);
 
         Set<Long> courseIds = Sets.newHashSet();
 
-        for (OrderMain orderMain : orderMains) {
+        for (OrderMain orderMain : orders) {
             courseIds.add(orderMain.getClassId());
         }
 
@@ -82,44 +82,31 @@ public class OrderServiceImpl implements OrderService {
 
         List<OrderVO> orderVOs = Lists.newArrayList();
 
-        for (OrderMain orderMain : orderMains) {
-            OrderVO orderVO = convert2OrderVO(orderMain, courseMap.get(orderMain.getClassId()));
+        for (OrderMain orderMain : orders) {
+            OrderVO orderVO = convert2OrderVO(orderMain, courseMap.get(orderMain.getClassId()), false);
             orderVOs.add(orderVO);
         }
 
         return orderVOs;
     }
 
-    private OrderVO convert2OrderVO(OrderMain orderMain, Course course) {
+    private OrderVO convert2OrderVO(OrderMain orderMain, Course course, boolean isDetail) {
         checkNotNull(orderMain);
         checkNotNull(course);
 
         OrderVO order = new OrderVO();
+        List<FundDetail> fundDetails = fundDetailService.get(orderMain.getOrderId(), null);
 
-        /* 实付款 */
-//        int realPayFee = orderMain.getRealPay();
-//        int yenCardPayPrice = orderMain.getYenCardPayPrice();
-//        int couponDiscount = orderMain.getCouponDiscount();
-//        int onlineDiscount = orderMain.getOnlineDiscount();
-//        int yenCardDiscount = orderMain.getYenCardDiscount();
-//
-//        List<OrderVO.PayDetail> payDetails = Lists.newArrayList();
-//        order.setRealPay(new OrderVO.PayDetail(REAL_PAY_FEE, MoneyUtils.unitFormat(2, realPayFee / 100), realPayFee));
-//        payDetails.add(new OrderVO.PayDetail(TOTAL_FEE, MoneyUtils.unitFormat(2, course.getPrice() * orderMain.getPersonTime() / 100),
-//                course.getPrice() * orderMain.getPersonTime()));
-//        if (yenCardDiscount > 0) payDetails.add(new OrderVO.PayDetail(CARD_DISCOUNT, MoneyUtils.unitFormat(2, yenCardDiscount / 100), yenCardDiscount));
-//        if (onlineDiscount > 0) payDetails.add(new OrderVO.PayDetail(ONLINE_REDUCE, MoneyUtils.unitFormat(2, onlineDiscount / 100), onlineDiscount));
-//        if (couponDiscount > 0) payDetails.add(new OrderVO.PayDetail(COUPON_FEE, MoneyUtils.unitFormat(2, couponDiscount / 100), couponDiscount));
-//        if (yenCardPayPrice > 0) payDetails.add(new OrderVO.PayDetail(CARD_PAY_FEE, MoneyUtils.unitFormat(2, yenCardPayPrice / 100), yenCardPayPrice));
+        if (isDetail) {
+            order.setPayDetail(cardService.getPayDetail(fundDetails));
 
-//        order.setPayDetail(payDetails);
+            Button button = new Button();
+            button.setTitle("取消预约");
+            order.setButton(button);
+        }
+
         order.setCourse(courseService.convert2CourseVO(course, true));
-
-        Button button = new Button();
-        button.setTitle("取消预约");
-
-
-        order.setButton(button);
+        order.setRealPay(cardService.getRealPay(fundDetails));
 
         return order;
     }

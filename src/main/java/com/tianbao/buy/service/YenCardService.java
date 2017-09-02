@@ -3,6 +3,7 @@ package com.tianbao.buy.service;
 import com.tianbao.buy.domain.FundDetail;
 import com.tianbao.buy.domain.YenCard;
 import com.tianbao.buy.vo.Button;
+import com.tianbao.buy.vo.OrderVO;
 import com.tianbao.buy.vo.YenCardVO;
 
 import java.util.List;
@@ -27,4 +28,8 @@ public interface YenCardService {
     YenCardVO adjust(long cardId, long templateId, Long couponId);
 
     YenCardVO convert2CardVO(YenCard YenCard);
+
+    OrderVO.PayDetail getRealPay(List<FundDetail> fundDetails);
+
+    List<OrderVO.PayDetail> getPayDetail(List<FundDetail> fundDetails);
 }
