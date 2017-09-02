@@ -14,6 +14,7 @@
     <result column="status" jdbcType="TINYINT" property="status" />
     <result column="pay_time" jdbcType="TIMESTAMP" property="payTime" />
     <result column="person_time" jdbcType="TINYINT" property="personTime" />
+    <result column="recharge_template_id" jdbcType="BIGINT" property="rechargeTemplateId" />
     <result column="yen_card_id" jdbcType="BIGINT" property="yenCardId" />
     <result column="coupon_id" jdbcType="BIGINT" property="couponId" />
     <result column="pay_order_id" jdbcType="VARCHAR" property="payOrderId" />

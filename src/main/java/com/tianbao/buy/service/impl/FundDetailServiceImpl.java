@@ -44,8 +44,9 @@ public class FundDetailServiceImpl implements FundDetailService {
     }
 
     @Override
-    public void refundByPer(String orderId) {
+    public List<FundDetail> refundByPer(String orderId) {
         updateStatus(orderId, FundDetailVO.Status.FINISH, FundDetailVO.Status.BLOCKED);
+        return null;
     }
 
     @Override
@@ -56,6 +57,31 @@ public class FundDetailServiceImpl implements FundDetailService {
     @Override
     public List<FundDetail> incomeByRecharg(String orderId, Map<String, OrderVO.PayDetail> payDetailMap, Integer fee4wx) {
         return init(orderId, fee4wx, payDetailMap, FundDetailVO.Direction.INCOME_CARD);
+    }
+
+    @Override
+    public int getCardFee(List<FundDetail> details, boolean isCash, boolean isRecharge) {
+        int fee = 0;
+
+        for (FundDetail detail : details) {
+            if (isCash && isRecharge && detail.getOrigin().equals(FundDetailVO.Channel.WEIXIN.getCode())) {
+                return detail.getPrice();
+            }
+
+            if (isCash && !isRecharge && detail.getTarget().equals(FundDetailVO.Channel.WEIXIN.getCode())) {
+                return detail.getPrice();
+            }
+
+            if (!isCash && isRecharge && !detail.getOrigin().equals(FundDetailVO.Channel.WEIXIN.getCode())) {
+                fee = fee + detail.getPrice();
+            }
+
+            if (!isCash && !isRecharge && !detail.getTarget().equals(FundDetailVO.Channel.WEIXIN.getCode())) {
+                fee = fee + detail.getPrice();
+            }
+        }
+
+        return fee;
     }
 
     @Override

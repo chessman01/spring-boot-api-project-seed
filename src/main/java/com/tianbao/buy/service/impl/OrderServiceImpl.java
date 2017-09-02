@@ -422,7 +422,7 @@ public class OrderServiceImpl implements OrderService {
         List<OrderMain> orderMains = orderManager.findByCondition(condition);
 
         if (orderMains == null || orderMains.size() != NumberUtils.INTEGER_ONE)
-            throw new BizException(String.format("没找到orderId[%s]的订单", orderId));
+            throw new BizException(String.format("没找到状态为[%d]orderId[%s]的订单", originStatus.getCode(), orderId));
         return orderMains.get(NumberUtils.INTEGER_ZERO);
     }
 

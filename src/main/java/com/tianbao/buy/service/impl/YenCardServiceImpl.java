@@ -128,30 +128,6 @@ public class YenCardServiceImpl implements YenCardService{
     }
 
     @Override
-    public int getCash(List<FundDetail> details) {
-        int cash = 0;
-        for (FundDetail detail : details) {
-            if (detail.getOrigin().equals(FundDetailVO.Channel.WEIXIN.getCode())) {
-                cash = detail.getPrice();
-            }
-        }
-
-        return cash;
-    }
-
-    @Override
-    public int getGift(List<FundDetail> details) {
-        int gift = 0;
-        for (FundDetail detail : details) {
-            if (!detail.getOrigin().equals(FundDetailVO.Channel.WEIXIN.getCode())) {
-                gift = gift + detail.getPrice();
-            }
-        }
-
-        return gift;
-    }
-
-    @Override
     public void updatePrice(int newCash, int oldCash, int newGift, int oldGift, long id) {
         Condition condition = new Condition(YenCard.class);
 

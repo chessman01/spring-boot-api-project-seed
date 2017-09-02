@@ -12,11 +12,13 @@ public interface FundDetailService {
 
     void updateStatus(String orderId, FundDetailVO.Status originStatus, FundDetailVO.Status status);
 
-    void refundByPer(String orderId);
+    List<FundDetail> refundByPer(String orderId);
 
     List<FundDetail> incomeByPer(String orderId, Map<String, OrderVO.PayDetail> payDetailMap, Integer fee4wx);
 
     List<FundDetail> incomeByRecharg(String orderId, Map<String, OrderVO.PayDetail> payDetailMap, Integer fee4wx);
+
+    int getCardFee(List<FundDetail> details, boolean isCash, boolean isRecharge);
 
     int getFee(OrderVO.PayDetail payDetail);
 }

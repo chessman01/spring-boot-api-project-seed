@@ -54,14 +54,13 @@ public class WxPayServiceImpl implements WxPayService {
     @Transactional
     public void paySuccess(String orderId) {
         OrderMain orderMain = this.updateOrder(orderId, OrderVO.Status.PENDING_PAY);
-        List<FundDetail> fundDetails = this.updateFund(orderId, FundDetailVO.Status.PENDING, FundDetailVO.Status.FINISH);
-
 
         if (orderMain.getCouponId() != null && orderMain.getCouponId() > NumberUtils.LONG_ZERO) {
             couponService.updateCouponUserStatus(orderMain.getCouponId(), CouponVO.Status.USED.getCode(),
                     CouponVO.Status.PENDING.getCode());
         }
 
+        List<FundDetail> fundDetails = this.updateFund(orderId, FundDetailVO.Status.PENDING, FundDetailVO.Status.FINISH);
         this.adjustCardAccount(fundDetails, orderMain);
     }
 
@@ -71,8 +70,8 @@ public class WxPayServiceImpl implements WxPayService {
 
             int oldCash = card.getCashAccount();
             int oldGift = card.getGiftAccount();
-            int newCash = oldCash + cardService.getCash(fundDetails);
-            int newGift = oldGift + cardService.getGift(fundDetails);
+            int newCash = oldCash + fundDetailService.getCardFee(fundDetails, true, true);
+            int newGift = oldGift + fundDetailService.getCardFee(fundDetails, false, true);
 
             cardService.updatePrice(newCash, oldCash, newGift, oldGift, card.getId());
         }

@@ -60,6 +60,12 @@ public class OrderMain {
     private Byte personTime;
 
     /**
+     * 充值模版ID
+     */
+    @Column(name = "recharge_template_id")
+    private Long rechargeTemplateId;
+
+    /**
      * 瘾卡ID
      */
     @Column(name = "yen_card_id")
@@ -242,6 +248,24 @@ public class OrderMain {
      */
     public void setPersonTime(Byte personTime) {
         this.personTime = personTime;
+    }
+
+    /**
+     * 获取充值模版ID
+     *
+     * @return recharge_template_id - 充值模版ID
+     */
+    public Long getRechargeTemplateId() {
+        return rechargeTemplateId;
+    }
+
+    /**
+     * 设置充值模版ID
+     *
+     * @param rechargeTemplateId 充值模版ID
+     */
+    public void setRechargeTemplateId(Long rechargeTemplateId) {
+        this.rechargeTemplateId = rechargeTemplateId;
     }
 
     /**
