@@ -82,8 +82,6 @@ public class WxPayServiceImpl implements WxPayService {
         }
     }
 
-
-
     private OrderMain updateOrder(String orderId, OrderVO.Status originStatus) {
         // 先找原始订单
         OrderMain origin = orderService.getOrder(orderId, originStatus);

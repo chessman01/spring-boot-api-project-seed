@@ -43,12 +43,6 @@ public class OrderMain {
     private Long classId;
 
     /**
-     * 实付金额
-     */
-    @Column(name = "real_pay")
-    private Integer realPay;
-
-    /**
      * 状态。0：软删除；1：待支付；2：已预约；3：已完成；4：待取消；5：已取消；6：冻结
      */
     private Byte status;
@@ -60,52 +54,16 @@ public class OrderMain {
     private Date payTime;
 
     /**
-     * 课程总价
-     */
-    @Column(name = "total_price")
-    private Integer totalPrice;
-
-    /**
      * 人次
      */
     @Column(name = "person_time")
     private Byte personTime;
 
     /**
-     * 瘾卡支付金额
-     */
-    @Column(name = "yen_card_pay_price")
-    private Integer yenCardPayPrice;
-
-    /**
-     * 瘾卡享受折扣费
-     */
-    @Column(name = "yen_card_discount")
-    private Integer yenCardDiscount;
-
-    /**
      * 瘾卡ID
      */
     @Column(name = "yen_card_id")
     private Long yenCardId;
-
-    /**
-     * 在线享受的折扣费
-     */
-    @Column(name = "online_discount")
-    private Integer onlineDiscount;
-
-    /**
-     * 在线享受折扣规则，用个表达式
-     */
-    @Column(name = "online_rule")
-    private String onlineRule;
-
-    /**
-     * 礼券享受折扣费
-     */
-    @Column(name = "coupon_discount")
-    private Integer couponDiscount;
 
     /**
      * 礼券ID
@@ -118,12 +76,6 @@ public class OrderMain {
      */
     @Column(name = "pay_order_id")
     private String payOrderId;
-
-    /**
-     * 赠送金额
-     */
-    @Column(name = "gift_discount")
-    private Integer giftDiscount;
 
     /**
      * 类型。1：瘾卡；2：课程
@@ -239,24 +191,6 @@ public class OrderMain {
     }
 
     /**
-     * 获取实付金额
-     *
-     * @return real_pay - 实付金额
-     */
-    public Integer getRealPay() {
-        return realPay;
-    }
-
-    /**
-     * 设置实付金额
-     *
-     * @param realPay 实付金额
-     */
-    public void setRealPay(Integer realPay) {
-        this.realPay = realPay;
-    }
-
-    /**
      * 获取状态。0：软删除；1：待支付；2：已预约；3：已完成；4：待取消；5：已取消；6：冻结
      *
      * @return status - 状态。0：软删除；1：待支付；2：已预约；3：已完成；4：待取消；5：已取消；6：冻结
@@ -293,24 +227,6 @@ public class OrderMain {
     }
 
     /**
-     * 获取课程总价
-     *
-     * @return total_price - 课程总价
-     */
-    public Integer getTotalPrice() {
-        return totalPrice;
-    }
-
-    /**
-     * 设置课程总价
-     *
-     * @param totalPrice 课程总价
-     */
-    public void setTotalPrice(Integer totalPrice) {
-        this.totalPrice = totalPrice;
-    }
-
-    /**
      * 获取人次
      *
      * @return person_time - 人次
@@ -329,42 +245,6 @@ public class OrderMain {
     }
 
     /**
-     * 获取瘾卡支付金额
-     *
-     * @return yen_card_pay_price - 瘾卡支付金额
-     */
-    public Integer getYenCardPayPrice() {
-        return yenCardPayPrice;
-    }
-
-    /**
-     * 设置瘾卡支付金额
-     *
-     * @param yenCardPayPrice 瘾卡支付金额
-     */
-    public void setYenCardPayPrice(Integer yenCardPayPrice) {
-        this.yenCardPayPrice = yenCardPayPrice;
-    }
-
-    /**
-     * 获取瘾卡享受折扣费
-     *
-     * @return yen_card_discount - 瘾卡享受折扣费
-     */
-    public Integer getYenCardDiscount() {
-        return yenCardDiscount;
-    }
-
-    /**
-     * 设置瘾卡享受折扣费
-     *
-     * @param yenCardDiscount 瘾卡享受折扣费
-     */
-    public void setYenCardDiscount(Integer yenCardDiscount) {
-        this.yenCardDiscount = yenCardDiscount;
-    }
-
-    /**
      * 获取瘾卡ID
      *
      * @return yen_card_id - 瘾卡ID
@@ -380,60 +260,6 @@ public class OrderMain {
      */
     public void setYenCardId(Long yenCardId) {
         this.yenCardId = yenCardId;
-    }
-
-    /**
-     * 获取在线享受的折扣费
-     *
-     * @return online_discount - 在线享受的折扣费
-     */
-    public Integer getOnlineDiscount() {
-        return onlineDiscount;
-    }
-
-    /**
-     * 设置在线享受的折扣费
-     *
-     * @param onlineDiscount 在线享受的折扣费
-     */
-    public void setOnlineDiscount(Integer onlineDiscount) {
-        this.onlineDiscount = onlineDiscount;
-    }
-
-    /**
-     * 获取在线享受折扣规则，用个表达式
-     *
-     * @return online_rule - 在线享受折扣规则，用个表达式
-     */
-    public String getOnlineRule() {
-        return onlineRule;
-    }
-
-    /**
-     * 设置在线享受折扣规则，用个表达式
-     *
-     * @param onlineRule 在线享受折扣规则，用个表达式
-     */
-    public void setOnlineRule(String onlineRule) {
-        this.onlineRule = onlineRule;
-    }
-
-    /**
-     * 获取礼券享受折扣费
-     *
-     * @return coupon_discount - 礼券享受折扣费
-     */
-    public Integer getCouponDiscount() {
-        return couponDiscount;
-    }
-
-    /**
-     * 设置礼券享受折扣费
-     *
-     * @param couponDiscount 礼券享受折扣费
-     */
-    public void setCouponDiscount(Integer couponDiscount) {
-        this.couponDiscount = couponDiscount;
     }
 
     /**
@@ -470,24 +296,6 @@ public class OrderMain {
      */
     public void setPayOrderId(String payOrderId) {
         this.payOrderId = payOrderId;
-    }
-
-    /**
-     * 获取赠送金额
-     *
-     * @return gift_discount - 赠送金额
-     */
-    public Integer getGiftDiscount() {
-        return giftDiscount;
-    }
-
-    /**
-     * 设置赠送金额
-     *
-     * @param giftDiscount 赠送金额
-     */
-    public void setGiftDiscount(Integer giftDiscount) {
-        this.giftDiscount = giftDiscount;
     }
 
     /**

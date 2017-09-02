@@ -97,22 +97,22 @@ public class OrderServiceImpl implements OrderService {
         OrderVO order = new OrderVO();
 
         /* 实付款 */
-        int realPayFee = orderMain.getRealPay();
-        int yenCarPayPrice = orderMain.getYenCardPayPrice();
-        int couponDiscount = orderMain.getCouponDiscount();
-        int onlineDiscount = orderMain.getOnlineDiscount();
-        int yenCarDiscount = orderMain.getYenCardDiscount();
+//        int realPayFee = orderMain.getRealPay();
+//        int yenCardPayPrice = orderMain.getYenCardPayPrice();
+//        int couponDiscount = orderMain.getCouponDiscount();
+//        int onlineDiscount = orderMain.getOnlineDiscount();
+//        int yenCardDiscount = orderMain.getYenCardDiscount();
+//
+//        List<OrderVO.PayDetail> payDetails = Lists.newArrayList();
+//        order.setRealPay(new OrderVO.PayDetail(REAL_PAY_FEE, MoneyUtils.unitFormat(2, realPayFee / 100), realPayFee));
+//        payDetails.add(new OrderVO.PayDetail(TOTAL_FEE, MoneyUtils.unitFormat(2, course.getPrice() * orderMain.getPersonTime() / 100),
+//                course.getPrice() * orderMain.getPersonTime()));
+//        if (yenCardDiscount > 0) payDetails.add(new OrderVO.PayDetail(CARD_DISCOUNT, MoneyUtils.unitFormat(2, yenCardDiscount / 100), yenCardDiscount));
+//        if (onlineDiscount > 0) payDetails.add(new OrderVO.PayDetail(ONLINE_REDUCE, MoneyUtils.unitFormat(2, onlineDiscount / 100), onlineDiscount));
+//        if (couponDiscount > 0) payDetails.add(new OrderVO.PayDetail(COUPON_FEE, MoneyUtils.unitFormat(2, couponDiscount / 100), couponDiscount));
+//        if (yenCardPayPrice > 0) payDetails.add(new OrderVO.PayDetail(CARD_PAY_FEE, MoneyUtils.unitFormat(2, yenCardPayPrice / 100), yenCardPayPrice));
 
-        List<OrderVO.PayDetail> payDetails = Lists.newArrayList();
-        order.setRealPay(new OrderVO.PayDetail(REAL_PAY_FEE, MoneyUtils.unitFormat(2, realPayFee / 100), realPayFee));
-        payDetails.add(new OrderVO.PayDetail(TOTAL_FEE, MoneyUtils.unitFormat(2, course.getPrice() * orderMain.getPersonTime() / 100),
-                course.getPrice() * orderMain.getPersonTime()));
-        if (yenCarDiscount > 0) payDetails.add(new OrderVO.PayDetail(CARD_DISCOUNT, MoneyUtils.unitFormat(2, yenCarDiscount / 100), yenCarDiscount));
-        if (onlineDiscount > 0) payDetails.add(new OrderVO.PayDetail(ONLINE_REDUCE, MoneyUtils.unitFormat(2, onlineDiscount / 100), onlineDiscount));
-        if (couponDiscount > 0) payDetails.add(new OrderVO.PayDetail(COUPON_FEE, MoneyUtils.unitFormat(2, couponDiscount / 100), couponDiscount));
-        if (yenCarPayPrice > 0) payDetails.add(new OrderVO.PayDetail(CARD_PAY_FEE, MoneyUtils.unitFormat(2, yenCarPayPrice / 100), yenCarPayPrice));
-
-        order.setPayDetail(payDetails);
+//        order.setPayDetail(payDetails);
         order.setCourse(courseService.convert2CourseVO(course, true));
 
         Button button = new Button();
@@ -206,11 +206,11 @@ public class OrderServiceImpl implements OrderService {
 
     private int getCardPay(List<FundDetail> details) {
         int cardPay = 0;
-        for (FundDetail detail : details) {
-            if (detail.getOrigin().equals(FundDetailVO.Channel.YENCARD.getCode())) {
-                cardPay = cardPay + detail.getPrice();
-            }
-        }
+//        for (FundDetail detail : details) {
+//            if (detail.getOrigin().equals(FundDetailVO.Channel.YENCARD.getCode())) {
+//                cardPay = cardPay + detail.getPrice();
+//            }
+//        }
 
         return cardPay;
     }
@@ -378,6 +378,13 @@ public class OrderServiceImpl implements OrderService {
                 payDetails.add(payDetail);
                 map.put(CARD_GIFT_PAY_FEE, payDetail);
             }
+
+//            int totalCardPay = cashPay + giftPay;
+//            if (totalCardPay > NumberUtils.INTEGER_ZERO) {
+//                payDetail = new OrderVO.PayDetail(CARD_GIFT_PAY_FEE, MoneyUtils.minusUnitFormat(2, totalCardPay / 100d), totalCardPay);
+//                payDetails.add(payDetail);
+//                map.put(CARD_GIFT_PAY_FEE, payDetail);
+//            }
         }
 
          /* 充值赠送 */
@@ -444,16 +451,8 @@ public class OrderServiceImpl implements OrderService {
         order.setPersonTime(personTime);
         order.setUserId(userId);
         order.setClassId(classId);
-        order.setRealPay(realPay);
-        order.setTotalPrice(totalFee);
-        order.setYenCardPayPrice(cardFee);
-        order.setYenCardDiscount(cardDiscountFee);
         order.setYenCardId(yenCardId);
-        order.setOnlineDiscount(onlineDiscountFee);
-        order.setOnlineRule("立减" + onlineDiscountFee + "分");
-        order.setCouponDiscount(couponFee);
         order.setCouponId(couponId);
-        order.setGiftDiscount(giftFee);
         order.setStatus(status);
         order.setType(type);
 

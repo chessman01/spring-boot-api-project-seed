@@ -63,8 +63,45 @@ public class FundDetailServiceImpl implements FundDetailService {
         return payDetail != null ? payDetail.getOriginFee() : NumberUtils.INTEGER_ZERO;
     }
 
+    private FundDetail setChannel(FundDetailVO.Direction direction, FundDetailVO.Channel channel) {
+        FundDetail fundDetail = new FundDetail();
+
+        if (FundDetailVO.Direction.INCOME_CARD.equals(direction)) {
+            if (FundDetailVO.Channel.WEIXIN.equals(channel)) {
+                fundDetail.setTarget(FundDetailVO.Channel.CARD_CASH.getCode());
+            } else {
+                fundDetail.setTarget(FundDetailVO.Channel.CARD_GIFT.getCode());
+            }
+
+            fundDetail.setOrigin(channel.getCode());
+        }
+
+        if (FundDetailVO.Direction.REFUND_CARD.equals(direction)) {
+            if (FundDetailVO.Channel.WEIXIN.equals(channel)) {
+                fundDetail.setOrigin(FundDetailVO.Channel.CARD_CASH.getCode());
+            } else {
+                fundDetail.setOrigin(FundDetailVO.Channel.CARD_GIFT.getCode());
+            }
+
+            fundDetail.setTarget(channel.getCode());
+        }
+
+        if (FundDetailVO.Direction.INCOME_PER.equals(direction)) {
+            fundDetail.setTarget(FundDetailVO.Channel.END.getCode());
+            fundDetail.setOrigin(channel.getCode());
+        }
+//        支付通道。1：微信；2：礼券；3：赠送；4：立减；5：卡折扣；6：瘾卡现金账户；7：瘾卡赠送账户；8：结束
+        if (FundDetailVO.Direction.REFUND_PER.equals(direction)) {
+            fundDetail.setOrigin(FundDetailVO.Channel.END.getCode());
+            fundDetail.setTarget(channel.getCode());
+        }
+
+        return fundDetail;
+    }
+
     private List<FundDetail> init(String orderId, Integer fee4wx, Map<String, OrderVO.PayDetail> payDetailMap, FundDetailVO.Direction direction) {
-        Integer fee4Card = getFee(payDetailMap.get(OrderService.CARD_PAY_FEE));
+        Integer fee4CardCash = getFee(payDetailMap.get(OrderService.CARD_CASH_PAY_FEE));
+        Integer fee4CardGift = getFee(payDetailMap.get(OrderService.CARD_GIFT_PAY_FEE));
         Integer fee4Gift = getFee(payDetailMap.get(OrderService.GIFT_FEE));
         Integer fee4Coupon = getFee(payDetailMap.get(OrderService.COUPON_FEE));
         Integer onlineReduceFee = getFee(payDetailMap.get(OrderService.ONLINE_REDUCE));
@@ -94,8 +131,13 @@ public class FundDetailServiceImpl implements FundDetailService {
         }
 
         // 瘾卡
-        if (fee4Card != null && fee4Card > NumberUtils.INTEGER_ZERO) {
-            fundDetails.add(make(orderId, FundDetailVO.Channel.YENCARD, fee4Card, direction, date));
+        if (fee4CardCash != null && fee4CardCash > NumberUtils.INTEGER_ZERO) {
+            fundDetails.add(make(orderId, FundDetailVO.Channel.CARD_CASH, fee4CardCash, direction, date));
+        }
+
+        // 瘾卡
+        if (fee4CardGift != null && fee4CardGift > NumberUtils.INTEGER_ZERO) {
+            fundDetails.add(make(orderId, FundDetailVO.Channel.CARD_GIFT, fee4CardGift, direction, date));
         }
 
         // 瘾卡折扣
@@ -107,10 +149,10 @@ public class FundDetailServiceImpl implements FundDetailService {
 
         switch(direction) {
             case INCOME_CARD:
-                target = FundDetailVO.Channel.YENCARD;
+                target = FundDetailVO.Channel.CARD_GIFT;
                 break;
             case REFUND_CARD:
-                origin = FundDetailVO.Channel.YENCARD;
+                origin = FundDetailVO.Channel.CARD_GIFT;
                 break;
             case INCOME_PER:
                 target = FundDetailVO.Channel.END;
@@ -135,16 +177,14 @@ public class FundDetailServiceImpl implements FundDetailService {
         return fundDetails;
     }
 
-
-    private FundDetail make(String orderId, FundDetailVO.Channel channel, Integer price, FundDetailVO.Direction direction, Date date) {
-        FundDetail fundDetail = new FundDetail();
+    private FundDetail make(String orderId, FundDetailVO.Channel channel, Integer price,
+                            FundDetailVO.Direction direction, Date date) {
+        FundDetail fundDetail = setChannel(direction, channel);
 
         fundDetail.setCreateTime(date);
         fundDetail.setModifyTime(date);
         fundDetail.setOrderId(orderId);
         fundDetail.setPrice(price);
-        fundDetail.setOrigin(channel.getCode());
-        fundDetail.setTarget(channel.getCode());
         fundDetail.setDirection(direction.getCode());
         fundDetail.setStatus(FundDetailVO.Status.PENDING.getCode());
 

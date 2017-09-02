@@ -43,7 +43,7 @@ public interface OrderService {
 
     public final static String CARD_GIFT_PAY_FEE = "瘾卡赠送账号支付";
 
-    public final static String CARD_PAY_FEE = "瘾卡赠送账号支付";
+    public final static String CARD_PAY_FEE = "瘾卡支付";
 
     public final static String ONLINE_REDUCE = "在线支付立减";
 

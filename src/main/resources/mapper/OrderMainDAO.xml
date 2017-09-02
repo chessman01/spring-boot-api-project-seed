@@ -11,20 +11,12 @@
     <result column="order_id" jdbcType="VARCHAR" property="orderId" />
     <result column="user_id" jdbcType="BIGINT" property="userId" />
     <result column="class_id" jdbcType="BIGINT" property="classId" />
-    <result column="real_pay" jdbcType="INTEGER" property="realPay" />
     <result column="status" jdbcType="TINYINT" property="status" />
     <result column="pay_time" jdbcType="TIMESTAMP" property="payTime" />
-    <result column="total_price" jdbcType="INTEGER" property="totalPrice" />
     <result column="person_time" jdbcType="TINYINT" property="personTime" />
-    <result column="yen_card_pay_price" jdbcType="INTEGER" property="yenCardPayPrice" />
-    <result column="yen_card_discount" jdbcType="INTEGER" property="yenCardDiscount" />
     <result column="yen_card_id" jdbcType="BIGINT" property="yenCardId" />
-    <result column="online_discount" jdbcType="INTEGER" property="onlineDiscount" />
-    <result column="online_rule" jdbcType="VARCHAR" property="onlineRule" />
-    <result column="coupon_discount" jdbcType="INTEGER" property="couponDiscount" />
     <result column="coupon_id" jdbcType="BIGINT" property="couponId" />
     <result column="pay_order_id" jdbcType="VARCHAR" property="payOrderId" />
-    <result column="gift_discount" jdbcType="INTEGER" property="giftDiscount" />
     <result column="type" jdbcType="TINYINT" property="type" />
   </resultMap>
 </mapper>
