@@ -13,9 +13,9 @@ public class FundDetailVO extends FundDetail{
         GIFT((byte)3, "赠送"),
         REDUCE((byte)4, "立减"),
         CARD_DISCOUNT((byte)5, "卡折扣"),
-        END((byte)8, "结束"),
-        CARD_CASH((byte)0, "瘾卡现金账户"),
-        CARD_GIFT((byte)0, "瘾卡赠送账户");
+        CARD_CASH((byte)6, "瘾卡现金账户"),
+        CARD_GIFT((byte)7, "瘾卡赠送账户"),
+        END((byte)8, "结束");
 
         public byte code;
 

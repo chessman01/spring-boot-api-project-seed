@@ -23,15 +23,15 @@ public interface OrderService {
 
     void create(long courseId, Long couponId, Byte personTime, Long cardId);
 
-    OrderMain make(String orderId, Byte personTime, Long userId, Long classId, Map<String, OrderVO.PayDetail> payDetailMap, int realPay,
-                   Long yenCardId, Long couponId, Byte status, Byte type);
-
     void sava (OrderMain order);
 
     OrderVO.PayDetail calRealPay(Map<String, OrderVO.PayDetail> payDetailMap);
 
     Map<String, OrderVO.PayDetail> calFeeDetail(int unitPrice, int num, YenCard card, CouponTemplate coupon, CouponTemplate rechargeTemplate,
                                                        List<OrderVO.PayDetail> payDetails, boolean isPer);
+
+    OrderMain make(String orderId, Byte personTime, Long userId, Long classId, Long yenCardId,
+                   Long couponId, Byte status, Byte type);
 
     public final static String TOTAL_FEE = "课程总价";
 

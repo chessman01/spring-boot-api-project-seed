@@ -110,11 +110,11 @@ public class YenCardServiceImpl implements YenCardService{
 
         int price4wx = orderService.calRealPay(payDetailMap).getOriginFee();
 
-        List<FundDetail> fundDetails = fundDetailService.incomeByRecharg(orderId, payDetailMap, price4wx);
+        fundDetailService.incomeByRecharg(orderId, payDetailMap, price4wx);
 
         // 生成订单
-        OrderMain order = orderService.make(orderId, null, user.getId(), null, payDetailMap, price4wx,
-        cardId, couponUserId, OrderVO.Status.PENDING_PAY.getCode(), OrderVO.Type.CARD.getCode());
+        OrderMain order = orderService.make(orderId, null, user.getId(), null, cardId, couponUserId,
+                OrderVO.Status.PENDING_PAY.getCode(), OrderVO.Type.CARD.getCode());
 
         orderService.sava(order);
 
@@ -250,11 +250,11 @@ public class YenCardServiceImpl implements YenCardService{
         // 4. 充值按钮
         Button button = new Button();
 
-        long realPay = context.getTemplate().getRulePrice();
+        List<OrderVO.PayDetail> payDetails = Lists.newArrayList();
+        Map<String, OrderVO.PayDetail> payDetailMap = orderService.calFeeDetail(context.getTemplate().getRulePrice(), NumberUtils.INTEGER_ONE, null,
+                context.getCoupon(), context.getTemplate(), payDetails, false);
 
-        if (context.getCoupon() != null && context.getCoupon().getPrice() != null) {
-            realPay = realPay - context.getCoupon().getPrice();
-        }
+        int realPay = orderService.calRealPay(payDetailMap).getOriginFee();
 
         String price = MoneyUtils.format(2, realPay / 100);
         button.setTitle("支付（￥" + price + "）");

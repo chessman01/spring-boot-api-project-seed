@@ -162,7 +162,7 @@ public class OrderServiceImpl implements OrderService {
         }
 
         // 生成订单
-        OrderMain order = make(orderId, personTime, context.getUser().getId(), courseId, payDetailMap, realPay,
+        OrderMain order = make(orderId, personTime, context.getUser().getId(), courseId,
                 context.getCard().getId(), couponId, OrderVO.Status.PENDING_PAY.getCode(), OrderVO.Type.COURSE.getCode());
 
         sava(order);
@@ -307,7 +307,7 @@ public class OrderServiceImpl implements OrderService {
 
         /* 在线立减 */
         int reduce = onlineReduceFee;
-        if (reduce > NumberUtils.INTEGER_ZERO) {
+        if (reduce > NumberUtils.INTEGER_ZERO && isPer) {
             if (reduce > balance) reduce = balance;
 
             payDetail = new OrderVO.PayDetail(ONLINE_REDUCE, MoneyUtils.minusUnitFormat(2, reduce / 100d), reduce);
@@ -378,19 +378,12 @@ public class OrderServiceImpl implements OrderService {
                 payDetails.add(payDetail);
                 map.put(CARD_GIFT_PAY_FEE, payDetail);
             }
-
-//            int totalCardPay = cashPay + giftPay;
-//            if (totalCardPay > NumberUtils.INTEGER_ZERO) {
-//                payDetail = new OrderVO.PayDetail(CARD_GIFT_PAY_FEE, MoneyUtils.minusUnitFormat(2, totalCardPay / 100d), totalCardPay);
-//                payDetails.add(payDetail);
-//                map.put(CARD_GIFT_PAY_FEE, payDetail);
-//            }
         }
 
          /* 充值赠送 */
         if (!isPer && rechargeTemplate != null) {
             int gift = rechargeTemplate.getPrice();
-            payDetail = new OrderVO.PayDetail(GIFT_FEE, MoneyUtils.minusUnitFormat(2, gift), gift);
+            payDetail = new OrderVO.PayDetail(GIFT_FEE, MoneyUtils.minusUnitFormat(2, gift / 100), gift);
             payDetails.add(payDetail);
             map.put(GIFT_FEE, payDetail);
 
@@ -434,17 +427,8 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public OrderMain make(String orderId, Byte personTime, Long userId, Long classId, Map<String, OrderVO.PayDetail> payDetailMap, int realPay,
-                             Long yenCardId, Long couponId, Byte status, Byte type) {
-        int cardDiscountFee = payDetailMap.get(CARD_DISCOUNT) != null ? payDetailMap.get(CARD_DISCOUNT).getOriginFee() : NumberUtils.INTEGER_ZERO;
-        int couponFee = payDetailMap.get(COUPON_FEE) != null ? payDetailMap.get(COUPON_FEE).getOriginFee() : NumberUtils.INTEGER_ZERO;
-        int totalFee = payDetailMap.get(TOTAL_FEE) != null ? payDetailMap.get(TOTAL_FEE).getOriginFee() : NumberUtils.INTEGER_ZERO;
-        int onlineDiscountFee = payDetailMap.get(ONLINE_REDUCE) != null ? payDetailMap.get(ONLINE_REDUCE).getOriginFee() : NumberUtils.INTEGER_ZERO;
-        int giftFee = payDetailMap.get(GIFT_FEE) != null ? payDetailMap.get(GIFT_FEE).getOriginFee() : NumberUtils.INTEGER_ZERO;
-        int cardCashFee = payDetailMap.get(CARD_CASH_PAY_FEE) != null ? payDetailMap.get(CARD_CASH_PAY_FEE).getOriginFee() : NumberUtils.INTEGER_ZERO;
-        int cardGiftFee = payDetailMap.get(CARD_GIFT_PAY_FEE) != null ? payDetailMap.get(CARD_GIFT_PAY_FEE).getOriginFee() : NumberUtils.INTEGER_ZERO;
-        int cardFee = cardCashFee + cardGiftFee;
-
+    public OrderMain make(String orderId, Byte personTime, Long userId, Long classId, Long yenCardId,
+                          Long couponId, Byte status, Byte type) {
         OrderMain order = new OrderMain();
 
         order.setOrderId(orderId);

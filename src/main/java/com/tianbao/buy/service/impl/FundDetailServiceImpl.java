@@ -63,6 +63,10 @@ public class FundDetailServiceImpl implements FundDetailService {
         return payDetail != null ? payDetail.getOriginFee() : NumberUtils.INTEGER_ZERO;
     }
 
+    private boolean getFee(Integer fee) {
+        return fee != null && fee > NumberUtils.INTEGER_ZERO;
+    }
+
     private FundDetail setChannel(FundDetailVO.Direction direction, FundDetailVO.Channel channel) {
         FundDetail fundDetail = new FundDetail();
 
@@ -90,7 +94,7 @@ public class FundDetailServiceImpl implements FundDetailService {
             fundDetail.setTarget(FundDetailVO.Channel.END.getCode());
             fundDetail.setOrigin(channel.getCode());
         }
-//        支付通道。1：微信；2：礼券；3：赠送；4：立减；5：卡折扣；6：瘾卡现金账户；7：瘾卡赠送账户；8：结束
+
         if (FundDetailVO.Direction.REFUND_PER.equals(direction)) {
             fundDetail.setOrigin(FundDetailVO.Channel.END.getCode());
             fundDetail.setTarget(channel.getCode());
@@ -111,69 +115,41 @@ public class FundDetailServiceImpl implements FundDetailService {
         Date date = new Date();
 
         // 微信
-        if (fee4wx != null && fee4wx > NumberUtils.INTEGER_ZERO) {
+        if (getFee(fee4wx)) {
             fundDetails.add(make(orderId, FundDetailVO.Channel.WEIXIN, fee4wx, direction, date));
         }
 
         // 赠送
-        if (fee4Gift != null && fee4Gift > NumberUtils.INTEGER_ZERO) {
+        if (getFee(fee4Gift)) {
             fundDetails.add(make(orderId, FundDetailVO.Channel.GIFT, fee4Gift, direction, date));
         }
 
         // 立减
-        if (onlineReduceFee != null && onlineReduceFee > NumberUtils.INTEGER_ZERO) {
+        if (getFee(onlineReduceFee)) {
             fundDetails.add(make(orderId, FundDetailVO.Channel.REDUCE, onlineReduceFee, direction, date));
         }
 
         // 礼券
-        if (fee4Coupon != null && fee4Coupon > NumberUtils.INTEGER_ZERO) {
+        if (getFee(fee4Coupon)) {
             fundDetails.add(make(orderId, FundDetailVO.Channel.COUPON, fee4Coupon, direction, date));
         }
 
         // 瘾卡
-        if (fee4CardCash != null && fee4CardCash > NumberUtils.INTEGER_ZERO) {
+        if (getFee(fee4CardCash)) {
             fundDetails.add(make(orderId, FundDetailVO.Channel.CARD_CASH, fee4CardCash, direction, date));
         }
 
         // 瘾卡
-        if (fee4CardGift != null && fee4CardGift > NumberUtils.INTEGER_ZERO) {
+        if (getFee(fee4CardGift)) {
             fundDetails.add(make(orderId, FundDetailVO.Channel.CARD_GIFT, fee4CardGift, direction, date));
         }
 
         // 瘾卡折扣
-        if (cardDiscount != null && cardDiscount > NumberUtils.INTEGER_ZERO) {
+        if (getFee(cardDiscount)) {
             fundDetails.add(make(orderId, FundDetailVO.Channel.CARD_DISCOUNT, cardDiscount, direction, date));
         }
 
-        FundDetailVO.Channel origin = null, target = null;
-
-        switch(direction) {
-            case INCOME_CARD:
-                target = FundDetailVO.Channel.CARD_GIFT;
-                break;
-            case REFUND_CARD:
-                origin = FundDetailVO.Channel.CARD_GIFT;
-                break;
-            case INCOME_PER:
-                target = FundDetailVO.Channel.END;
-                break;
-            case REFUND_PER:
-                origin = FundDetailVO.Channel.END;
-                break;
-        }
-
-        for (FundDetail fundDetail : fundDetails) {
-            if (origin != null) {
-                fundDetail.setOrigin(origin.getCode());
-            }
-
-            if (target != null) {
-                fundDetail.setTarget(target.getCode());
-            }
-        }
-
         fundDetailManager.save(fundDetails);
-
         return fundDetails;
     }
 
