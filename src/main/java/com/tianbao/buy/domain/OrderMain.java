@@ -49,7 +49,7 @@ public class OrderMain {
     private Integer realPay;
 
     /**
-     * 状态。0：软删除；1：待处理；2：已预约；3：已完成；4：已取消；5：冻结
+     * 状态。0：软删除；1：待支付；2：已预约；3：已完成；4：待取消；5：已取消；6：冻结
      */
     private Byte status;
 
@@ -74,20 +74,20 @@ public class OrderMain {
     /**
      * 瘾卡支付金额
      */
-    @Column(name = "yen_car_pay_price")
-    private Integer yenCarPayPrice;
+    @Column(name = "yen_card_pay_price")
+    private Integer yenCardPayPrice;
 
     /**
      * 瘾卡享受折扣费
      */
-    @Column(name = "yen_car_discount")
-    private Integer yenCarDiscount;
+    @Column(name = "yen_card_discount")
+    private Integer yenCardDiscount;
 
     /**
      * 瘾卡ID
      */
-    @Column(name = "yen_car_id")
-    private Long yenCarId;
+    @Column(name = "yen_card_id")
+    private Long yenCardId;
 
     /**
      * 在线享受的折扣费
@@ -257,18 +257,18 @@ public class OrderMain {
     }
 
     /**
-     * 获取状态。0：软删除；1：待处理；2：已预约；3：已完成；4：已取消；5：冻结
+     * 获取状态。0：软删除；1：待支付；2：已预约；3：已完成；4：待取消；5：已取消；6：冻结
      *
-     * @return status - 状态。0：软删除；1：待处理；2：已预约；3：已完成；4：已取消；5：冻结
+     * @return status - 状态。0：软删除；1：待支付；2：已预约；3：已完成；4：待取消；5：已取消；6：冻结
      */
     public Byte getStatus() {
         return status;
     }
 
     /**
-     * 设置状态。0：软删除；1：待处理；2：已预约；3：已完成；4：已取消；5：冻结
+     * 设置状态。0：软删除；1：待支付；2：已预约；3：已完成；4：待取消；5：已取消；6：冻结
      *
-     * @param status 状态。0：软删除；1：待处理；2：已预约；3：已完成；4：已取消；5：冻结
+     * @param status 状态。0：软删除；1：待支付；2：已预约；3：已完成；4：待取消；5：已取消；6：冻结
      */
     public void setStatus(Byte status) {
         this.status = status;
@@ -331,55 +331,55 @@ public class OrderMain {
     /**
      * 获取瘾卡支付金额
      *
-     * @return yen_car_pay_price - 瘾卡支付金额
+     * @return yen_card_pay_price - 瘾卡支付金额
      */
-    public Integer getYenCarPayPrice() {
-        return yenCarPayPrice;
+    public Integer getYenCardPayPrice() {
+        return yenCardPayPrice;
     }
 
     /**
      * 设置瘾卡支付金额
      *
-     * @param yenCarPayPrice 瘾卡支付金额
+     * @param yenCardPayPrice 瘾卡支付金额
      */
-    public void setYenCarPayPrice(Integer yenCarPayPrice) {
-        this.yenCarPayPrice = yenCarPayPrice;
+    public void setYenCardPayPrice(Integer yenCardPayPrice) {
+        this.yenCardPayPrice = yenCardPayPrice;
     }
 
     /**
      * 获取瘾卡享受折扣费
      *
-     * @return yen_car_discount - 瘾卡享受折扣费
+     * @return yen_card_discount - 瘾卡享受折扣费
      */
-    public Integer getYenCarDiscount() {
-        return yenCarDiscount;
+    public Integer getYenCardDiscount() {
+        return yenCardDiscount;
     }
 
     /**
      * 设置瘾卡享受折扣费
      *
-     * @param yenCarDiscount 瘾卡享受折扣费
+     * @param yenCardDiscount 瘾卡享受折扣费
      */
-    public void setYenCarDiscount(Integer yenCarDiscount) {
-        this.yenCarDiscount = yenCarDiscount;
+    public void setYenCardDiscount(Integer yenCardDiscount) {
+        this.yenCardDiscount = yenCardDiscount;
     }
 
     /**
      * 获取瘾卡ID
      *
-     * @return yen_car_id - 瘾卡ID
+     * @return yen_card_id - 瘾卡ID
      */
-    public Long getYenCarId() {
-        return yenCarId;
+    public Long getYenCardId() {
+        return yenCardId;
     }
 
     /**
      * 设置瘾卡ID
      *
-     * @param yenCarId 瘾卡ID
+     * @param yenCardId 瘾卡ID
      */
-    public void setYenCarId(Long yenCarId) {
-        this.yenCarId = yenCarId;
+    public void setYenCardId(Long yenCardId) {
+        this.yenCardId = yenCardId;
     }
 
     /**

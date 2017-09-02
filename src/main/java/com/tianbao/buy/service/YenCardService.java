@@ -1,5 +1,6 @@
 package com.tianbao.buy.service;
 
+import com.tianbao.buy.domain.FundDetail;
 import com.tianbao.buy.domain.YenCard;
 import com.tianbao.buy.vo.Button;
 import com.tianbao.buy.vo.YenCardVO;
@@ -26,4 +27,8 @@ public interface YenCardService {
     YenCardVO adjust(long cardId, long templateId, Long couponId);
 
     YenCardVO convert2CardVO(YenCard YenCard);
+
+    int getCash(List<FundDetail> details);
+
+    int getGift(List<FundDetail> details);
 }

@@ -3,6 +3,7 @@ package com.tianbao.buy.service.impl;
 import com.tianbao.buy.core.BizException;
 import com.tianbao.buy.domain.FundDetail;
 import com.tianbao.buy.domain.OrderMain;
+import com.tianbao.buy.domain.YenCard;
 import com.tianbao.buy.manager.FundDetailManager;
 import com.tianbao.buy.manager.OrderMainManager;
 import com.tianbao.buy.service.*;
@@ -26,7 +27,7 @@ public class WxPayServiceImpl implements WxPayService {
     private CouponService couponService;
 
     @Resource
-    private YenCardService yenCardService;
+    private YenCardService cardService;
 
     @Resource
     private OrderMainManager orderMainManager;
@@ -53,13 +54,35 @@ public class WxPayServiceImpl implements WxPayService {
     @Transactional
     public void paySuccess(String orderId) {
         OrderMain orderMain = this.updateOrder(orderId, OrderVO.Status.PENDING_PAY);
-        this.updateFund(orderId, FundDetailVO.Status.PENDING, FundDetailVO.Status.FINISH);
+        List<FundDetail> fundDetails = this.updateFund(orderId, FundDetailVO.Status.PENDING, FundDetailVO.Status.FINISH);
+
 
         if (orderMain.getCouponId() != null && orderMain.getCouponId() > NumberUtils.LONG_ZERO) {
             couponService.updateCouponUserStatus(orderMain.getCouponId(), CouponVO.Status.USED.getCode(),
                     CouponVO.Status.PENDING.getCode());
         }
+
+        this.adjustCardAccount(fundDetails, orderMain);
     }
+
+    private void  adjustCardAccount (List<FundDetail> fundDetails, OrderMain orderMain) {
+        if (orderMain.getType().equals(OrderVO.Type.CARD.getCode())) {
+            YenCard card = cardService.getSpecify(orderMain.getUserId(), orderMain.getYenCardId());
+
+            int oldCash = card.getCashAccount();
+            int oldGift = card.getGiftAccount();
+            int newCash = oldCash + cardService.getCash(fundDetails);
+            int newGift = oldGift + cardService.getGift(fundDetails);
+
+            cardService.updatePrice(newCash, oldCash, newGift, oldGift, card.getId());
+        }
+
+        if (orderMain.getType().equals(OrderVO.Type.COURSE.getCode())) {
+
+        }
+    }
+
+
 
     private OrderMain updateOrder(String orderId, OrderVO.Status originStatus) {
         // 先找原始订单

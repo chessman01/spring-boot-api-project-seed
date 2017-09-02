@@ -70,7 +70,7 @@ public class YenCardServiceImpl implements YenCardService{
     public String create(long cardId, long templateId, Long couponUserId) {
         // 1. 找到用户的瘾卡
         User user = userService.getUserByWxUnionId();
-        YenCard card = getSpecify(user.getId(), cardId);
+        getSpecify(user.getId(), cardId); // 主要是判断下卡是否存在
 
         // 2. 找充值模版
         CouponTemplate rechargeTemplate = couponService.getTemplate(templateId);
@@ -124,17 +124,11 @@ public class YenCardServiceImpl implements YenCardService{
                     CouponVO.Status.NORMAL.getCode());
         }
 
-        int oldCash = card.getCashAccount();
-        int oldGift = card.getGiftAccount();
-        int newCash = oldCash + getCash(fundDetails);
-        int newGift = oldGift + getGift(fundDetails);
-
-        updatePrice(newCash, oldCash, newGift, oldGift, card.getId());
-
         return orderId;
     }
 
-    private int getCash(List<FundDetail> details) {
+    @Override
+    public int getCash(List<FundDetail> details) {
         int cash = 0;
         for (FundDetail detail : details) {
             if (detail.getOrigin().equals(FundDetailVO.Channel.WEIXIN.getCode())) {
@@ -145,7 +139,8 @@ public class YenCardServiceImpl implements YenCardService{
         return cash;
     }
 
-    private int getGift(List<FundDetail> details) {
+    @Override
+    public int getGift(List<FundDetail> details) {
         int gift = 0;
         for (FundDetail detail : details) {
             if (!detail.getOrigin().equals(FundDetailVO.Channel.WEIXIN.getCode())) {

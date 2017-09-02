@@ -98,10 +98,10 @@ public class OrderServiceImpl implements OrderService {
 
         /* 实付款 */
         int realPayFee = orderMain.getRealPay();
-        int yenCarPayPrice = orderMain.getYenCarPayPrice();
+        int yenCarPayPrice = orderMain.getYenCardPayPrice();
         int couponDiscount = orderMain.getCouponDiscount();
         int onlineDiscount = orderMain.getOnlineDiscount();
-        int yenCarDiscount = orderMain.getYenCarDiscount();
+        int yenCarDiscount = orderMain.getYenCardDiscount();
 
         List<OrderVO.PayDetail> payDetails = Lists.newArrayList();
         order.setRealPay(new OrderVO.PayDetail(REAL_PAY_FEE, MoneyUtils.unitFormat(2, realPayFee / 100), realPayFee));
@@ -446,9 +446,9 @@ public class OrderServiceImpl implements OrderService {
         order.setClassId(classId);
         order.setRealPay(realPay);
         order.setTotalPrice(totalFee);
-        order.setYenCarPayPrice(cardFee);
-        order.setYenCarDiscount(cardDiscountFee);
-        order.setYenCarId(yenCardId);
+        order.setYenCardPayPrice(cardFee);
+        order.setYenCardDiscount(cardDiscountFee);
+        order.setYenCardId(yenCardId);
         order.setOnlineDiscount(onlineDiscountFee);
         order.setOnlineRule("立减" + onlineDiscountFee + "分");
         order.setCouponDiscount(couponFee);

@@ -344,8 +344,8 @@ public class CouponServiceImpl implements CouponService {
                     couponVO.setSelected(true);
                     selected = true;
                     context.setCouponUser(couponUser);
+                    context.setCoupon(couponTemplateMap.get(couponUser.getCouponTemplateId()));
                 }
-                context.setCoupon(couponTemplateMap.get(couponUser.getCouponTemplateId()));
 
                 couponVOs.add(couponVO);
             }
