@@ -21,7 +21,7 @@ public interface OrderService {
 
     OrderVO adjust(long courseId, Long cardId, Long couponId, int personTime);
 
-    void create(long courseId, Long couponId, Byte personTime, Long cardId);
+    String create(long courseId, Long couponId, Byte personTime);
 
     void sava (OrderMain order);
 
@@ -31,7 +31,7 @@ public interface OrderService {
                                                        List<OrderVO.PayDetail> payDetails, boolean isPer);
 
     OrderMain make(String orderId, Byte personTime, Long userId, Long classId, Long yenCardId,
-                   Long couponId, Byte status, Byte type);
+                   Long couponId, Byte status, Byte type, Long rechargeTemplateId);
 
     public final static String TOTAL_FEE = "课程总价";
 

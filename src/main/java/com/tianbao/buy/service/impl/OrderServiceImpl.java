@@ -147,72 +147,74 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     @Transactional
-    public void create(long courseId, Long couponId, Byte personTime, Long cardId) {
-        Context context = new Context();
-        OrderVO orderVO = render(courseId, cardId, couponId, personTime, context);
-        String orderId = MakeOrderNum.makeOrderNum();
+    public String create(long courseId, Long couponUserId, Byte personTime) {
+        checkArgument(personTime > NumberUtils.INTEGER_ZERO);
 
-        int realPay = orderVO.getRealPay().getOriginFee();
-        Map<String, OrderVO.PayDetail> payDetailMap = context.getPayDetailMap();
+        // 1. 找到用户的瘾卡
+        User user = userService.getUserByWxUnionId();
+        YenCard card = cardService.getDefault(user.getId()); // 主要是判断下卡是否存在
 
-        List<FundDetail> fundDetails = fundDetailService.incomeByPer(orderId, payDetailMap, realPay);
+        CouponTemplate couponTemplate = null;
 
-        if (context.getCouponUser() != null) {
-            couponId = context.getCouponUser().getId();
+        // 2. 获取课程信息
+        Course course = courseService.getNormalCourse().get(courseId);
+        if (course == null) throw new BizException("没找到有效课程");
+
+        // 3. 找礼券
+        if (couponUserId != null && couponUserId > NumberUtils.LONG_ZERO) {
+            CouponUser couponUser = couponService.getCouponUser(couponUserId);
+
+            if (!couponUser.getStatus().equals(CouponVO.Status.NORMAL.getCode())) {
+                logger.error(String.format("礼券状态无效。id=%d", couponUserId));
+                throw new BizException("礼券无效");
+            }
+
+            // 4. 礼券用的模版
+            couponTemplate = couponService.getTemplate(couponUser.getCouponTemplateId());
+
+            if (couponTemplate == null || couponTemplate.getRulePrice() > personTime * course.getPrice()) {
+                logger.error(String.format("礼券额度不匹配无效。id=%d", couponUserId));
+                throw new BizException(String.format("礼券无效", couponUserId));
+            }
         }
 
+        String orderId = MakeOrderNum.makeOrderNum();
+
+        List<OrderVO.PayDetail> payDetails = Lists.newArrayList();
+        Map<String, OrderVO.PayDetail> payDetailMap = calFeeDetail(course.getPrice(), personTime, card,
+                couponTemplate, null, payDetails, true);
+
+        int realPay = calRealPay(payDetailMap).getOriginFee();
+
+        fundDetailService.incomeByPer(orderId, payDetailMap, realPay);
+
         // 生成订单
-        OrderMain order = make(orderId, personTime, context.getUser().getId(), courseId,
-                context.getCard().getId(), couponId, OrderVO.Status.PENDING_PAY.getCode(), OrderVO.Type.COURSE.getCode());
+        OrderMain order = make(orderId, personTime, user.getId(), courseId, card.getId(), couponUserId,
+                OrderVO.Status.PENDING_PAY.getCode(), OrderVO.Type.COURSE.getCode(), null);
 
         sava(order);
 
-        // 礼券要锁定
-        if (couponId != null) {
-            couponService.updateCouponUserStatus(couponId, CouponVO.Status.PENDING.getCode(),
+        // 锁定礼券
+        if (couponUserId != null && couponUserId > NumberUtils.LONG_ZERO) {
+            couponService.updateCouponUserStatus(couponUserId, CouponVO.Status.PENDING.getCode(),
                     CouponVO.Status.NORMAL.getCode());
         }
 
-        int oldCash = context.getCard().getCashAccount();
-        int oldGift = context.getCard().getGiftAccount();
-        int cardPay = getCardPay(fundDetails);
-        int newCash = 0, newGift = 0, balance = cardPay;
+        return orderId;
 
-        if (cardPay > NumberUtils.INTEGER_ZERO) {
-            if (oldGift + oldGift > cardPay) {
-                throw new BizException("卡余额不够");
-            }
-
-            if (oldGift > NumberUtils.INTEGER_ZERO) {
-                if (cardPay <= oldGift) {
-                    newGift = oldGift - cardPay;
-                    balance = balance - cardPay;
-                } else {
-                    newGift = NumberUtils.INTEGER_ZERO;
-                    balance = balance - oldGift;
-                }
-            }
-
-            if (oldCash > NumberUtils.INTEGER_ZERO) {
-                if (balance > NumberUtils.INTEGER_ZERO) {
-                    newCash = oldCash - balance;
-                }
-
-            }
-        }
-
-        cardService.updatePrice(newCash, oldCash, newGift, oldGift, context.getCard().getId());
-    }
-
-    private int getCardPay(List<FundDetail> details) {
-        int cardPay = 0;
-//        for (FundDetail detail : details) {
-//            if (detail.getOrigin().equals(FundDetailVO.Channel.YENCARD.getCode())) {
-//                cardPay = cardPay + detail.getPrice();
+//
+//        int oldCash = context.getCard().getCashAccount();
+//        int oldGift = context.getCard().getGiftAccount();
+//        int newCash = fundDetailService.getFee(payDetailMap.get(CARD_CASH_PAY_FEE));
+//        int newGift = fundDetailService.getFee(payDetailMap.get(CARD_GIFT_PAY_FEE));
+//
+//        if (newCash > oldCash || newGift > oldGift) {
+//            if (oldGift + oldGift < newCash + newGift) {
+//                throw new BizException("卡余额不够");
 //            }
+//
+//            cardService.updatePrice(oldCash - newCash, oldCash, oldGift - newGift, oldGift, context.getCard().getId());
 //        }
-
-        return cardPay;
     }
 
     private OrderVO render(long courseId, Long cardId, Long couponId, int personTime, Context context) {
@@ -258,11 +260,11 @@ public class OrderServiceImpl implements OrderService {
         List<OrderVO.PayDetail> payDetails = Lists.newArrayList();
         Map<String, OrderVO.PayDetail> payDetailMap = calFeeDetail(course.getPrice(), personTime, card,
                 context.getCoupon(), null, payDetails, true);
-        order.setPayDetail(payDetails);
 
         context.setPayDetailMap(payDetailMap);
         OrderVO.PayDetail realPay = calRealPay(payDetailMap);
         order.setRealPay(realPay);
+        order.setPayDetail(merge(payDetails));
 
         // 4. 按钮
         Button button = new Button();
@@ -271,6 +273,33 @@ public class OrderServiceImpl implements OrderService {
         order.setButton(button);
 
         return order;
+    }
+
+    private List<OrderVO.PayDetail> merge(List<OrderVO.PayDetail> origin) {
+        int cash = 0, gift = 0;
+        List<OrderVO.PayDetail> payDetails = Lists.newArrayList();
+
+        for (OrderVO.PayDetail payDetail : origin) {
+            if (CARD_CASH_PAY_FEE.equals(payDetail.getTitle())) {
+                cash = payDetail.getOriginFee();
+                continue;
+            }
+
+            if (CARD_GIFT_PAY_FEE.equals(payDetail.getTitle())) {
+                gift = payDetail.getOriginFee();
+                continue;
+            }
+
+            payDetails.add(payDetail);
+        }
+
+        if (cash + gift > NumberUtils.INTEGER_ZERO) {
+            OrderVO.PayDetail payDetail = new OrderVO.PayDetail(CARD_PAY_FEE, MoneyUtils.minusUnitFormat(2,
+                    (cash + gift) / 100d), cash + gift);
+            payDetails.add(payDetail);
+        }
+
+        return payDetails;
     }
 
     @Override
@@ -428,7 +457,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public OrderMain make(String orderId, Byte personTime, Long userId, Long classId, Long yenCardId,
-                          Long couponId, Byte status, Byte type) {
+                          Long couponId, Byte status, Byte type, Long rechargeTemplateId) {
         OrderMain order = new OrderMain();
 
         order.setOrderId(orderId);
@@ -439,6 +468,7 @@ public class OrderServiceImpl implements OrderService {
         order.setCouponId(couponId);
         order.setStatus(status);
         order.setType(type);
+        order.setRechargeTemplateId(rechargeTemplateId);
 
         return order;
     }

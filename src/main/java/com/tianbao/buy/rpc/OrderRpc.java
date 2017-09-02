@@ -46,8 +46,8 @@ public class OrderRpc {
     }
 
     @PostMapping("/create")
-    public Result create(@RequestParam long courseId, Long couponId, @RequestParam Byte personTime, Long cardId) {
-        orderService.create(courseId, couponId, personTime, cardId);
+    public Result create(@RequestParam long courseId, Long couponId, @RequestParam Byte personTime) {
+        orderService.create(courseId, couponId, personTime);
 
         return ResultGenerator.genSuccessResult();
     }

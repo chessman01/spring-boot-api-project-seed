@@ -95,8 +95,11 @@ public class YenCardServiceImpl implements YenCardService{
             // 4. 礼券用的模版
             couponTemplate = couponService.getTemplate(couponUser.getCouponTemplateId());
 
-            if (couponTemplate == null || couponTemplate.getRulePrice() > rechargeTemplate.getRulePrice()) {
-                logger.error(String.format("礼券额度不匹配无效。id=%d", couponUserId));
+            if (couponTemplate == null) {
+                logger.error(String.format("礼券异常。id=%d", couponUserId));
+                throw new BizException(String.format("礼券异常", couponUserId));
+            } else if (couponTemplate.getRulePrice() > rechargeTemplate.getRulePrice()){
+                logger.error(String.format("礼券不能被使用。id=%d，realPay=%d", couponUserId, rechargeTemplate.getRulePrice()));
                 throw new BizException(String.format("礼券无效", couponUserId));
             }
         }
@@ -107,14 +110,13 @@ public class YenCardServiceImpl implements YenCardService{
         Map<String, OrderVO.PayDetail> payDetailMap = orderService.calFeeDetail(rechargeTemplate.getRulePrice(), NumberUtils.INTEGER_ONE, null,
                 couponTemplate, rechargeTemplate, payDetails, false);
 
+        int realPay = orderService.calRealPay(payDetailMap).getOriginFee();
 
-        int price4wx = orderService.calRealPay(payDetailMap).getOriginFee();
-
-        fundDetailService.incomeByRecharg(orderId, payDetailMap, price4wx);
+        fundDetailService.incomeByRecharg(orderId, payDetailMap, realPay);
 
         // 生成订单
         OrderMain order = orderService.make(orderId, null, user.getId(), null, cardId, couponUserId,
-                OrderVO.Status.PENDING_PAY.getCode(), OrderVO.Type.CARD.getCode());
+                OrderVO.Status.PENDING_PAY.getCode(), OrderVO.Type.CARD.getCode(), templateId);
 
         orderService.sava(order);
 
