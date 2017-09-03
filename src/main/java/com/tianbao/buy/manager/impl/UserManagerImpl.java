@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 
 /**
- * Created by CodeGenerator on 2017/09/02.
+ * Created by CodeGenerator on 2017/09/03.
  */
 @Service
 public class UserManagerImpl extends AbstractManager<User> implements UserManager {

@@ -4,7 +4,7 @@ import com.tianbao.buy.domain.User;
 import com.tianbao.buy.core.Manager;
 
 /**
- * Created by CodeGenerator on 2017/09/02.
+ * Created by CodeGenerator on 2017/09/03.
  */
 public interface UserManager extends Manager<User> {
 

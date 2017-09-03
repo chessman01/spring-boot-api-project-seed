@@ -12,7 +12,7 @@ public interface FundDetailService {
 
     void updateStatus(String orderId, FundDetailVO.Status originStatus, FundDetailVO.Status status);
 
-    List<FundDetail> refundByPer(String orderId);
+    List<FundDetail> refundByPer(String orderId, List<FundDetail> fundDetails);
 
     List<FundDetail> incomeByPer(String orderId, Map<String, OrderVO.PayDetail> payDetailMap, Integer fee4wx);
 

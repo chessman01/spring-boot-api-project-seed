@@ -89,6 +89,12 @@ public class OrderMain {
     private Byte type;
 
     /**
+     * 取消订单时的原订单
+     */
+    @Column(name = "origin_order_id")
+    private String originOrderId;
+
+    /**
      * 获取主键
      *
      * @return id - 主键
@@ -338,5 +344,23 @@ public class OrderMain {
      */
     public void setType(Byte type) {
         this.type = type;
+    }
+
+    /**
+     * 获取取消订单时的原订单
+     *
+     * @return origin_order_id - 取消订单时的原订单
+     */
+    public String getOriginOrderId() {
+        return originOrderId;
+    }
+
+    /**
+     * 设置取消订单时的原订单
+     *
+     * @param originOrderId 取消订单时的原订单
+     */
+    public void setOriginOrderId(String originOrderId) {
+        this.originOrderId = originOrderId;
     }
 }

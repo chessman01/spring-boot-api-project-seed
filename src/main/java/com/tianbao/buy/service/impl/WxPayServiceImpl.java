@@ -14,7 +14,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
-import java.util.Date;
 import java.util.List;
 
 @Service
@@ -35,14 +34,14 @@ public class WxPayServiceImpl implements WxPayService {
     @Override
     @Transactional
     public void cancel(String orderId) {
-        OrderMain orderMain = orderService.updateOrder(orderId, OrderVO.Status.CANCLED, null);
+        OrderMain orderMain = orderService.updateOrder(orderId, OrderVO.Status.PENDING_CANCLE, null);
 
         if (orderMain.getCouponId() != null && orderMain.getCouponId() > NumberUtils.LONG_ZERO) {
-            couponService.updateCouponUserStatus(orderMain.getCouponId(), CouponVO.Status.USED.getCode(),
-                    CouponVO.Status.NORMAL.getCode());
+            couponService.updateCouponUserStatus(orderMain.getCouponId(), CouponVO.Status.NORMAL.getCode(),
+                    CouponVO.Status.USED.getCode());
         }
 
-        List<FundDetail> fundDetails = this.updateFund(orderId, FundDetailVO.Status.CANCELED, FundDetailVO.Status.FINISH);
+        List<FundDetail> fundDetails = this.updateFund(orderId, FundDetailVO.Status.FINISH, FundDetailVO.Status.CANCELED);
         FundDetailVO.Direction direction = FundDetailVO.Direction.REFUND_CARD;
 
         if (orderMain.getType().equals(OrderVO.Type.COURSE.getCode())) {

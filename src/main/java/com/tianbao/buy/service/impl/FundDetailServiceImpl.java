@@ -48,9 +48,18 @@ public class FundDetailServiceImpl implements FundDetailService {
     }
 
     @Override
-    public List<FundDetail> refundByPer(String orderId) {
-        updateStatus(orderId, FundDetailVO.Status.FINISH, FundDetailVO.Status.BLOCKED);
-        return null;
+    public List<FundDetail> refundByPer(String orderId, List<FundDetail> fundDetails) {
+        for (FundDetail fundDetail : fundDetails) {
+            fundDetail.setTarget(fundDetail.getOrigin());
+            fundDetail.setOrigin(FundDetailVO.Channel.END.getCode());
+            fundDetail.setCreateTime(null);
+            fundDetail.setModifyTime(null);
+            fundDetail.setOrderId(orderId);
+            fundDetail.setStatus(FundDetailVO.Status.PENDING.getCode());
+        }
+
+        fundDetailManager.save(fundDetails);
+        return fundDetails;
     }
 
     @Override

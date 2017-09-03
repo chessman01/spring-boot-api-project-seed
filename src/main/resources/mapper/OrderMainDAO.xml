@@ -19,5 +19,6 @@
     <result column="coupon_id" jdbcType="BIGINT" property="couponId" />
     <result column="pay_order_id" jdbcType="VARCHAR" property="payOrderId" />
     <result column="type" jdbcType="TINYINT" property="type" />
+    <result column="origin_order_id" jdbcType="VARCHAR" property="originOrderId" />
   </resultMap>
 </mapper>

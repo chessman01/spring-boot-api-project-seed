@@ -63,9 +63,31 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public void cancel(String orderId) {
-        updateOrder(orderId, OrderVO.Status.ORDER, null);
+        OrderMain order = this.getOrder(orderId, OrderVO.Status.ORDER);
+
+        order.setCreateTime(null);
+        order.setModifyTime(null);
+        order.setOriginOrderId(order.getOrderId());
+        order.setOrderId(MakeOrderNum.makeOrderNum());
+        order.setId(null);
+        order.setStatus(OrderVO.Status.PENDING_CANCLE.getCode());
+
+        sava(order);
+
         List<FundDetail> fundDetails = fundDetailService.get(orderId, FundDetailVO.Status.FINISH);
+
+        fundDetails = fundDetailService.refundByPer(order.getOrderId(), fundDetails);
+
+
+
+
+
+
         int realPay = fundDetailService.getRealPayFee(fundDetails);
+
+
+
+
 
         if (realPay == NumberUtils.INTEGER_ZERO) {
             // todo 直接调用卡退钱，否则调微信退，微信退完才能继续完结
