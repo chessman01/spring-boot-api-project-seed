@@ -109,7 +109,7 @@ public class CourseServiceImpl implements CourseService {
         checkArgument(id > NumberUtils.LONG_ZERO);
         Course course = courseManager.findById(id);
 
-        CourseVO courseVO = convert2CourseVO(course, false);
+        CourseVO courseVO = convert2CourseVO(course, false, false);
 
         if (courseVO == null) {
             logger.error(String.format("获取课程失败.id[%d]", id));
@@ -203,7 +203,7 @@ public class CourseServiceImpl implements CourseService {
 
             List<CourseVO> courseVOs = convert2CourseVO(course4Day);
 
-            filter(courseVOs);
+            filter(courseVOs, false);
 
             course4Days.add(new ScheduleVO.Course4Day(DateUtils.yearMonthDayFormat(tmp), courseVOs));
         }
@@ -225,8 +225,8 @@ public class CourseServiceImpl implements CourseService {
         }
     }
 
-    private void filter(List<CourseVO> courseVOs) {
-        courseVOs.forEach(item -> filter(item, false));
+    private void filter(List<CourseVO> courseVOs, boolean hasAddress) {
+        courseVOs.forEach(item -> filter(item, hasAddress));
     }
 
     private Map<Long, Course> toMap (List<Course> courses) {
@@ -240,11 +240,11 @@ public class CourseServiceImpl implements CourseService {
         return map;
     }
 
-    public CourseVO convert2CourseVO(Course course, boolean isFilter) {
+    public CourseVO convert2CourseVO(Course course, boolean isFilter, boolean hasAddress) {
         if (course == null) return null;
         List<CourseVO> courseVOs = convert2CourseVO(Lists.newArrayList(course));
 
-        if(isFilter) filter(courseVOs);
+        if(isFilter) filter(courseVOs, hasAddress);
 
         CourseVO courseVO = courseVOs.get(NumberUtils.INTEGER_ZERO);
 

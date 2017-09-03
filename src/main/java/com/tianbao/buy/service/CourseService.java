@@ -19,7 +19,7 @@ public interface CourseService {
 
     Map<Long, Course> getCourse(Set<Long> ids);
 
-    CourseVO convert2CourseVO(Course course, boolean filter);
+    CourseVO convert2CourseVO(Course course, boolean filter, boolean hasAddress);
 
     List<CourseVO> convert2CourseVO(List<Course> courses);
 }

@@ -274,21 +274,6 @@ public class YenCardServiceImpl implements YenCardService{
     }
 
     @Override
-    public OrderVO.PayDetail getRealPay(List<FundDetail> fundDetails) {
-        OrderVO.PayDetail payDetail = new OrderVO.PayDetail(OrderService.REAL_PAY_FEE, MoneyUtils.unitFormat(2, 0), 0);
-        if (CollectionUtils.isEmpty(fundDetails)) return payDetail;
-
-        for (FundDetail fundDetail : fundDetails) {
-            if (fundDetail.getOrigin().equals(FundDetailVO.Channel.WEIXIN.getCode())) {
-                payDetail = new OrderVO.PayDetail(OrderService.REAL_PAY_FEE, MoneyUtils.unitFormat(2, fundDetail.getPrice() / 100), fundDetail.getPrice());
-                break;
-            }
-        }
-
-        return payDetail;
-    }
-
-    @Override
     public List<OrderVO.PayDetail> getPayDetail(List<FundDetail> fundDetails) {
         List<OrderVO.PayDetail> payDetails = Lists.newArrayList();
         if (CollectionUtils.isEmpty(fundDetails)) return payDetails;
@@ -303,31 +288,31 @@ public class YenCardServiceImpl implements YenCardService{
             }
         }
 
-        OrderVO.PayDetail payDetail = new OrderVO.PayDetail(OrderService.CARD_PAY_FEE, MoneyUtils.unitFormat(2, total / 100), total);
-        payDetails.add(payDetail);
-
-        payDetail = new OrderVO.PayDetail(OrderService.TOTAL_FEE, MoneyUtils.minusUnitFormat(2, cardPay / 100), cardPay);
+        OrderVO.PayDetail payDetail = new OrderVO.PayDetail(OrderService.TOTAL_FEE, MoneyUtils.unitFormat(2, total / 100d), total);
         payDetails.add(payDetail);
 
         for (FundDetail fundDetail : fundDetails) {
             if (fundDetail.getOrigin().equals(FundDetailVO.Channel.CARD_DISCOUNT.getCode())) {
-                payDetail = new OrderVO.PayDetail(OrderService.CARD_DISCOUNT, MoneyUtils.minusUnitFormat(2, fundDetail.getPrice() / 100), fundDetail.getPrice());
+                payDetail = new OrderVO.PayDetail(OrderService.CARD_DISCOUNT, MoneyUtils.minusUnitFormat(2, fundDetail.getPrice() / 100d), fundDetail.getPrice());
                 payDetails.add(payDetail);
                 continue;
             }
 
             if (fundDetail.getOrigin().equals(FundDetailVO.Channel.REDUCE.getCode())) {
-                payDetail = new OrderVO.PayDetail(OrderService.ONLINE_REDUCE, MoneyUtils.minusUnitFormat(2, fundDetail.getPrice() / 100), fundDetail.getPrice());
+                payDetail = new OrderVO.PayDetail(OrderService.ONLINE_REDUCE, MoneyUtils.minusUnitFormat(2, fundDetail.getPrice() / 100d), fundDetail.getPrice());
                 payDetails.add(payDetail);
                 continue;
             }
 
             if (fundDetail.getOrigin().equals(FundDetailVO.Channel.COUPON.getCode())) {
-                payDetail = new OrderVO.PayDetail(OrderService.COUPON_FEE, MoneyUtils.minusUnitFormat(2, fundDetail.getPrice() / 100), fundDetail.getPrice());
+                payDetail = new OrderVO.PayDetail(OrderService.COUPON_FEE, MoneyUtils.minusUnitFormat(2, fundDetail.getPrice() / 100d), fundDetail.getPrice());
                 payDetails.add(payDetail);
                 continue;
             }
         }
+
+        payDetail = new OrderVO.PayDetail(OrderService.CARD_PAY_FEE, MoneyUtils.minusUnitFormat(2, cardPay / 100d), cardPay);
+        payDetails.add(payDetail);
 
         return payDetails;
     }

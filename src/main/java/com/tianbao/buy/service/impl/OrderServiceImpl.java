@@ -12,11 +12,13 @@ import com.tianbao.buy.utils.MoneyUtils;
 import com.tianbao.buy.vo.*;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 import tk.mybatis.mapper.entity.Condition;
 
 import javax.annotation.Resource;
@@ -98,13 +100,33 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    public OrderVO detail(String orderId) {
+        User user = userService.getUserByWxUnionId();
+
+        Condition condition = new Condition(OrderMain.class);
+        condition.createCriteria().andEqualTo("orderId", orderId).andCondition("user_id=", user.getId())
+                .andCondition("type=", OrderVO.Type.COURSE.getCode()).andIsNull("originOrderId");
+
+        List<OrderMain> orders = orderManager.findByCondition(condition);
+
+        if (CollectionUtils.isEmpty(orders) || orders.size() != NumberUtils.INTEGER_ONE) {
+            throw new BizException("订单没找到。");
+        }
+
+        OrderMain orderMain = orders.get(NumberUtils.INTEGER_ZERO);
+        Course course = courseService.getCourse(orderMain.getClassId());
+
+        return convert2OrderVO(orderMain, course, true, true);
+    }
+
+    @Override
     public List<OrderVO> get(byte status) {
         User user = userService.getUserByWxUnionId();
 
         Condition condition = new Condition(OrderMain.class);
         condition.orderBy("createTime");
         condition.createCriteria().andEqualTo("status", status).andCondition("user_id=", user.getId())
-                .andCondition("type=", OrderVO.Type.COURSE.getCode());
+                .andCondition("type=", OrderVO.Type.COURSE.getCode()).andIsNull("originOrderId");
 
         List<OrderMain> orders = orderManager.findByCondition(condition);
 
@@ -119,32 +141,41 @@ public class OrderServiceImpl implements OrderService {
         List<OrderVO> orderVOs = Lists.newArrayList();
 
         for (OrderMain orderMain : orders) {
-            OrderVO orderVO = convert2OrderVO(orderMain, courseMap.get(orderMain.getClassId()), false);
+            OrderVO orderVO = convert2OrderVO(orderMain, courseMap.get(orderMain.getClassId()), false, true);
             orderVOs.add(orderVO);
         }
 
         return orderVOs;
     }
 
-    private OrderVO convert2OrderVO(OrderMain orderMain, Course course, boolean isDetail) {
+    private OrderVO convert2OrderVO(OrderMain orderMain, Course course, boolean isDetail, boolean hasAddress) {
         checkNotNull(orderMain);
         checkNotNull(course);
 
-        OrderVO order = new OrderVO();
+        OrderVO orderVO = new OrderVO();
         List<FundDetail> fundDetails = fundDetailService.get(orderMain.getOrderId(), null);
 
-        if (isDetail) {
-            order.setPayDetail(cardService.getPayDetail(fundDetails));
-
+        if (orderMain.getStatus().equals(OrderVO.Status.ORDER.getCode())) {
             Button button = new Button();
             button.setTitle("取消预约");
-            order.setButton(button);
+            orderVO.setButton(button);
         }
 
-        order.setCourse(courseService.convert2CourseVO(course, true));
-        order.setRealPay(cardService.getRealPay(fundDetails));
+        if (isDetail) {
+            orderVO.setPayDetail(cardService.getPayDetail(fundDetails));
+        }
 
-        return order;
+        orderVO.setCourse(courseService.convert2CourseVO(course, true, hasAddress));
+        int realPay = fundDetailService.getRealPayFee(fundDetails);
+        orderVO.setRealPay(new OrderVO.PayDetail(OrderService.REAL_PAY_FEE, MoneyUtils.unitFormat(2, realPay / 100), realPay));
+
+        OrderVO.PersonTime personTime = new OrderVO.PersonTime(String.format("【%s人】", orderMain.getPersonTime()), Integer.valueOf(orderMain.getPersonTime()), true);
+        orderVO.setPersonTime(Lists.newArrayList(personTime));
+
+        OrderVO.Order order = new OrderVO.Order(orderMain.getOrderId(), new DateTime(orderMain.getCreateTime()).toString("yyyy-MM-dd HH:mm:ss")
+                , orderMain.getId(), OrderVO.Status.getDesc(orderMain.getStatus()));
+        orderVO.setOrder(order);
+        return orderVO;
     }
 
     @Override
@@ -245,7 +276,7 @@ public class OrderServiceImpl implements OrderService {
         // 3. 获取课程信息
         Course course = courseService.getNormalCourse().get(courseId);
         if (course == null) throw new BizException("没找到有效课程");
-        order.setCourse(courseService.convert2CourseVO(course, true));
+        order.setCourse(courseService.convert2CourseVO(course, true, false));
 
         context.setUser(user);
         context.setCard(card);

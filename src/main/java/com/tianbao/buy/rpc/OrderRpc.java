@@ -24,10 +24,16 @@ public class OrderRpc {
     @Resource
     private OrderService orderService;
 
+    @PostMapping("/detail")
+    public Result detail(@RequestParam String orderId) {
+        OrderVO order = orderService.detail(orderId);
+        return ResultGenerator.genSuccessResult(order);
+    }
+
     @PostMapping("/list")
     public Result list(@RequestParam(defaultValue = "1") Byte status) {
-        List<OrderVO> couponVOs = orderService.get(status);
-        return ResultGenerator.genSuccessResult(couponVOs);
+        List<OrderVO> orders = orderService.get(status);
+        return ResultGenerator.genSuccessResult(orders);
     }
 
     @PostMapping("/build")

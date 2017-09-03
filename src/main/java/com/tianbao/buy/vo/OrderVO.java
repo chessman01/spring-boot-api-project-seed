@@ -3,6 +3,7 @@ package com.tianbao.buy.vo;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
 
@@ -35,6 +36,8 @@ public class OrderVO {
         private String createTime;
 
         private Long id;
+
+        private String status;
     }
 
     @Data
@@ -123,6 +126,16 @@ public class OrderVO {
 
         public void setCode(byte code) {
             this.code = code;
+        }
+
+        public static String getDesc (byte code) {
+            for (Status status : Status.values()) {
+                if (status.getCode() == code) {
+                    return status.getDesc();
+                }
+            }
+
+            return StringUtils.EMPTY;
         }
     }
 }

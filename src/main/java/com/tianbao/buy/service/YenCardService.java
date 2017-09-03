@@ -29,7 +29,5 @@ public interface YenCardService {
 
     YenCardVO convert2CardVO(YenCard YenCard);
 
-    OrderVO.PayDetail getRealPay(List<FundDetail> fundDetails);
-
     List<OrderVO.PayDetail> getPayDetail(List<FundDetail> fundDetails);
 }

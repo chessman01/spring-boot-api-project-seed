@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Map;
 
 public interface OrderService {
+    OrderVO detail(String orderId);
+
     void updateStatus(OrderMain order, OrderVO.Status originStatus, String orderId);
 
     OrderMain getOrder(String orderId, OrderVO.Status originStatus);
