@@ -488,7 +488,12 @@ public class OrderServiceImpl implements OrderService {
         OrderMain origin = getOrder(orderId, originStatus);
         OrderMain order = new OrderMain();
 
-        if (originStatus.equals(OrderVO.Status.PENDING_PAY)) {
+        if (targetStatus.equals(OrderVO.Status.ORDER) && origin.getType().equals(OrderVO.Type.CARD.getCode())) {
+            targetStatus = OrderVO.Status.END;
+        }
+
+
+        if (originStatus.equals(OrderVO.Status.PENDING_PAY) || originStatus.equals(OrderVO.Status.PENDING_CANCLE)) {
             order.setPayTime(new Date());
             order.setPayOrderId(payOrderId);
         }

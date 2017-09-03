@@ -51,8 +51,6 @@ public class FundDetailServiceImpl implements FundDetailService {
     public List<FundDetail> refundByPer(String orderId, List<FundDetail> fundDetails) {
         Date current = new Date();
         for (FundDetail fundDetail : fundDetails) {
-            fundDetail.setTarget(fundDetail.getOrigin());
-            fundDetail.setOrigin(FundDetailVO.Channel.END.getCode());
             fundDetail.setCreateTime(current);
             fundDetail.setModifyTime(current);
             fundDetail.setOrderId(orderId);
