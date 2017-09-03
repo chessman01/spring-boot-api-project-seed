@@ -51,4 +51,10 @@ public class OrderRpc {
 
         return ResultGenerator.genSuccessResult(orderId);
     }
+
+    @PostMapping("/cancel")
+    public Result cancel(@RequestParam String orderId) {
+        orderService.cancel(orderId);
+        return ResultGenerator.genSuccessResult();
+    }
 }

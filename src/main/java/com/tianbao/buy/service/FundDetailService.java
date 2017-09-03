@@ -20,5 +20,7 @@ public interface FundDetailService {
 
     int getCardFee(List<FundDetail> details, boolean isCash, boolean isRecharge);
 
+    int getRealPayFee(List<FundDetail> details);
+
     int getFee(OrderVO.PayDetail payDetail);
 }

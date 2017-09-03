@@ -62,6 +62,19 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    public void cancel(String orderId) {
+        updateOrder(orderId, OrderVO.Status.ORDER, null);
+        List<FundDetail> fundDetails = fundDetailService.get(orderId, FundDetailVO.Status.FINISH);
+        int realPay = fundDetailService.getRealPayFee(fundDetails);
+
+        if (realPay == NumberUtils.INTEGER_ZERO) {
+            // todo 直接调用卡退钱，否则调微信退，微信退完才能继续完结
+        }
+
+
+    }
+
+    @Override
     public List<OrderVO> get(byte status) {
         User user = userService.getUserByWxUnionId();
 
@@ -444,5 +457,36 @@ public class OrderServiceImpl implements OrderService {
         order.setRechargeTemplateId(rechargeTemplateId);
 
         return order;
+    }
+
+    @Override
+    public OrderMain updateOrder(String orderId, OrderVO.Status originStatus, String payOrderId) {
+        // 先找原始订单
+        OrderMain origin = getOrder(orderId, originStatus);
+        OrderMain order = new OrderMain();
+
+        if (origin.getType().equals(OrderVO.Type.CARD.getCode())) {
+            order.setStatus(OrderVO.Status.END.getCode());
+        } else {
+            if (originStatus.equals(OrderVO.Status.PENDING_PAY)) {
+                order.setStatus(OrderVO.Status.ORDER.getCode());
+            }
+
+            if (originStatus.equals(OrderVO.Status.ORDER)) {
+                order.setStatus(OrderVO.Status.PENDING_CANCLE.getCode());
+            }
+
+            if (originStatus.equals(OrderVO.Status.PENDING_CANCLE)) {
+                order.setStatus(OrderVO.Status.CANCLED.getCode());
+            }
+        }
+
+        if (originStatus.equals(OrderVO.Status.PENDING_PAY)) {
+            order.setPayTime(new Date());
+            order.setPayOrderId(payOrderId);
+        }
+
+        updateStatus(order, originStatus, orderId);
+        return origin;
     }
 }

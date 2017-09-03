@@ -22,4 +22,11 @@ public class WXTestRpc {
 
         return ResultGenerator.genSuccessResult();
     }
+
+    @PostMapping("/cancel")
+    public Result cancel(@RequestParam String orderId) {
+        wxPayService.cancel(orderId);
+
+        return ResultGenerator.genSuccessResult();
+    }
 }

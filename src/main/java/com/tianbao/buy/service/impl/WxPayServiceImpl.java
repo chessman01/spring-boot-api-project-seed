@@ -35,19 +35,26 @@ public class WxPayServiceImpl implements WxPayService {
     @Override
     @Transactional
     public void cancel(String orderId) {
-        OrderMain orderMain = this.updateOrder(orderId, OrderVO.Status.CANCLED, null);
-        this.updateFund(orderId, FundDetailVO.Status.FINISH, FundDetailVO.Status.CANCELED);
+        OrderMain orderMain = orderService.updateOrder(orderId, OrderVO.Status.CANCLED, null);
 
         if (orderMain.getCouponId() != null && orderMain.getCouponId() > NumberUtils.LONG_ZERO) {
-            couponService.updateCouponUserStatus(orderMain.getCouponId(), CouponVO.Status.PENDING.getCode(),
-                    CouponVO.Status.USED.getCode());
+            couponService.updateCouponUserStatus(orderMain.getCouponId(), CouponVO.Status.USED.getCode(),
+                    CouponVO.Status.NORMAL.getCode());
         }
+
+        List<FundDetail> fundDetails = this.updateFund(orderId, FundDetailVO.Status.CANCELED, FundDetailVO.Status.FINISH);
+        FundDetailVO.Direction direction = FundDetailVO.Direction.REFUND_CARD;
+
+        if (orderMain.getType().equals(OrderVO.Type.COURSE.getCode())) {
+            direction = FundDetailVO.Direction.REFUND_PER;
+        }
+        this.adjustCardAccount(fundDetails, orderMain, direction);
     }
 
     @Override
     @Transactional
     public void paySuccess(String orderId) {
-        OrderMain orderMain = this.updateOrder(orderId, OrderVO.Status.PENDING_PAY, "123");
+        OrderMain orderMain = orderService.updateOrder(orderId, OrderVO.Status.PENDING_PAY, "123");
 
         if (orderMain.getCouponId() != null && orderMain.getCouponId() > NumberUtils.LONG_ZERO) {
             couponService.updateCouponUserStatus(orderMain.getCouponId(), CouponVO.Status.USED.getCode(),
@@ -81,32 +88,12 @@ public class WxPayServiceImpl implements WxPayService {
             int newGift = oldGift - fundDetailService.getCardFee(fundDetails, false, false);
             cardService.updatePrice(newCash, oldCash, newGift, oldGift, card.getId());
         }
-    }
 
-    private OrderMain updateOrder(String orderId, OrderVO.Status originStatus, String payOrderId) {
-        // 先找原始订单
-        OrderMain origin = orderService.getOrder(orderId, originStatus);
-        OrderMain order = new OrderMain();
-
-        if (origin.getType().equals(OrderVO.Type.CARD.getCode())) {
-            order.setStatus(OrderVO.Status.END.getCode());
-        } else {
-            if (originStatus.equals(OrderVO.Status.PENDING_PAY)) {
-                order.setStatus(OrderVO.Status.ORDER.getCode());
-            }
-
-            if (originStatus.equals(OrderVO.Status.PENDING_CANCLE)) {
-                order.setStatus(OrderVO.Status.CANCLED.getCode());
-            }
+        if (orderMain.getType().equals(OrderVO.Type.COURSE.getCode()) && direction.equals(FundDetailVO.Direction.REFUND_PER)) {
+            int newCash = oldCash + fundDetailService.getCardFee(fundDetails, true, false);
+            int newGift = oldGift + fundDetailService.getCardFee(fundDetails, false, false);
+            cardService.updatePrice(newCash, oldCash, newGift, oldGift, card.getId());
         }
-
-        if (originStatus.equals(OrderVO.Status.PENDING_PAY)) {
-            order.setPayTime(new Date());
-            order.setPayOrderId(payOrderId);
-        }
-
-        orderService.updateStatus(order, originStatus, orderId);
-        return origin;
     }
 
     private List<FundDetail> updateFund(String orderId, FundDetailVO.Status originStatus, FundDetailVO.Status status) {

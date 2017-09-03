@@ -13,6 +13,8 @@ public interface OrderService {
 
     OrderMain getOrder(String orderId, OrderVO.Status originStatus);
 
+    void cancel(String orderId);
+
     List<OrderVO> get(byte status);
 
     int getBoughtNum(long userId);
@@ -32,6 +34,8 @@ public interface OrderService {
 
     OrderMain make(String orderId, Byte personTime, Long userId, Long classId, Long yenCardId,
                    Long couponId, Byte status, Byte type, Long rechargeTemplateId);
+
+    OrderMain updateOrder(String orderId, OrderVO.Status originStatus, String payOrderId);
 
     public final static String TOTAL_FEE = "课程总价";
 

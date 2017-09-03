@@ -64,6 +64,17 @@ public class FundDetailServiceImpl implements FundDetailService {
     }
 
     @Override
+    public int getRealPayFee(List<FundDetail> details) {
+        for (FundDetail detail : details) {
+            if (detail.getOrigin().equals(FundDetailVO.Channel.WEIXIN.getCode())) {
+                return detail.getPrice();
+            }
+        }
+
+        return NumberUtils.INTEGER_ZERO;
+    }
+
+    @Override
     public int getCardFee(List<FundDetail> details, boolean isCash, boolean isRecharge) {
         int fee = 0;
 
