@@ -2,8 +2,11 @@ package com.tianbao.buy.service;
 
 import com.tianbao.buy.domain.User;
 import com.tianbao.buy.vo.InvitationVO;
+import com.tianbao.buy.vo.UserVO;
 
 public interface UserService {
+    UserVO self();
+
     User getUserByWxUnionId();
 
     User getUserByuserId(long userId);

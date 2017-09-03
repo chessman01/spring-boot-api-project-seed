@@ -4,6 +4,7 @@ import com.tianbao.buy.core.Result;
 import com.tianbao.buy.core.ResultGenerator;
 import com.tianbao.buy.service.UserService;
 import com.tianbao.buy.vo.InvitationVO;
+import com.tianbao.buy.vo.UserVO;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -44,6 +45,12 @@ public class UserRpc {
                              @RequestParam String phone) {
         userService.recommend(inviter, code, phone);
         return ResultGenerator.genSuccessResult();
+    }
+
+    @PostMapping("/self")
+    public Result self() {
+        UserVO user = userService.self();
+        return ResultGenerator.genSuccessResult(user);
     }
 }
 

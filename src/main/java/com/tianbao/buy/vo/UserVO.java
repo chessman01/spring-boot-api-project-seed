@@ -4,19 +4,38 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserVO {
     private long userId;
 
-    private String durationTotal;
+    private Digital durationTotal;
 
-    private String durationWeek;
+    private Digital durationWeek;
 
     private String calorieTotal;
 
-    private String point;
+    private String beyond;
+
+    private List<YenCardVO> cards;
+
+    private List<OrderVO> orders;
+
+    private long point;
+
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class Digital{
+        private String intPart;
+
+        private String fractionalPart;
+
+        private String origin;
+    }
 
     public enum Status {
         // 状态。1：正常；0：软删除

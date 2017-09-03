@@ -9,9 +9,7 @@ import com.tianbao.buy.service.OrderService;
 import com.tianbao.buy.service.UserService;
 import com.tianbao.buy.service.YenCardService;
 import com.tianbao.buy.utils.MoneyUtils;
-import com.tianbao.buy.vo.CouponVO;
-import com.tianbao.buy.vo.InvitationVO;
-import com.tianbao.buy.vo.UserVO;
+import com.tianbao.buy.vo.*;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.slf4j.Logger;
@@ -21,6 +19,8 @@ import org.springframework.transaction.annotation.Transactional;
 import tk.mybatis.mapper.entity.Condition;
 
 import javax.annotation.Resource;
+import java.util.List;
+import java.util.Random;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -30,13 +30,48 @@ public class UserServiceImpl implements UserService {
     private UserManager userManager;
 
     @Resource
-    private YenCardService yenCardService;
+    private YenCardService cardService;
 
     @Resource
     private CouponService couponService;
 
     @Resource
     private OrderService orderService;
+
+    @Override
+    public UserVO self() {
+        User user = getUserByWxUnionId();
+        UserVO userVO = new UserVO();
+
+        List<YenCardVO> cards = cardService.getCardByUser();
+        List<OrderVO> orders = orderService.get(OrderVO.Status.ORDER.getCode());
+
+        userVO.setCards(cards);
+        userVO.setOrders(orders);
+
+        userVO.setBeyond(String.format("您已经超过 %s %%同时健身的同学", MoneyUtils.format(0, Math.random() * 100)));
+        userVO.setCalorieTotal(MoneyUtils.format(1, user.getCalorieTotal()));
+        userVO.setDurationTotal(new UserVO.Digital("10", "1/4", "10.25"));
+        userVO.setDurationWeek(new UserVO.Digital("11", "2/4", "11.5"));
+        userVO.setPoint(user.getPoint());
+        userVO.setUserId(user.getId());
+        return userVO;
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     private boolean isOldUser(User user) {
         int boughtNum = orderService.getBoughtNum(user.getId());
@@ -135,7 +170,6 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-
     public User getUserByWxUnionId() {
         // todo 这里是要依据微信接口拿到用户uid，到userManager查用户，然后得到用户ID
         String wxUnionId = "12345";
@@ -186,7 +220,7 @@ public class UserServiceImpl implements UserService {
 
         user = userManager.findBy("wxUnionId", wxUnionId);
 
-        yenCardService.initNormalCard(user.getId());
+        cardService.initNormalCard(user.getId());
 
         return user;
     }
