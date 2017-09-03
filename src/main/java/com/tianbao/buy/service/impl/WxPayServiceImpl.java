@@ -4,8 +4,6 @@ import com.tianbao.buy.core.BizException;
 import com.tianbao.buy.domain.FundDetail;
 import com.tianbao.buy.domain.OrderMain;
 import com.tianbao.buy.domain.YenCard;
-import com.tianbao.buy.manager.FundDetailManager;
-import com.tianbao.buy.manager.OrderMainManager;
 import com.tianbao.buy.service.*;
 import com.tianbao.buy.vo.CouponVO;
 import com.tianbao.buy.vo.FundDetailVO;
@@ -14,7 +12,6 @@ import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
-import tk.mybatis.mapper.entity.Condition;
 
 import javax.annotation.Resource;
 import java.util.Date;
@@ -30,9 +27,6 @@ public class WxPayServiceImpl implements WxPayService {
     private YenCardService cardService;
 
     @Resource
-    private OrderMainManager orderMainManager;
-
-    @Resource
     private FundDetailService fundDetailService;
 
     @Resource
@@ -41,7 +35,7 @@ public class WxPayServiceImpl implements WxPayService {
     @Override
     @Transactional
     public void cancel(String orderId) {
-        OrderMain orderMain = this.updateOrder(orderId, OrderVO.Status.CANCLED);
+        OrderMain orderMain = this.updateOrder(orderId, OrderVO.Status.CANCLED, null);
         this.updateFund(orderId, FundDetailVO.Status.FINISH, FundDetailVO.Status.CANCELED);
 
         if (orderMain.getCouponId() != null && orderMain.getCouponId() > NumberUtils.LONG_ZERO) {
@@ -53,7 +47,7 @@ public class WxPayServiceImpl implements WxPayService {
     @Override
     @Transactional
     public void paySuccess(String orderId) {
-        OrderMain orderMain = this.updateOrder(orderId, OrderVO.Status.PENDING_PAY);
+        OrderMain orderMain = this.updateOrder(orderId, OrderVO.Status.PENDING_PAY, "123");
 
         if (orderMain.getCouponId() != null && orderMain.getCouponId() > NumberUtils.LONG_ZERO) {
             couponService.updateCouponUserStatus(orderMain.getCouponId(), CouponVO.Status.USED.getCode(),
@@ -89,7 +83,7 @@ public class WxPayServiceImpl implements WxPayService {
         }
     }
 
-    private OrderMain updateOrder(String orderId, OrderVO.Status originStatus) {
+    private OrderMain updateOrder(String orderId, OrderVO.Status originStatus, String payOrderId) {
         // 先找原始订单
         OrderMain origin = orderService.getOrder(orderId, originStatus);
         OrderMain order = new OrderMain();
@@ -104,6 +98,11 @@ public class WxPayServiceImpl implements WxPayService {
             if (originStatus.equals(OrderVO.Status.PENDING_CANCLE)) {
                 order.setStatus(OrderVO.Status.CANCLED.getCode());
             }
+        }
+
+        if (originStatus.equals(OrderVO.Status.PENDING_PAY)) {
+            order.setPayTime(new Date());
+            order.setPayOrderId(payOrderId);
         }
 
         orderService.updateStatus(order, originStatus, orderId);

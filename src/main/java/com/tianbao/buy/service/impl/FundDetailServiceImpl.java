@@ -72,15 +72,15 @@ public class FundDetailServiceImpl implements FundDetailService {
                 return detail.getPrice();
             }
 
-            if (isCash && !isRecharge && detail.getTarget().equals(FundDetailVO.Channel.WEIXIN.getCode())) {
-                return detail.getPrice();
-            }
-
             if (!isCash && isRecharge && !detail.getOrigin().equals(FundDetailVO.Channel.WEIXIN.getCode())) {
                 fee = fee + detail.getPrice();
             }
 
-            if (!isCash && !isRecharge && !detail.getTarget().equals(FundDetailVO.Channel.WEIXIN.getCode())) {
+            if (isCash && !isRecharge && detail.getOrigin().equals(FundDetailVO.Channel.CARD_CASH.getCode())) {
+                return detail.getPrice();
+            }
+
+            if (!isCash && !isRecharge && detail.getOrigin().equals(FundDetailVO.Channel.CARD_GIFT.getCode())) {
                 fee = fee + detail.getPrice();
             }
         }

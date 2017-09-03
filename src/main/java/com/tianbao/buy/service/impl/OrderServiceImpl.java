@@ -188,20 +188,6 @@ public class OrderServiceImpl implements OrderService {
         }
 
         return orderId;
-
-//
-//        int oldCash = context.getCard().getCashAccount();
-//        int oldGift = context.getCard().getGiftAccount();
-//        int newCash = fundDetailService.getFee(payDetailMap.get(CARD_CASH_PAY_FEE));
-//        int newGift = fundDetailService.getFee(payDetailMap.get(CARD_GIFT_PAY_FEE));
-//
-//        if (newCash > oldCash || newGift > oldGift) {
-//            if (oldGift + oldGift < newCash + newGift) {
-//                throw new BizException("卡余额不够");
-//            }
-//
-//            cardService.updatePrice(oldCash - newCash, oldCash, oldGift - newGift, oldGift, context.getCard().getId());
-//        }
     }
 
     private OrderVO render(long courseId, Long cardId, Long couponId, int personTime, Context context) {
