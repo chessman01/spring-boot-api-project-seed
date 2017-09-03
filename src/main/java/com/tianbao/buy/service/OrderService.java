@@ -35,7 +35,7 @@ public interface OrderService {
     OrderMain make(String orderId, Byte personTime, Long userId, Long classId, Long yenCardId,
                    Long couponId, Byte status, Byte type, Long rechargeTemplateId);
 
-    OrderMain updateOrder(String orderId, OrderVO.Status originStatus, String payOrderId);
+    OrderMain updateOrder(String orderId, OrderVO.Status originStatus, OrderVO.Status targetStatus, String payOrderId);
 
     public final static String TOTAL_FEE = "课程总价";
 

@@ -62,11 +62,12 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    @Transactional
     public void cancel(String orderId) {
         OrderMain order = this.getOrder(orderId, OrderVO.Status.ORDER);
-
-        order.setCreateTime(null);
-        order.setModifyTime(null);
+        Date current = new Date();
+        order.setCreateTime(current);
+        order.setModifyTime(current);
         order.setOriginOrderId(order.getOrderId());
         order.setOrderId(MakeOrderNum.makeOrderNum());
         order.setId(null);
@@ -482,31 +483,18 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public OrderMain updateOrder(String orderId, OrderVO.Status originStatus, String payOrderId) {
+    public OrderMain updateOrder(String orderId, OrderVO.Status originStatus, OrderVO.Status targetStatus, String payOrderId) {
         // 先找原始订单
         OrderMain origin = getOrder(orderId, originStatus);
         OrderMain order = new OrderMain();
-
-        if (origin.getType().equals(OrderVO.Type.CARD.getCode())) {
-            order.setStatus(OrderVO.Status.END.getCode());
-        } else {
-            if (originStatus.equals(OrderVO.Status.PENDING_PAY)) {
-                order.setStatus(OrderVO.Status.ORDER.getCode());
-            }
-
-            if (originStatus.equals(OrderVO.Status.ORDER)) {
-                order.setStatus(OrderVO.Status.PENDING_CANCLE.getCode());
-            }
-
-            if (originStatus.equals(OrderVO.Status.PENDING_CANCLE)) {
-                order.setStatus(OrderVO.Status.CANCLED.getCode());
-            }
-        }
 
         if (originStatus.equals(OrderVO.Status.PENDING_PAY)) {
             order.setPayTime(new Date());
             order.setPayOrderId(payOrderId);
         }
+
+        order.setStatus(targetStatus.getCode());
+        origin.setStatus(targetStatus.getCode());
 
         updateStatus(order, originStatus, orderId);
         return origin;

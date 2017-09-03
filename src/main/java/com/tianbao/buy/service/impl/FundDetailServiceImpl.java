@@ -49,13 +49,15 @@ public class FundDetailServiceImpl implements FundDetailService {
 
     @Override
     public List<FundDetail> refundByPer(String orderId, List<FundDetail> fundDetails) {
+        Date current = new Date();
         for (FundDetail fundDetail : fundDetails) {
             fundDetail.setTarget(fundDetail.getOrigin());
             fundDetail.setOrigin(FundDetailVO.Channel.END.getCode());
-            fundDetail.setCreateTime(null);
-            fundDetail.setModifyTime(null);
+            fundDetail.setCreateTime(current);
+            fundDetail.setModifyTime(current);
             fundDetail.setOrderId(orderId);
             fundDetail.setStatus(FundDetailVO.Status.PENDING.getCode());
+            fundDetail.setDirection(FundDetailVO.Direction.REFUND_PER.getCode());
         }
 
         fundDetailManager.save(fundDetails);
