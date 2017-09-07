@@ -157,7 +157,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User getUserByWxOpenId(String openId, String lang) throws WxErrorException {
-        WxMpUser wxMpUser = this.wxMpService.getUserService().userInfo(openId, lang);
+        WxMpUser wxMpUser = wxMpService.getUserService().userInfo(openId, lang);
         String wxUnionId = wxMpUser.getUnionId();
 
         if (StringUtils.isBlank(wxUnionId)) {
@@ -169,8 +169,9 @@ public class UserServiceImpl implements UserService {
 
         /* 当用户是首次使用时，初始化用户和瘾卡 */
         if (user == null) {
-            user = init(wxUnionId, wxUnionId, "nick", true, "http://gw.alicdn.com/tps/TB1FDOHLVXXXXcZXFXXXXXXXXXX-183-129.png",
-                    0, "中国", "浙江", "杭州");
+            boolean isMale = "男".equals(wxMpUser.getSex());
+            user = init(wxMpUser.getOpenId(), wxMpUser.getUnionId(), wxMpUser.getNickname(), isMale, wxMpUser.getHeadImgUrl(),
+                    0, wxMpUser.getCountry(), wxMpUser.getProvince(), wxMpUser.getCity());
         }
 
         if (user == null) {

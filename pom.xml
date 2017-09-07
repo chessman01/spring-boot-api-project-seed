@@ -124,7 +124,11 @@
             <artifactId>weixin-java-mp</artifactId>
             <version>${weixin-java-mp.version}</version>
         </dependency>
-
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt</artifactId>
+            <version>0.7.0</version>
+        </dependency>
         <!--代码生成器依赖-->
         <dependency>
             <groupId>org.freemarker</groupId>

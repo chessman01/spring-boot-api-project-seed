@@ -2,6 +2,7 @@ package com.tianbao.buy.rpc;
 
 import com.tianbao.buy.core.Result;
 import com.tianbao.buy.core.ResultGenerator;
+import com.tianbao.buy.utils.JwtUtils;
 import me.chanjar.weixin.common.exception.WxErrorException;
 import me.chanjar.weixin.mp.api.WxMpMessageRouter;
 import me.chanjar.weixin.mp.api.WxMpService;
@@ -13,12 +14,19 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletResponse;
 
 @RestController
 @RequestMapping("/wechat/portal")
 public class WechatRpc {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    @Value("${biz.token.seconds.expiration}")
+    private int seconds;
 
     @Autowired
     private WxMpService wxService;
@@ -136,11 +144,16 @@ public class WechatRpc {
      * @param code     code
      */
     @PostMapping("/openid")
-    public Result getOpenId(@RequestParam String code) {
+    public Result getOpenId(@RequestParam String code, HttpServletResponse response) {
         WxMpOAuth2AccessToken accessToken;
 
         try {
             accessToken = this.wxMpService.oauth2getAccessToken(code);
+            Cookie cookie = new Cookie(JwtUtils.COOKIE_TOKEN_KEY, JwtUtils.generate(accessToken.getOpenId(), seconds));
+
+            cookie.setMaxAge(seconds);
+            response.addCookie(cookie);
+
             return ResultGenerator.genSuccessResult(accessToken.getOpenId());
         } catch (WxErrorException e) {
             logger.error(e.getError().toString());
