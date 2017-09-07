@@ -2,9 +2,11 @@ package com.tianbao.buy.rpc;
 
 import com.tianbao.buy.core.Result;
 import com.tianbao.buy.core.ResultGenerator;
+import com.tianbao.buy.domain.User;
 import com.tianbao.buy.service.UserService;
 import com.tianbao.buy.vo.InvitationVO;
 import com.tianbao.buy.vo.UserVO;
+import me.chanjar.weixin.common.exception.WxErrorException;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -20,37 +22,44 @@ public class UserRpc {
 
     /** 获取手机验证码，如果是确认朋友推荐，如果自已已购买过，则不能再由朋友推荐 **/
     @PostMapping("/pin")
-    public Result getPin(@RequestParam String phone, boolean isObtainRecommend) {
-        boolean result = userService.getPin(phone, isObtainRecommend);
+    public Result getPin(@RequestParam String openId, @RequestParam(defaultValue = "zh_CN") String lang,
+                         @RequestParam String phone, boolean isObtainRecommend) throws WxErrorException {
+        User user = userService.getUserByWxOpenId(openId, lang);
+        boolean result = userService.getPin(phone, isObtainRecommend, user);
         return ResultGenerator.genSuccessResult(result, "验证码发放成功.");
     }
 
     /** 验证手机 **/
     @PostMapping("/validate/phone")
-    public Result validatePhone(@RequestParam String code, @RequestParam String phone) {
-        boolean result = userService.validatePhone(code, phone);
+    public Result validatePhone(@RequestParam String openId, @RequestParam(defaultValue = "zh_CN") String lang,
+                                @RequestParam String code, @RequestParam String phone) throws WxErrorException {
+        User user = userService.getUserByWxOpenId(openId, lang);
+        boolean result = userService.validatePhone(code, phone, user);
         return ResultGenerator.genSuccessResult(result, "验证成功.");
     }
 
     /** 自已的推荐页，给朋友的 **/
     @PostMapping("/invitation")
-    public Result invitation() {
-        InvitationVO invitation = userService.invitation();
+    public Result invitation(@RequestParam String openId, @RequestParam(defaultValue = "zh_CN") String lang) throws WxErrorException {
+        User user = userService.getUserByWxOpenId(openId, lang);
+        InvitationVO invitation = userService.invitation(user);
         return ResultGenerator.genSuccessResult(invitation);
     }
 
     /** 朋友推荐来的，要记下谁推荐的自个，并且给朋友发个券 **/
     @PostMapping("/recommend")
-    public Result recommend(@RequestParam long inviter, @RequestParam String code,
-                             @RequestParam String phone) {
-        userService.recommend(inviter, code, phone);
+    public Result recommend(@RequestParam String openId, @RequestParam(defaultValue = "zh_CN") String lang,
+                            @RequestParam long inviter, @RequestParam String code, @RequestParam String phone) throws WxErrorException {
+        User user = userService.getUserByWxOpenId(openId, lang);
+        userService.recommend(inviter, code, phone, user);
         return ResultGenerator.genSuccessResult();
     }
 
     @PostMapping("/self")
-    public Result self() {
-        UserVO user = userService.self();
-        return ResultGenerator.genSuccessResult(user);
+    public Result self(@RequestParam String openId, @RequestParam(defaultValue = "zh_CN") String lang) throws WxErrorException {
+        User user = userService.getUserByWxOpenId(openId, lang);
+        UserVO userVO = userService.self(user);
+        return ResultGenerator.genSuccessResult(userVO);
     }
 }
 

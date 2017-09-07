@@ -8,10 +8,10 @@ import lombok.Getter;
  * 统一API响应结果封装
  */
 @Getter
-public class Result {
+public class Result<T> {
     private int code;
     private String message;
-    private Object data;
+    private T data;
 
     public Result setCode(ResultCode resultCode) {
         this.code = resultCode.code;
@@ -28,7 +28,7 @@ public class Result {
         return this;
     }
 
-    public Result setData(Object data) {
+    public Result setData(T data) {
         this.data = data;
         return this;
     }

@@ -13,10 +13,10 @@ import com.tianbao.buy.manager.CouponTemplateManager;
 import com.tianbao.buy.manager.CouponUserManager;
 import com.tianbao.buy.service.PredicateWrapper;
 import com.tianbao.buy.service.CouponService;
-import com.tianbao.buy.service.UserService;
 import com.tianbao.buy.utils.DateUtils;
 import com.tianbao.buy.utils.MoneyUtils;
 import com.tianbao.buy.vo.CouponVO;
+import me.chanjar.weixin.common.exception.WxErrorException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.joda.time.DateTime;
@@ -46,9 +46,6 @@ public class CouponServiceImpl implements CouponService {
 
     @Resource
     private CouponTemplateManager couponTemplateManager;
-
-    @Resource
-    private UserService userService;
 
     @Override
     public int getCouponNum(long couponTemplateId, long userId) {
@@ -99,9 +96,7 @@ public class CouponServiceImpl implements CouponService {
     }
 
     @Override
-    public List<CouponVO> getCoupon(byte status) {
-        User user = userService.getUserByWxUnionId();
-
+    public List<CouponVO> getCoupon(byte status, User user) throws WxErrorException {
         Set payTypeSet = Sets.newHashSet(CouponVO.PayType.RECHARGE.getCode(),
                 CouponVO.PayType.ALL.getCode(), CouponVO.PayType.PAY_PER_VIEW.getCode());
         Set couponUserStatusSet = Sets.newHashSet(status);
@@ -157,22 +152,20 @@ public class CouponServiceImpl implements CouponService {
 
         // 领券，只有这两源的券能被领
         Set<Byte> sourceSet = Sets.newHashSet(CouponVO.Source.FRIEND.getCode());
-        obtain(templateId, sourceSet, userId, from);
+        obtain(templateId, sourceSet, from, userId);
     }
 
     @Override
-    public void obtain(long templateId, Byte from) {
+    public void obtain(long userId, long templateId, Byte from) throws WxErrorException {
         checkArgument(templateId > NumberUtils.LONG_ZERO);
-        // 获取用户信息
-        User user = userService.getUserByWxUnionId();
 
         // 领券，只有这两源的券能被领
         Set<Byte> sourceSet = Sets.newHashSet(CouponVO.Source.OFFLINE.getCode(), CouponVO.Source.WEIXIN.getCode());
-        obtain(templateId, sourceSet, user.getId(), from);
+        obtain(templateId, sourceSet, from, userId);
     }
 
     @Override
-    public void obtain(long templateId, Set<Byte> sourceSet, long userId, Byte from) {
+    public void obtain(long templateId, Set<Byte> sourceSet, Byte from, long userId) {
         checkArgument(templateId > NumberUtils.LONG_ZERO);
         checkArgument(userId > NumberUtils.LONG_ZERO);
 

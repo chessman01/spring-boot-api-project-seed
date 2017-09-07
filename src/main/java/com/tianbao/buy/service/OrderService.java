@@ -2,6 +2,7 @@ package com.tianbao.buy.service;
 
 import com.tianbao.buy.domain.CouponTemplate;
 import com.tianbao.buy.domain.OrderMain;
+import com.tianbao.buy.domain.User;
 import com.tianbao.buy.domain.YenCard;
 import com.tianbao.buy.vo.OrderVO;
 
@@ -9,23 +10,23 @@ import java.util.List;
 import java.util.Map;
 
 public interface OrderService {
-    OrderVO detail(String orderId);
+    OrderVO detail(String orderId, User user);
 
     void updateStatus(OrderMain order, OrderVO.Status originStatus, String orderId);
 
-    OrderMain getOrder(String orderId, OrderVO.Status originStatus);
+    OrderMain getOrder(String orderId, OrderVO.Status originStatus, User user);
 
-    void cancel(String orderId);
+    void cancel(String orderId, User user);
 
-    List<OrderVO> get(byte status);
+    List<OrderVO> get(byte status, User user);
 
     int getBoughtNum(long userId);
 
-    OrderVO build(long courseId);
+    OrderVO build(long courseId, User user);
 
-    OrderVO adjust(long courseId, Long cardId, Long couponId, int personTime);
+    OrderVO adjust(long courseId, Long cardId, Long couponId, int personTime, User user);
 
-    String create(long courseId, Long couponId, Byte personTime);
+    String create(long courseId, Long couponId, Byte personTime, User user);
 
     void sava (OrderMain order);
 
@@ -37,7 +38,7 @@ public interface OrderService {
     OrderMain make(String orderId, Byte personTime, Long userId, Long classId, Long yenCardId,
                    Long couponId, Byte status, Byte type, Long rechargeTemplateId);
 
-    OrderMain updateOrder(String orderId, OrderVO.Status originStatus, OrderVO.Status targetStatus, String payOrderId);
+    OrderMain updateOrder(String orderId, OrderVO.Status originStatus, OrderVO.Status targetStatus, String payOrderId, User user);
 
     public final static String TOTAL_FEE = "课程总价";
 

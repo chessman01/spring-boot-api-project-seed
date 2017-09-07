@@ -34,9 +34,6 @@ public class YenCardServiceImpl implements YenCardService{
     private YenCardManager yenCardManager;
 
     @Resource
-    private UserService userService;
-
-    @Resource
     private CouponService couponService;
 
     @Resource
@@ -46,30 +43,28 @@ public class YenCardServiceImpl implements YenCardService{
     private OrderService orderService;
 
     @Override
-    public List<YenCardVO> getCardByUser() {
-        User user = userService.getUserByWxUnionId();
+    public List<YenCardVO> getCardByUser(User user) {
         List<YenCard> YenCards = getCardByUser(user.getId());
 
         return convert2CardVO(YenCards);
     }
 
     @Override
-    public YenCardVO build(Long cardId) {
-        return render(cardId, null, null);
+    public YenCardVO build(Long cardId, User user) {
+        return render(cardId, null, null, user);
     }
 
     @Override
-    public YenCardVO adjust(long cardId, long templateId, Long couponId) {
+    public YenCardVO adjust(long cardId, long templateId, Long couponId, User user) {
         checkArgument(cardId > NumberUtils.LONG_ZERO);
         checkArgument(templateId > NumberUtils.LONG_ZERO);
-        return render(cardId, templateId, couponId);
+        return render(cardId, templateId, couponId, user);
     }
 
     @Override
     @Transactional
-    public String create(long cardId, long templateId, Long couponUserId) {
+    public String create(long cardId, long templateId, Long couponUserId, User user) {
         // 1. 找到用户的瘾卡
-        User user = userService.getUserByWxUnionId();
         getSpecify(user.getId(), cardId); // 主要是判断下卡是否存在
 
         // 2. 找充值模版
@@ -198,10 +193,8 @@ public class YenCardServiceImpl implements YenCardService{
         return yenCardManager.findByCondition(condition);
     }
 
-    private YenCardVO render(Long cardId, Long rechargeId, Long couponId) {
-        // 1. 找到用户的瘾卡
-        User user = userService.getUserByWxUnionId();
-
+    private YenCardVO render(Long cardId, Long rechargeId, Long couponId, User user) {
+        // 1. 找到瘾卡
         YenCard card;
         if (cardId != null && cardId > NumberUtils.LONG_ZERO) {
             card = getSpecify(user.getId(), cardId);

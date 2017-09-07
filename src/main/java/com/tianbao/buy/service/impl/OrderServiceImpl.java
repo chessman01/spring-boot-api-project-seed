@@ -41,9 +41,6 @@ public class OrderServiceImpl implements OrderService {
     private OrderMainManager orderManager;
 
     @Resource
-    private UserService userService;
-
-    @Resource
     private YenCardService cardService;
 
     @Resource
@@ -65,8 +62,8 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     @Transactional
-    public void cancel(String orderId) {
-        OrderMain order = this.getOrder(orderId, OrderVO.Status.ORDER);
+    public void cancel(String orderId, User user) {
+        OrderMain order = this.getOrder(orderId, OrderVO.Status.ORDER, user);
         Date current = new Date();
         order.setCreateTime(current);
         order.setModifyTime(current);
@@ -81,28 +78,15 @@ public class OrderServiceImpl implements OrderService {
 
         fundDetails = fundDetailService.refundByPer(order.getOrderId(), fundDetails);
 
-
-
-
-
-
         int realPay = fundDetailService.getRealPayFee(fundDetails);
-
-
-
-
 
         if (realPay == NumberUtils.INTEGER_ZERO) {
             // todo 直接调用卡退钱，否则调微信退，微信退完才能继续完结
         }
-
-
     }
 
     @Override
-    public OrderVO detail(String orderId) {
-        User user = userService.getUserByWxUnionId();
-
+    public OrderVO detail(String orderId, User user) {
         Condition condition = new Condition(OrderMain.class);
         condition.createCriteria().andEqualTo("orderId", orderId).andCondition("user_id=", user.getId())
                 .andCondition("type=", OrderVO.Type.COURSE.getCode()).andIsNull("originOrderId");
@@ -116,13 +100,11 @@ public class OrderServiceImpl implements OrderService {
         OrderMain orderMain = orders.get(NumberUtils.INTEGER_ZERO);
         Course course = courseService.getCourse(orderMain.getClassId());
 
-        return convert2OrderVO(orderMain, course, true, true);
+        return convert2OrderVO(orderMain, course, true, true, user);
     }
 
     @Override
-    public List<OrderVO> get(byte status) {
-        User user = userService.getUserByWxUnionId();
-
+    public List<OrderVO> get(byte status, User user) {
         Condition condition = new Condition(OrderMain.class);
         condition.orderBy("createTime");
         condition.createCriteria().andEqualTo("status", status).andCondition("user_id=", user.getId())
@@ -141,14 +123,15 @@ public class OrderServiceImpl implements OrderService {
         List<OrderVO> orderVOs = Lists.newArrayList();
 
         for (OrderMain orderMain : orders) {
-            OrderVO orderVO = convert2OrderVO(orderMain, courseMap.get(orderMain.getClassId()), false, true);
+            OrderVO orderVO = convert2OrderVO(orderMain, courseMap.get(orderMain.getClassId()), false, true, user);
             orderVOs.add(orderVO);
         }
 
         return orderVOs;
     }
 
-    private OrderVO convert2OrderVO(OrderMain orderMain, Course course, boolean isDetail, boolean hasAddress) {
+    private OrderVO convert2OrderVO(OrderMain orderMain, Course course, boolean isDetail, boolean hasAddress,
+                                    User user) {
         checkNotNull(orderMain);
         checkNotNull(course);
 
@@ -165,7 +148,7 @@ public class OrderServiceImpl implements OrderService {
             orderVO.setPayDetail(cardService.getPayDetail(fundDetails));
         }
 
-        orderVO.setCourse(courseService.convert2CourseVO(course, true, hasAddress));
+        orderVO.setCourse(courseService.convert2CourseVO(course, true, hasAddress, user));
         int realPay = fundDetailService.getRealPayFee(fundDetails);
         orderVO.setRealPay(new OrderVO.PayDetail(OrderService.REAL_PAY_FEE, MoneyUtils.unitFormat(2, realPay / 100), realPay));
 
@@ -179,13 +162,13 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public OrderVO build(long courseId) {
-        return render(courseId, null, null, 1, new Context());
+    public OrderVO build(long courseId, User user) {
+        return render(courseId, null, null, 1, new Context(), user);
     }
 
     @Override
-    public OrderVO adjust(long courseId, Long cardId, Long couponId, int personTime) {
-        return render(courseId, cardId, couponId, personTime, new Context());
+    public OrderVO adjust(long courseId, Long cardId, Long couponId, int personTime, User user) {
+        return render(courseId, cardId, couponId, personTime, new Context(), user);
     }
 
     @Override
@@ -201,11 +184,10 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     @Transactional
-    public String create(long courseId, Long couponUserId, Byte personTime) {
+    public String create(long courseId, Long couponUserId, Byte personTime, User user) {
         checkArgument(personTime > NumberUtils.INTEGER_ZERO);
 
         // 1. 找到用户的瘾卡
-        User user = userService.getUserByWxUnionId();
         YenCard card = cardService.getDefault(user.getId()); // 主要是判断下卡是否存在
 
         CouponTemplate couponTemplate = null;
@@ -257,12 +239,10 @@ public class OrderServiceImpl implements OrderService {
         return orderId;
     }
 
-    private OrderVO render(long courseId, Long cardId, Long couponId, int personTime, Context context) {
+    private OrderVO render(long courseId, Long cardId, Long couponId, int personTime, Context context, User user) {
         OrderVO order = new OrderVO();
 
         // 1. 用户信息，并且必须是填写手机号
-        User user = userService.getUserByWxUnionId();
-
         if (StringUtils.isBlank(user.getPhone())) throw new BizException("请校验手机号码");
 
         // 2. 获取瘾卡信息
@@ -276,7 +256,7 @@ public class OrderServiceImpl implements OrderService {
         // 3. 获取课程信息
         Course course = courseService.getNormalCourse().get(courseId);
         if (course == null) throw new BizException("没找到有效课程");
-        order.setCourse(courseService.convert2CourseVO(course, true, false));
+        order.setCourse(courseService.convert2CourseVO(course, true, false, user));
 
         context.setUser(user);
         context.setCard(card);
@@ -483,10 +463,10 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public OrderMain getOrder(String orderId, OrderVO.Status originStatus) {
+    public OrderMain getOrder(String orderId, OrderVO.Status originStatus, User user) {
         // 先找原始订单
         Condition condition = new Condition(OrderMain.class);
-        condition.createCriteria().andEqualTo("status", originStatus.getCode()).andCondition("order_id=", orderId);
+        condition.createCriteria().andEqualTo("status", originStatus.getCode()).andCondition("order_id=", orderId).andCondition("user_id=", user.getId());
 
         List<OrderMain> orderMains = orderManager.findByCondition(condition);
 
@@ -514,9 +494,9 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public OrderMain updateOrder(String orderId, OrderVO.Status originStatus, OrderVO.Status targetStatus, String payOrderId) {
+    public OrderMain updateOrder(String orderId, OrderVO.Status originStatus, OrderVO.Status targetStatus, String payOrderId, User user) {
         // 先找原始订单
-        OrderMain origin = getOrder(orderId, originStatus);
+        OrderMain origin = getOrder(orderId, originStatus, user);
         OrderMain order = new OrderMain();
 
         if (targetStatus.equals(OrderVO.Status.ORDER) && origin.getType().equals(OrderVO.Type.CARD.getCode())) {

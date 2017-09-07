@@ -57,9 +57,6 @@ public class CourseServiceImpl implements CourseService {
     @Resource
     private YenCardService yenCardService;
 
-    @Resource
-    private UserService userService;
-
     @Override
     public Map<Long, Course> getNormalCourse() {
         DateTime current = new DateTime().withMillisOfDay(0);
@@ -83,7 +80,7 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    public ScheduleVO schedule(String date, int num4day) {
+    public ScheduleVO schedule(String date, int num4day, User user) {
         checkArgument(num4day > NumberUtils.INTEGER_ZERO);
 
         ScheduleVO scheduleVO = new ScheduleVO();
@@ -93,7 +90,7 @@ public class CourseServiceImpl implements CourseService {
         setCalendar(in, scheduleVO, num4day);
         setBanner(scheduleVO);
         scheduleVO.setAddress(getAddress());
-        setCourse(in, num4day, scheduleVO);
+        setCourse(in, num4day, scheduleVO, user);
 
         return scheduleVO;
     }
@@ -105,11 +102,11 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    public CourseVO getCourse(long id, boolean isDetail) {
+    public CourseVO getCourse(long id, boolean isDetail, User user) {
         checkArgument(id > NumberUtils.LONG_ZERO);
         Course course = courseManager.findById(id);
 
-        CourseVO courseVO = convert2CourseVO(course, false, false);
+        CourseVO courseVO = convert2CourseVO(course, false, false, user);
 
         if (courseVO == null) {
             logger.error(String.format("获取课程失败.id[%d]", id));
@@ -180,7 +177,7 @@ public class CourseServiceImpl implements CourseService {
     }
 
     /** 获取到指定天数的课程，并按日期分组 **/
-    private void setCourse(DateTime in, int days, ScheduleVO scheduleVO) {
+    private void setCourse(DateTime in, int days, ScheduleVO scheduleVO, User user) {
         DateTime current;
 
         if (in != null) {
@@ -201,7 +198,7 @@ public class CourseServiceImpl implements CourseService {
             Predicate<Course> unionUserPredicate = Predicates.and(predicateUserStatus);
             List<Course> course4Day = Lists.newArrayList(Iterators.filter(courses.iterator(), unionUserPredicate));
 
-            List<CourseVO> courseVOs = convert2CourseVO(course4Day);
+            List<CourseVO> courseVOs = convert2CourseVO(course4Day, user);
 
             filter(courseVOs, false);
 
@@ -240,9 +237,10 @@ public class CourseServiceImpl implements CourseService {
         return map;
     }
 
-    public CourseVO convert2CourseVO(Course course, boolean isFilter, boolean hasAddress) {
+    @Override
+    public CourseVO convert2CourseVO(Course course, boolean isFilter, boolean hasAddress, User user) {
         if (course == null) return null;
-        List<CourseVO> courseVOs = convert2CourseVO(Lists.newArrayList(course));
+        List<CourseVO> courseVOs = convert2CourseVO(Lists.newArrayList(course), user);
 
         if(isFilter) filter(courseVOs, hasAddress);
 
@@ -263,7 +261,8 @@ public class CourseServiceImpl implements CourseService {
         return courseVO;
     }
 
-    public List<CourseVO> convert2CourseVO(List<Course> courses) {
+    @Override
+    public List<CourseVO> convert2CourseVO(List<Course> courses, User user) {
         List<CourseVO> courseVOs = Lists.newArrayList();
         if (CollectionUtils.isEmpty(courses)) return courseVOs;
 
@@ -311,7 +310,7 @@ public class CourseServiceImpl implements CourseService {
 
             // 处理瘾卡折扣价
             int minDiscountRate = 100;
-            User user = userService.getUserByWxUnionId();
+
             List<YenCard> yenCards = yenCardService.getCardByUser(user.getId());
 
             for (YenCard yenCard : yenCards) {

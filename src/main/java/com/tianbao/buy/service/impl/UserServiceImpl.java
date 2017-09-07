@@ -10,17 +10,20 @@ import com.tianbao.buy.service.UserService;
 import com.tianbao.buy.service.YenCardService;
 import com.tianbao.buy.utils.MoneyUtils;
 import com.tianbao.buy.vo.*;
+import me.chanjar.weixin.common.exception.WxErrorException;
+import me.chanjar.weixin.mp.api.WxMpService;
+import me.chanjar.weixin.mp.bean.result.WxMpUser;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import tk.mybatis.mapper.entity.Condition;
 
 import javax.annotation.Resource;
 import java.util.List;
-import java.util.Random;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -38,13 +41,15 @@ public class UserServiceImpl implements UserService {
     @Resource
     private OrderService orderService;
 
+    @Autowired
+    protected WxMpService wxMpService;
+
     @Override
-    public UserVO self() {
-        User user = getUserByWxUnionId();
+    public UserVO self(User user) {
         UserVO userVO = new UserVO();
 
-        List<YenCardVO> cards = cardService.getCardByUser();
-        List<OrderVO> orders = orderService.get(OrderVO.Status.ORDER.getCode());
+        List<YenCardVO> cards = cardService.getCardByUser(user);
+        List<OrderVO> orders = orderService.get(OrderVO.Status.ORDER.getCode(), user);
 
         userVO.setCards(cards);
         userVO.setOrders(orders);
@@ -57,21 +62,6 @@ public class UserServiceImpl implements UserService {
         userVO.setUserId(user.getId());
         return userVO;
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     private boolean isOldUser(User user) {
         int boughtNum = orderService.getBoughtNum(user.getId());
@@ -87,11 +77,10 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public void recommend(long inviterId, String code, String phone) {
+    public void recommend(long inviterId, String code, String phone, User self) {
         // todo 验证手机
 
         User model = new User();
-        User self = getUserByWxUnionId();
         User inviter = getUserByuserId(inviterId);
 
         if (isOldUser(self)) throw new BizException("您已是老用户");
@@ -113,11 +102,10 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public boolean validatePhone(String code, String phone) {
+    public boolean validatePhone(String code, String phone, User user) {
         // 验证code
 
         User model = new User();
-        User user = getUserByWxUnionId();
 
         model.setId(user.getId());
         model.setPhone(phone);
@@ -128,9 +116,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public boolean getPin(String phone, boolean isObtainRecommend) {
+    public boolean getPin(String phone, boolean isObtainRecommend, User user) {
         if (isObtainRecommend) {
-            User user = this.getUserByWxUnionId();
 
             if (isOldUser(user)) throw new BizException("您已是老用户");
         }
@@ -140,9 +127,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public InvitationVO invitation() {
+    public InvitationVO invitation(User user) {
         InvitationVO invitationVO = new InvitationVO();
-        User user = getUserByWxUnionId();
 
         CouponTemplate couponTemplate = couponService.getRecommendTemplate();
 
@@ -170,9 +156,9 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User getUserByWxUnionId() {
-        // todo 这里是要依据微信接口拿到用户uid，到userManager查用户，然后得到用户ID
-        String wxUnionId = "12345";
+    public User getUserByWxOpenId(String openId, String lang) throws WxErrorException {
+        WxMpUser wxMpUser = this.wxMpService.getUserService().userInfo(openId, lang);
+        String wxUnionId = wxMpUser.getUnionId();
 
         if (StringUtils.isBlank(wxUnionId)) {
             logger.error("uid为空");

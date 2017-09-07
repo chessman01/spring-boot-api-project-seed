@@ -3,21 +3,22 @@ package com.tianbao.buy.service;
 import com.tianbao.buy.domain.User;
 import com.tianbao.buy.vo.InvitationVO;
 import com.tianbao.buy.vo.UserVO;
+import me.chanjar.weixin.common.exception.WxErrorException;
 
 public interface UserService {
-    UserVO self();
+    UserVO self(User user);
 
-    User getUserByWxUnionId();
+    User getUserByWxOpenId(String openId, String lang) throws WxErrorException;
 
     User getUserByuserId(long userId);
 
     void updatePhone(long userId, String phone);
 
-    InvitationVO invitation();
+    InvitationVO invitation(User user);
 
-    boolean getPin(String phone, boolean isObtainRecommend);
+    boolean getPin(String phone, boolean isObtainRecommend, User user);
 
-    boolean validatePhone(String code, String phone);
+    boolean validatePhone(String code, String phone, User user);
 
-    void recommend(long inviterId, String code, String phone);
+    void recommend(long inviterId, String code, String phone, User user);
 }

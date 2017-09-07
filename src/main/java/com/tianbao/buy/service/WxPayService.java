@@ -1,8 +1,10 @@
 package com.tianbao.buy.service;
 
-public interface WxPayService {
-    void paySuccess(String orderId);
+import com.tianbao.buy.domain.User;
 
-    void cancel(String orderId);
+public interface WxPayService {
+    void paySuccess(String orderId, User user);
+
+    void cancel(String orderId, User user);
 
 }

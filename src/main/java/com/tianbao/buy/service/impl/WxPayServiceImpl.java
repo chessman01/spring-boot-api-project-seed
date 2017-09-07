@@ -3,6 +3,7 @@ package com.tianbao.buy.service.impl;
 import com.tianbao.buy.core.BizException;
 import com.tianbao.buy.domain.FundDetail;
 import com.tianbao.buy.domain.OrderMain;
+import com.tianbao.buy.domain.User;
 import com.tianbao.buy.domain.YenCard;
 import com.tianbao.buy.service.*;
 import com.tianbao.buy.vo.CouponVO;
@@ -33,9 +34,9 @@ public class WxPayServiceImpl implements WxPayService {
 
     @Override
     @Transactional
-    public void cancel(String orderId) {
-        OrderMain orderMain = orderService.updateOrder(orderId, OrderVO.Status.PENDING_CANCLE, OrderVO.Status.CANCLED, "456");
-        orderService.updateOrder(orderMain.getOriginOrderId(), OrderVO.Status.ORDER, OrderVO.Status.CANCLED, null);
+    public void cancel(String orderId, User user) {
+        OrderMain orderMain = orderService.updateOrder(orderId, OrderVO.Status.PENDING_CANCLE, OrderVO.Status.CANCLED, "456", user);
+        orderService.updateOrder(orderMain.getOriginOrderId(), OrderVO.Status.ORDER, OrderVO.Status.CANCLED, null, user);
 
         if (orderMain.getCouponId() != null && orderMain.getCouponId() > NumberUtils.LONG_ZERO) {
             couponService.updateCouponUserStatus(orderMain.getCouponId(), CouponVO.Status.NORMAL.getCode(),
@@ -53,8 +54,8 @@ public class WxPayServiceImpl implements WxPayService {
 
     @Override
     @Transactional
-    public void paySuccess(String orderId) {
-        OrderMain orderMain = orderService.updateOrder(orderId, OrderVO.Status.PENDING_PAY, OrderVO.Status.ORDER, "123");
+    public void paySuccess(String orderId, User user) {
+        OrderMain orderMain = orderService.updateOrder(orderId, OrderVO.Status.PENDING_PAY, OrderVO.Status.ORDER, "123", user);
 
         if (orderMain.getCouponId() != null && orderMain.getCouponId() > NumberUtils.LONG_ZERO) {
             couponService.updateCouponUserStatus(orderMain.getCouponId(), CouponVO.Status.USED.getCode(),
