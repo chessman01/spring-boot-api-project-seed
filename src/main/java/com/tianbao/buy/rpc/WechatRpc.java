@@ -17,7 +17,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 
 @RestController
@@ -149,10 +148,7 @@ public class WechatRpc {
 
         try {
             accessToken = this.wxMpService.oauth2getAccessToken(code);
-            Cookie cookie = new Cookie(JwtUtils.COOKIE_TOKEN_KEY, JwtUtils.generate(accessToken.getOpenId(), seconds));
-
-            cookie.setMaxAge(seconds);
-            response.addCookie(cookie);
+            response.addHeader(JwtUtils.HEAD_TOKEN_KEY, JwtUtils.generate(accessToken.getOpenId(), seconds));
 
             return ResultGenerator.genSuccessResult(accessToken.getOpenId());
         } catch (WxErrorException e) {

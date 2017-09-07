@@ -111,19 +111,11 @@ public class WebMvcConfigurer extends WebMvcConfigurerAdapter {
         registry.addInterceptor(new HandlerInterceptorAdapter() {
             @Override
             public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-                //验证签名
-                boolean pass = false;
-
-                Cookie[] cookies = request.getCookies();
                 String openId = request.getParameter(JwtUtils.OPEN_ID);
                 if (StringUtils.isBlank(openId)) return true;
 
-                for (Cookie c : cookies) {
-                    if (JwtUtils.COOKIE_TOKEN_KEY.equals(c.getName())) {
-                        pass = JwtUtils.verify(openId, c.getValue());
-                        break;
-                    }
-                }
+                //验证签名
+                boolean pass = JwtUtils.verify(openId, request.getHeader(JwtUtils.HEAD_TOKEN_KEY));
 
                 if (pass) {
                     return true;

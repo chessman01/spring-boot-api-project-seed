@@ -3,19 +3,19 @@ package com.tianbao.buy.utils;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.impl.crypto.MacProvider;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.joda.time.DateTime;
 
 import java.security.Key;
-import java.time.Instant;
 import java.util.Date;
 
 /**
  * 会话使用 WebToken 的方式跟踪，非使用传统的 session ，此服务提供 WebToken 相关的功能.
  */
 public class JwtUtils {
-    public static String COOKIE_TOKEN_KEY = "jwtToken";
+    public static String HEAD_TOKEN_KEY = "jwtToken";
 
     public static String OPEN_ID = "openId";
 
@@ -49,6 +49,8 @@ public class JwtUtils {
      * @return 当校验成功时返回 <code>true</code>
      */
     public static boolean verify(String openId, String token) {
+        if (StringUtils.isBlank(token)) return false;
+
         try {
             return Jwts.parser().setSigningKey(key).parseClaimsJws(token).getBody().getSubject().equals(openId);
         } catch (Exception e) {
