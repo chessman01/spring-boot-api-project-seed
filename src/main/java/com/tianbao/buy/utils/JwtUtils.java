@@ -1,5 +1,6 @@
 package com.tianbao.buy.utils;
 
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.impl.crypto.MacProvider;
@@ -52,7 +53,9 @@ public class JwtUtils {
         if (StringUtils.isBlank(token)) return false;
 
         try {
-            return Jwts.parser().setSigningKey(key).parseClaimsJws(token).getBody().getSubject().equals(openId);
+            Claims claims = Jwts.parser().setSigningKey(key).parseClaimsJws(token).getBody();
+
+            return claims.getSubject().equals(openId);
         } catch (Exception e) {
             logger.error("Verify fail:", e);
             return false;
