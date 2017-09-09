@@ -1,5 +1,6 @@
 package com.tianbao.buy.service.impl;
 
+import com.aliyuncs.exceptions.ClientException;
 import com.tianbao.buy.core.BizException;
 import com.tianbao.buy.domain.CouponTemplate;
 import com.tianbao.buy.domain.User;
@@ -9,6 +10,7 @@ import com.tianbao.buy.service.OrderService;
 import com.tianbao.buy.service.UserService;
 import com.tianbao.buy.service.YenCardService;
 import com.tianbao.buy.utils.MoneyUtils;
+import com.tianbao.buy.utils.SmsUtils;
 import com.tianbao.buy.vo.*;
 import me.chanjar.weixin.common.exception.WxErrorException;
 import me.chanjar.weixin.mp.api.WxMpService;
@@ -116,13 +118,15 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public boolean getPin(String phone, boolean isObtainRecommend, User user) {
+    public boolean getPin(String phone, boolean isObtainRecommend, User user) throws ClientException {
         if (isObtainRecommend) {
 
             if (isOldUser(user)) throw new BizException("您已是老用户");
         }
 
         // todo 发放一个短信验证码
+
+        SmsUtils.sendSms(phone, "12345", user.getWxOpenId());
         return true;
     }
 

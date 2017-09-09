@@ -1,5 +1,6 @@
 package com.tianbao.buy.service;
 
+import com.aliyuncs.exceptions.ClientException;
 import com.tianbao.buy.domain.User;
 import com.tianbao.buy.vo.InvitationVO;
 import com.tianbao.buy.vo.UserVO;
@@ -16,7 +17,7 @@ public interface UserService {
 
     InvitationVO invitation(User user);
 
-    boolean getPin(String phone, boolean isObtainRecommend, User user);
+    boolean getPin(String phone, boolean isObtainRecommend, User user) throws ClientException;
 
     boolean validatePhone(String code, String phone, User user);
 

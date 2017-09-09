@@ -1,5 +1,6 @@
 package com.tianbao.buy.rpc;
 
+import com.aliyuncs.exceptions.ClientException;
 import com.tianbao.buy.core.Result;
 import com.tianbao.buy.core.ResultGenerator;
 import com.tianbao.buy.domain.User;
@@ -23,7 +24,7 @@ public class UserRpc {
     /** 获取手机验证码，如果是确认朋友推荐，如果自已已购买过，则不能再由朋友推荐 **/
     @PostMapping("/pin")
     public Result getPin(@RequestParam String openId, @RequestParam(defaultValue = "zh_CN") String lang,
-                         @RequestParam String phone, boolean isObtainRecommend) throws WxErrorException {
+                         @RequestParam String phone, boolean isObtainRecommend) throws WxErrorException, ClientException {
         User user = userService.getUserByWxOpenId(openId, lang);
         boolean result = userService.getPin(phone, isObtainRecommend, user);
         return ResultGenerator.genSuccessResult(result, "验证码发放成功.");
