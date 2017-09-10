@@ -102,7 +102,8 @@ public class WebMvcConfigurer extends WebMvcConfigurerAdapter {
     //解决跨域问题
     @Override
     public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/api/**").allowedOrigins("www.tianbao.com","sport.root3.cn");
+//        registry.addMapping("/api/**").allowedOrigins("http://www.tianbao.com","http://sport.root3.cn");
+        registry.addMapping("/**");
     }
 
     //添加拦截器
