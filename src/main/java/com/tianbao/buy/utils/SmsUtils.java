@@ -7,8 +7,11 @@ import com.aliyuncs.dysmsapi.model.v20170525.SendSmsResponse;
 import com.aliyuncs.exceptions.ClientException;
 import com.aliyuncs.profile.DefaultProfile;
 import com.aliyuncs.profile.IClientProfile;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SmsUtils {
+    private static Logger logger = LoggerFactory.getLogger(SmsUtils.class);
 
     //产品名称:云通信短信API产品,开发者无需替换
     static final String product = "Dysmsapi";
@@ -48,6 +51,10 @@ public class SmsUtils {
         //hint 此处可能会抛出异常，注意catch
         SendSmsResponse sendSmsResponse = acsClient.getAcsResponse(request);
 
+        //请求失败
+        if(sendSmsResponse.getCode() == null || !sendSmsResponse.getCode().equals("OK")) {
+            logger.error("短信发送失败。phone:{};openid:{};respone:{}", phone, openId, sendSmsResponse);
+        }
         return sendSmsResponse;
     }
 }

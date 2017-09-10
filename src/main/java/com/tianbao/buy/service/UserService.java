@@ -17,9 +17,9 @@ public interface UserService {
 
     InvitationVO invitation(User user);
 
-    boolean getPin(String phone, boolean isObtainRecommend, User user) throws ClientException;
+    String getPin(String phone, boolean isObtainRecommend, User user) throws ClientException;
 
-    boolean validatePhone(String code, String phone, User user);
+    String validatePhone(String code, String phone, User user);
 
-    void recommend(long inviterId, String code, String phone, User user);
+    String recommend(long inviterId, String code, String phone, User user);
 }

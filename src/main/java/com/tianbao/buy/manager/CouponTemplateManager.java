@@ -4,7 +4,7 @@ import com.tianbao.buy.domain.CouponTemplate;
 import com.tianbao.buy.core.Manager;
 
 /**
- * Created by CodeGenerator on 2017/09/03.
+ * Created by CodeGenerator on 2017/09/10.
  */
 public interface CouponTemplateManager extends Manager<CouponTemplate> {
 

@@ -112,23 +112,24 @@ public class WebMvcConfigurer extends WebMvcConfigurerAdapter {
         registry.addInterceptor(new HandlerInterceptorAdapter() {
             @Override
             public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-                String openId = request.getParameter(JwtUtils.OPEN_ID);
-                if (StringUtils.isBlank(openId)) return true;
-
-                //验证签名
-                boolean pass = JwtUtils.verify(openId, request.getHeader(JwtUtils.HEAD_TOKEN_KEY));
-
-                if (pass) {
-                    return true;
-                } else {
-                    logger.warn("签名认证失败，请求接口：{}，请求IP：{}，请求参数：{}",
-                            request.getRequestURI(), getIpAddress(request), JSON.toJSONString(request.getParameterMap()));
-
-                    Result result = new Result();
-                    result.setCode(ResultCode.UNAUTHORIZED).setMessage("签名认证失败");
-                    responseResult(response, result);
-                    return false;
-                }
+//                String openId = request.getParameter(JwtUtils.OPEN_ID);
+//                if (StringUtils.isBlank(openId)) return true;
+//
+//                //验证签名
+//                boolean pass = JwtUtils.verify(openId, request.getHeader(JwtUtils.HEAD_TOKEN_KEY));
+//
+//                if (pass) {
+//                    return true;
+//                } else {
+//                    logger.warn("签名认证失败，请求接口：{}，请求IP：{}，请求参数：{}",
+//                            request.getRequestURI(), getIpAddress(request), JSON.toJSONString(request.getParameterMap()));
+//
+//                    Result result = new Result();
+//                    result.setCode(ResultCode.UNAUTHORIZED).setMessage("签名认证失败");
+//                    responseResult(response, result);
+//                    return false;
+//                }
+                return true;
             }
         });
     }

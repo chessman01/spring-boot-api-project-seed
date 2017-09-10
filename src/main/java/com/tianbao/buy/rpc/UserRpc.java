@@ -8,6 +8,7 @@ import com.tianbao.buy.service.UserService;
 import com.tianbao.buy.vo.InvitationVO;
 import com.tianbao.buy.vo.UserVO;
 import me.chanjar.weixin.common.exception.WxErrorException;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -26,8 +27,10 @@ public class UserRpc {
     public Result getPin(@RequestParam String openId, @RequestParam(defaultValue = "zh_CN") String lang,
                          @RequestParam String phone, boolean isObtainRecommend) throws WxErrorException, ClientException {
         User user = userService.getUserByWxOpenId(openId, lang);
-        boolean result = userService.getPin(phone, isObtainRecommend, user);
-        return ResultGenerator.genSuccessResult(result, "验证码发放成功.");
+        String result = userService.getPin(phone, isObtainRecommend, user);
+
+        if (StringUtils.isBlank(result)) return ResultGenerator.genSuccessResult();
+        return ResultGenerator.genFailResult(result);
     }
 
     /** 验证手机 **/
@@ -35,8 +38,9 @@ public class UserRpc {
     public Result validatePhone(@RequestParam String openId, @RequestParam(defaultValue = "zh_CN") String lang,
                                 @RequestParam String code, @RequestParam String phone) throws WxErrorException {
         User user = userService.getUserByWxOpenId(openId, lang);
-        boolean result = userService.validatePhone(code, phone, user);
-        return ResultGenerator.genSuccessResult(result, "验证成功.");
+        String result = userService.validatePhone(code, phone, user);
+        if (StringUtils.isBlank(result)) return ResultGenerator.genSuccessResult();
+        return ResultGenerator.genFailResult(result);
     }
 
     /** 自已的推荐页，给朋友的 **/
@@ -52,8 +56,9 @@ public class UserRpc {
     public Result recommend(@RequestParam String openId, @RequestParam(defaultValue = "zh_CN") String lang,
                             @RequestParam long inviter, @RequestParam String code, @RequestParam String phone) throws WxErrorException {
         User user = userService.getUserByWxOpenId(openId, lang);
-        userService.recommend(inviter, code, phone, user);
-        return ResultGenerator.genSuccessResult();
+        String result = userService.recommend(inviter, code, phone, user);
+        if (StringUtils.isBlank(result)) return ResultGenerator.genSuccessResult();
+        return ResultGenerator.genFailResult(result);
     }
 
     @PostMapping("/self")

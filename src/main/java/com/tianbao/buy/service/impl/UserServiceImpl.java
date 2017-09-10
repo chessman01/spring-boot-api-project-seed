@@ -1,5 +1,6 @@
 package com.tianbao.buy.service.impl;
 
+import com.aliyuncs.dysmsapi.model.v20170525.SendSmsResponse;
 import com.aliyuncs.exceptions.ClientException;
 import com.tianbao.buy.core.BizException;
 import com.tianbao.buy.domain.CouponTemplate;
@@ -10,7 +11,9 @@ import com.tianbao.buy.service.OrderService;
 import com.tianbao.buy.service.UserService;
 import com.tianbao.buy.service.YenCardService;
 import com.tianbao.buy.utils.MoneyUtils;
+import com.tianbao.buy.utils.PhoneFormatCheckUtils;
 import com.tianbao.buy.utils.SmsUtils;
+import com.tianbao.buy.utils.VerifyingCodeGenerator;
 import com.tianbao.buy.vo.*;
 import me.chanjar.weixin.common.exception.WxErrorException;
 import me.chanjar.weixin.mp.api.WxMpService;
@@ -20,6 +23,7 @@ import org.apache.commons.lang3.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.connection.jedis.RedisClient;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import tk.mybatis.mapper.entity.Condition;
@@ -30,6 +34,9 @@ import java.util.List;
 @Service
 public class UserServiceImpl implements UserService {
     private static Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
+
+    @Autowired
+    private RedisClient redisClient;
 
     @Resource
     private UserManager userManager;
@@ -79,8 +86,17 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public void recommend(long inviterId, String code, String phone, User self) {
-        // todo 验证手机
+    public String recommend(long inviterId, String code, String mobile, User self) {
+        // 验证手机
+        String targetCode = redisClient.get("mobileCode_" + mobile);
+
+        if (!code.equals(targetCode)) {
+            if (StringUtils.isBlank(targetCode)) {
+                return "验证码已过期";
+            }
+
+            return "验证码错误";
+        }
 
         User model = new User();
         User inviter = getUserByuserId(inviterId);
@@ -91,43 +107,75 @@ public class UserServiceImpl implements UserService {
         condition.createCriteria().andCondition("id=", self.getId())
                 .andCondition("status=", CouponVO.Status.NORMAL.getCode());
 
-        model.setPhone(phone);
-        model.setReferrerId(inviterId);
+        model.setPhone(mobile);
+        if (inviter!= null) model.setReferrerId(inviterId);
 
         userManager.update(model, condition);
 
-        if (inviter == null) return;
-
         CouponTemplate couponTemplate = couponService.getRecommendTemplate();
-        couponService.obtainRecommend(couponTemplate.getId(), inviter.getId(), (byte) 3);
         couponService.obtainRecommend(couponTemplate.getId(), self.getId(), (byte) 4);
+
+        return StringUtils.EMPTY;
     }
 
     @Override
-    public boolean validatePhone(String code, String phone, User user) {
-        // 验证code
+    public String validatePhone(String code, String mobile, User user) {
+        String targetCode = redisClient.get("mobileCode_" + mobile);
 
-        User model = new User();
+        if (code.equals(targetCode)) {
+            User model = new User();
 
-        model.setId(user.getId());
-        model.setPhone(phone);
+            model.setId(user.getId());
+            model.setPhone(mobile);
 
-        userManager.update(model);
+            userManager.update(model);
+            redisClient.del("mobileCode_" + mobile);
 
-        return true;
+            return StringUtils.EMPTY;
+        } else {
+            if (StringUtils.isBlank(targetCode)) {
+                return "验证码已过期";
+            }
+
+            return "验证码错误";
+        }
     }
 
     @Override
-    public boolean getPin(String phone, boolean isObtainRecommend, User user) throws ClientException {
-        if (isObtainRecommend) {
-
-            if (isOldUser(user)) throw new BizException("您已是老用户");
+    public String getPin(String mobile, boolean isObtainRecommend, User user) throws ClientException {
+        if (StringUtils.isBlank(mobile)) {
+            return "手机号不能为空";
         }
 
-        // todo 发放一个短信验证码
+        if (!PhoneFormatCheckUtils.isChinaPhoneLegal(mobile)) {
+            return "手机号格式不正确";
+        }
 
-        SmsUtils.sendSms(phone, "12345", user.getWxOpenId());
-        return true;
+        User tmp = userManager.findBy("phone", mobile);
+        if (null != tmp) {
+            return "该手机号已注册";
+        }
+
+        if (isObtainRecommend) {
+            if (isOldUser(user)) return "您已是老用户";
+        }
+
+        Integer sendTime;   // 预防短信轰炸
+        String sendTimeStr = redisClient.get("sendTime_" + user.getId());
+        sendTime = StringUtils.isBlank(sendTimeStr) ? 0 : Integer.valueOf(sendTimeStr);
+
+        if (5 < sendTime) {
+            return "获取验证码次数过多";
+        }
+
+        String code = VerifyingCodeGenerator.createRandom(true, 4);
+        redisClient.set("mobileCode_" + mobile, code, 60 * 5);
+        SmsUtils.sendSms(mobile, code, user.getWxOpenId());
+
+        // 把请求验证码次数存储到MemCached中
+        redisClient.set("sendTime_" + user.getId(), String.valueOf(++sendTime), 30 * 60); // 30 minutes
+
+        return StringUtils.EMPTY;
     }
 
     @Override
