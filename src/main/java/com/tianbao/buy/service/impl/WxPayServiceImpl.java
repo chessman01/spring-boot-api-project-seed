@@ -34,8 +34,8 @@ public class WxPayServiceImpl implements WxPayService {
 
     @Override
     @Transactional
-    public void cancel(String orderId, User user) {
-        OrderMain orderMain = orderService.updateOrder(orderId, OrderVO.Status.PENDING_CANCLE, OrderVO.Status.CANCLED, "456", user);
+    public void cancel(String orderId, User user,String payOrderId) {
+        OrderMain orderMain = orderService.updateOrder(orderId, OrderVO.Status.PENDING_CANCLE, OrderVO.Status.CANCLED, payOrderId, user);
         orderService.updateOrder(orderMain.getOriginOrderId(), OrderVO.Status.ORDER, OrderVO.Status.CANCLED, null, user);
 
         if (orderMain.getCouponId() != null && orderMain.getCouponId() > NumberUtils.LONG_ZERO) {
@@ -54,8 +54,8 @@ public class WxPayServiceImpl implements WxPayService {
 
     @Override
     @Transactional
-    public void paySuccess(String orderId, User user) {
-        OrderMain orderMain = orderService.updateOrder(orderId, OrderVO.Status.PENDING_PAY, OrderVO.Status.ORDER, "123", user);
+    public void paySuccess(String orderId, User user,String payOrderId) {
+        OrderMain orderMain = orderService.updateOrder(orderId, OrderVO.Status.PENDING_PAY, OrderVO.Status.ORDER, payOrderId, user);
 
         if (orderMain.getCouponId() != null && orderMain.getCouponId() > NumberUtils.LONG_ZERO) {
             couponService.updateCouponUserStatus(orderMain.getCouponId(), CouponVO.Status.USED.getCode(),

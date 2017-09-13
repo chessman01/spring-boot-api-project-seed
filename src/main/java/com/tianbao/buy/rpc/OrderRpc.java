@@ -41,9 +41,14 @@ public class OrderRpc {
     @PostMapping("/list")
     public Result list(@RequestParam String openId, @RequestParam(defaultValue = "zh_CN") String lang,
                        @RequestParam(defaultValue = "1") Byte status) throws WxErrorException {
-        User user = userService.getUserByWxOpenId(openId, lang);
-        List<OrderVO> orders = orderService.get(status, user);
-        return ResultGenerator.genSuccessResult(orders);
+        //状态只能为2，3，5 
+        if (status==2||status==3||status==5) {
+            User user = userService.getUserByWxOpenId(openId, lang);
+            List<OrderVO> orders = orderService.get(status, user);
+            return ResultGenerator.genSuccessResult(orders);
+        }else {
+            return ResultGenerator.genFailResult("参数不合法");
+        }
     }
 
     @PostMapping("/build")
@@ -71,7 +76,10 @@ public class OrderRpc {
         User user = userService.getUserByWxOpenId(openId, lang);
         String orderId = orderService.create(courseId, couponId, personTime, user);
 
-        return ResultGenerator.genSuccessResult(orderId);
+        OrderVO.Order order = new OrderVO.Order();
+        order.setOrderId(orderId);
+
+        return ResultGenerator.genSuccessResult(order);
     }
 
     @PostMapping("/cancel")

@@ -125,7 +125,7 @@ public class WechatRpc {
      * @param lang     zh_CN, zh_TW, en
      */
     @PostMapping("/user")
-    public Result getUserInfo(@RequestParam String openId, @RequestParam String lang) {
+    public Result getUserInfo(@RequestParam String openId, @RequestParam(defaultValue = "zh_CN") String lang) {
         try {
             WxMpUser wxMpUser = this.wxMpService.getUserService().userInfo(openId, lang);
 

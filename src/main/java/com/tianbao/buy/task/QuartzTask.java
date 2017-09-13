@@ -1,5 +1,6 @@
 package com.tianbao.buy.task;
 
+import com.tianbao.buy.dao.OrderRelationDAO;
 import com.tianbao.buy.domain.*;
 import com.tianbao.buy.manager.*;
 import com.tianbao.buy.vo.CouponVO;
@@ -7,6 +8,8 @@ import com.tianbao.buy.vo.CourseVO;
 import com.tianbao.buy.vo.FundDetailVO;
 import com.tianbao.buy.vo.OrderVO;
 import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -29,6 +32,8 @@ import java.util.List;
 @Configurable
 @EnableScheduling
 public class QuartzTask {
+    private static Logger logger = LoggerFactory.getLogger(QuartzTask.class);
+
     @Resource
     private OrderMainManager orderMainManager;
 
@@ -44,10 +49,24 @@ public class QuartzTask {
     @Resource
     private CourseManager courseManager;
 
+    @Resource
+    private OrderRelationDAO orderRelationDAO;
+
+    /** 分享成功 获得礼卷 **/
+    @Scheduled(cron = "0 0 0/1 * * ?") // 每一小时执行一次
+    @Transactional
+    public void shareObtain() throws Exception {
+        logger.info("定时任务 shareObtain 开始执行  分享成功 获得礼卷");
+        Object map = orderRelationDAO.selectReferrerOrder();
+
+        logger.info("定时任务 shareObtain 执行结束  分享成功 获得礼卷");
+    }
+
     /** 订单老没得到支付成功的结果，一小时后直接关掉，并且释放礼券 **/
     @Scheduled(cron = "0 0 0/1 * * ?") // 每一小时执行一次
     @Transactional
     public void releaseOrder() throws Exception {
+        logger.info("定时任务 releaseOrder 开始执行 没支付成功的释放礼卷");
         Condition condition = new Condition(OrderMain.class);
         DateTime dt = new DateTime().minusHours(1);
 
@@ -84,11 +103,13 @@ public class QuartzTask {
 
             orderMainManager.update(orderMain, orderMainCondition);
         }
+        logger.info("定时任务 releaseOrder 执行完毕");
     }
 
     @Scheduled(cron = "0 1 0 ? * *")
     @Transactional
     public void expired() throws Exception {
+        logger.info("定时任务 expired 开始执行");
         CouponTemplate couponTemplate = new CouponTemplate();
         couponTemplate.setStatus(CouponVO.Status.EXPIRED.getCode());
 
@@ -107,11 +128,13 @@ public class QuartzTask {
                 .andCondition("end_time<", new Date());
 
         couponUserManager.update(couponUser, couponUserCondition);
+        logger.info("定时任务 expired 执行完毕");
     }
 
     @Scheduled(cron = "0 0 0 1/1 * ?")
     @Transactional
     public void expiredCourse() throws Exception {
+        logger.info("定时任务 expiredCourse 执行开始");
         Course course = new Course();
         course.setStatus(CourseVO.Status.EXPIRED.getCode());
 
@@ -120,5 +143,6 @@ public class QuartzTask {
                 .andCondition("end_time<", new Date());
 
         courseManager.update(course, courseCondition);
+        logger.info("定时任务 expiredCourse 执行完毕");
     }
 }

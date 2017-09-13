@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tianbao.buy.dao.OrderRelationDAO">
+    <select id="selectReferrerOrder" resultType="hashmap">
+        select referrerId,userId
+          from(
+        select user.id as userId, COUNT(order_main.id) as num, user.referrer_id as referrerId
+          from user, order_main
+         where user.id= order_main.user_id
+           and order_main.type= 2
+           and order_main.status= 3
+           and user.referrer_id> 0
+         GROUP BY user.id) a
+         where a.num= 1
+    </select>
+</mapper>

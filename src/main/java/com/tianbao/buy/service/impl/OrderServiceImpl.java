@@ -187,6 +187,9 @@ public class OrderServiceImpl implements OrderService {
     public String create(long courseId, Long couponUserId, Byte personTime, User user) {
         checkArgument(personTime > NumberUtils.INTEGER_ZERO);
 
+        // 用户信息，并且必须是填写手机号
+        if (StringUtils.isBlank(user.getPhone())) throw new BizException("请校验手机号码");
+
         // 1. 找到用户的瘾卡
         YenCard card = cardService.getDefault(user.getId()); // 主要是判断下卡是否存在
 
@@ -195,7 +198,9 @@ public class OrderServiceImpl implements OrderService {
         // 2. 获取课程信息
         Course course = courseService.getNormalCourse().get(courseId);
         if (course == null) throw new BizException("没找到有效课程");
-
+        DateTime courseTime=new DateTime(course.getStartTime());
+        if (courseTime.isAfterNow()) throw new BizException("课程已经开始无法下单");
+        if (course.getStock() <= 0) throw new BizException("课程不足无法下单");
         // 3. 找礼券
         if (couponUserId != null && couponUserId > NumberUtils.LONG_ZERO) {
             CouponUser couponUser = couponService.getCouponUser(couponUserId);
@@ -256,6 +261,11 @@ public class OrderServiceImpl implements OrderService {
         // 3. 获取课程信息
         Course course = courseService.getNormalCourse().get(courseId);
         if (course == null) throw new BizException("没找到有效课程");
+
+        DateTime courseTime=new DateTime(course.getStartTime());
+        if (courseTime.isAfterNow()) throw new BizException("课程已经开始无法下单");
+        if (course.getStock() <= 0) throw new BizException("课程不足无法下单");
+
         order.setCourse(courseService.convert2CourseVO(course, true, false, user));
 
         context.setUser(user);

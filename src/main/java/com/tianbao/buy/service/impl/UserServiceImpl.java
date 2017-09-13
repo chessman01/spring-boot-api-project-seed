@@ -88,94 +88,118 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public String recommend(long inviterId, String code, String mobile, User self) {
         // 验证手机
-        String targetCode = redisClient.get("mobileCode_" + mobile);
+//        String targetCode = redisClient.get("mobileCode_" + mobile);
+//
+//        if (!code.equals(targetCode)) {
+//            if (StringUtils.isBlank(targetCode)) {
+//                return "验证码已过期";
+//            }
+//
+//            return "验证码错误";
+//        }
+        String result = validatePhone(code,mobile,self);
+        if (StringUtils.isBlank(result)) {
+            User model = new User();
+            User inviter = getUserByuserId(inviterId);
 
-        if (!code.equals(targetCode)) {
-            if (StringUtils.isBlank(targetCode)) {
-                return "验证码已过期";
-            }
+            if (isOldUser(self)) throw new BizException("您已是老用户");
 
-            return "验证码错误";
+            Condition condition = new Condition(User.class);
+            condition.createCriteria().andCondition("id=", self.getId())
+                    .andCondition("status=", CouponVO.Status.NORMAL.getCode());
+
+            model.setPhone(mobile);
+            if (inviter != null) model.setReferrerId(inviterId);
+
+            userManager.update(model, condition);
+
+            CouponTemplate couponTemplate = couponService.getRecommendTemplate();
+            couponService.obtainRecommend(couponTemplate.getId(), self.getId(), (byte) 4);
+
+            return StringUtils.EMPTY;
         }
-
-        User model = new User();
-        User inviter = getUserByuserId(inviterId);
-
-        if (isOldUser(self)) throw new BizException("您已是老用户");
-
-        Condition condition = new Condition(User.class);
-        condition.createCriteria().andCondition("id=", self.getId())
-                .andCondition("status=", CouponVO.Status.NORMAL.getCode());
-
-        model.setPhone(mobile);
-        if (inviter!= null) model.setReferrerId(inviterId);
-
-        userManager.update(model, condition);
-
-        CouponTemplate couponTemplate = couponService.getRecommendTemplate();
-        couponService.obtainRecommend(couponTemplate.getId(), self.getId(), (byte) 4);
-
-        return StringUtils.EMPTY;
+        return result;
     }
 
     @Override
     public String validatePhone(String code, String mobile, User user) {
-        String targetCode = redisClient.get("mobileCode_" + mobile);
+        String result = check(mobile, user);
+        if (StringUtils.isBlank(result)) {
+            String targetCode = redisClient.get("mobileCode_" + mobile);
 
-        if (code.equals(targetCode)) {
-            User model = new User();
+            if (code.equals(targetCode)) {
+                User model = new User();
 
-            model.setId(user.getId());
-            model.setPhone(mobile);
+                model.setId(user.getId());
+                model.setPhone(mobile);
 
-            userManager.update(model);
-            redisClient.del("mobileCode_" + mobile);
+                userManager.update(model);
+                redisClient.del("mobileCode_" + mobile);
 
-            return StringUtils.EMPTY;
-        } else {
-            if (StringUtils.isBlank(targetCode)) {
-                return "验证码已过期";
+                return StringUtils.EMPTY;
+            } else {
+                if (StringUtils.isBlank(targetCode)) {
+                    return "验证码已过期";
+                }
+
+                return "验证码错误";
             }
-
-            return "验证码错误";
         }
+
+        return result;
     }
 
     @Override
     public String getPin(String mobile, boolean isObtainRecommend, User user) throws ClientException {
-        if (StringUtils.isBlank(mobile)) {
-            return "手机号不能为空";
-        }
-
-        if (!PhoneFormatCheckUtils.isChinaPhoneLegal(mobile)) {
-            return "手机号格式不正确";
-        }
-
-        User tmp = userManager.findBy("phone", mobile);
-        if (null != tmp) {
-            return "该手机号已注册";
-        }
-
+//        if (user.getPhone()!=null){
+//            return "已有手机号";
+//        }
+//
+//        if (StringUtils.isBlank(mobile)) {
+//            return "手机号不能为空";
+//        }
+//
+//        if (!PhoneFormatCheckUtils.isChinaPhoneLegal(mobile)) {
+//            return "手机号格式不正确";
+//        }
+//
+//        User tmp = userManager.findBy("phone", mobile);
+//        if (null != tmp) {
+//            return "该手机号已注册";
+//        }
+//
         if (isObtainRecommend) {
             if (isOldUser(user)) return "您已是老用户";
         }
 
-        Integer sendTime;   // 预防短信轰炸
-        String sendTimeStr = redisClient.get("sendTime_" + user.getId());
-        sendTime = StringUtils.isBlank(sendTimeStr) ? 0 : Integer.valueOf(sendTimeStr);
+        String result = check(mobile, user);
+        if (StringUtils.isBlank(result)) {
 
-        if (5 < sendTime) {
-            return "获取验证码次数过多";
+            //一分钟内只能获取一次
+            String yifenzhong = redisClient.get("yifenzhong_" + user.getId());
+            if (StringUtils.isBlank(yifenzhong)) return "一分钟内不能重复获取";
+
+            Integer sendTime;   // 预防短信轰炸
+            String sendTimeStr = redisClient.get("sendTime_" + user.getId());
+            sendTime = StringUtils.isBlank(sendTimeStr) ? 0 : Integer.valueOf(sendTimeStr);
+
+            if (5 < sendTime) {
+                return "获取验证码次数过多";
+            }
+
+            String code = VerifyingCodeGenerator.createRandom(true, 4);
+            redisClient.set("mobileCode_" + mobile, code, 60 * 5);
+            SmsUtils.sendSms(mobile, code, user.getWxOpenId());
+            //一分钟只能获取一次
+            redisClient.set("yifenzhong_"+user.getId(),code,60);
+
+            // 把请求验证码次数存储到MemCached中
+            redisClient.set("sendTime_" + user.getId(), String.valueOf(++sendTime), 30 * 60); // 30 minutes
+
+            return StringUtils.EMPTY;
         }
 
-        String code = VerifyingCodeGenerator.createRandom(true, 4);
-        redisClient.set("mobileCode_" + mobile, code, 60 * 5);
-        SmsUtils.sendSms(mobile, code, user.getWxOpenId());
-
-        // 把请求验证码次数存储到MemCached中
-        redisClient.set("sendTime_" + user.getId(), String.valueOf(++sendTime), 30 * 60); // 30 minutes
-
-        return StringUtils.EMPTY;
+        return result;
     }
 
     @Override
@@ -203,7 +227,8 @@ public class UserServiceImpl implements UserService {
     @Override
     public User getUserByuserId(long userId) {
         User user = userManager.findById(userId);
-        if (user == null || !user.getStatus().equals(UserVO.Status.NORMAL.getCode())) throw new BizException("用户状态异常，请联系系统方");
+        if (user == null || !user.getStatus().equals(UserVO.Status.NORMAL.getCode()))
+            throw new BizException("用户状态异常，请联系系统方");
         return user;
     }
 
@@ -264,5 +289,25 @@ public class UserServiceImpl implements UserService {
         return user;
     }
 
+    private String check(String mobile, User user) {
+        if (user.getPhone() != null) {
+            return "已有手机号";
+        }
+
+        if (StringUtils.isBlank(mobile)) {
+            return "手机号不能为空";
+        }
+
+        if (!PhoneFormatCheckUtils.isChinaPhoneLegal(mobile)) {
+            return "手机号格式不正确";
+        }
+
+        User tmp = userManager.findBy("phone", mobile);
+        if (null != tmp) {
+            return "该手机号已注册";
+        }
+
+        return StringUtils.EMPTY;
+    }
 
 }

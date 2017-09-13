@@ -37,7 +37,12 @@ public class CouponRpc {
     public Result list(@RequestParam String openId, @RequestParam(defaultValue = "zh_CN") String lang,
                        @RequestParam(defaultValue = "1") Byte status) throws WxErrorException {
         User user = userService.getUserByWxOpenId(openId, lang);
-        List<CouponVO> couponVOs = couponService.getCoupon(status, user);
-        return ResultGenerator.genSuccessResult(couponVOs);
+        //只获取状态为1，2，3
+        if (status==1||status==2||status==3) {
+            List<CouponVO> couponVOs = couponService.getCoupon(status, user);
+            return ResultGenerator.genSuccessResult(couponVOs);
+        } else {
+            return ResultGenerator.genFailResult("参数不合法");
+        }
     }
 }

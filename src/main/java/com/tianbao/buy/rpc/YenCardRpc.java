@@ -5,6 +5,7 @@ import com.tianbao.buy.core.ResultGenerator;
 import com.tianbao.buy.domain.User;
 import com.tianbao.buy.service.UserService;
 import com.tianbao.buy.service.impl.YenCardServiceImpl;
+import com.tianbao.buy.vo.OrderVO;
 import com.tianbao.buy.vo.YenCardVO;
 import me.chanjar.weixin.common.exception.WxErrorException;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -55,7 +56,10 @@ public class YenCardRpc {
         User user = userService.getUserByWxOpenId(openId, lang);
         String orderId = yenCardServiceImpl.create(cardId, templateId, couponId, user);
 
-        return ResultGenerator.genSuccessResult(orderId);
+        OrderVO.Order order = new OrderVO.Order();
+        order.setOrderId(orderId);
+
+        return ResultGenerator.genSuccessResult(order);
     }
 
 }

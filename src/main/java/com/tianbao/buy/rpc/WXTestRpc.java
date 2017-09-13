@@ -34,18 +34,18 @@ public class WXTestRpc {
 
     @PostMapping("/arrival")
     public Result arrival(@RequestParam String orderId, @RequestParam String openId,
-                          @RequestParam(defaultValue = "zh_CN") String lang) throws WxErrorException {
+                          @RequestParam(defaultValue = "zh_CN") String lang,@RequestParam String payOrderId) throws WxErrorException {
         User user = userService.getUserByWxOpenId(openId, lang);
-        wxPayService.paySuccess(orderId, user);
+        wxPayService.paySuccess(orderId, user,payOrderId);
 
         return ResultGenerator.genSuccessResult();
     }
 
     @PostMapping("/cancel")
     public Result cancel(@RequestParam String orderId, @RequestParam String openId,
-                         @RequestParam(defaultValue = "zh_CN") String lang) throws WxErrorException {
+                         @RequestParam(defaultValue = "zh_CN") String lang,@RequestParam String payOrderId) throws WxErrorException {
         User user = userService.getUserByWxOpenId(openId, lang);
-        wxPayService.cancel(orderId, user);
+        wxPayService.cancel(orderId, user,payOrderId);
 
         return ResultGenerator.genSuccessResult();
     }

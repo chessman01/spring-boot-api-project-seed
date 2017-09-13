@@ -2,6 +2,7 @@ package com.tianbao.buy.service.impl;
 
 import com.google.common.collect.Lists;
 import com.tianbao.buy.core.BizException;
+import com.tianbao.buy.dao.OrderRelationDAO;
 import com.tianbao.buy.domain.*;
 import com.tianbao.buy.manager.YenCardManager;
 import com.tianbao.buy.service.*;
@@ -42,9 +43,15 @@ public class YenCardServiceImpl implements YenCardService{
     @Resource
     private OrderService orderService;
 
+    @Resource
+    private OrderRelationDAO orderRelationDAO;
+
+
     @Override
     public List<YenCardVO> getCardByUser(User user) {
         List<YenCard> YenCards = getCardByUser(user.getId());
+
+        Object map = orderRelationDAO.selectReferrerOrder();
 
         return convert2CardVO(YenCards);
     }
@@ -126,8 +133,8 @@ public class YenCardServiceImpl implements YenCardService{
 
     @Override
     public void updatePrice(int newCash, int oldCash, int newGift, int oldGift, long id) {
-        checkArgument(newCash > NumberUtils.INTEGER_ZERO);
-        checkArgument(newGift > NumberUtils.INTEGER_ZERO);
+        checkArgument(newCash >= NumberUtils.INTEGER_ZERO);
+        checkArgument(newGift >= NumberUtils.INTEGER_ZERO);
 
         Condition condition = new Condition(YenCard.class);
 
